@@ -18,7 +18,6 @@ class UserForm
         return $schema->components([
             TextInput::make('name')->required(),
             TextInput::make('email')->label('Email address')->email()->required(),
-            TextInput::make('email_verified_at')->email()->required()->maxLength(255)->unique(ignoreRecord: true),
             TextInput::make('password')->password()->required(),
             Select::make('company_id')
                 ->label('Company')

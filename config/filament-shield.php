@@ -1,6 +1,7 @@
 <?php
 
 return [
+
     /*
     |--------------------------------------------------------------------------
     | Shield Resource
@@ -119,19 +120,17 @@ return [
         'merge' => true,
         'generate' => true,
         'methods' => [
+            'viewAny', 'view', 'create', 'update', 'delete', 'restore',
+            'forceDelete', 'forceDeleteAny', 'restoreAny', 'replicate', 'reorder',
+        ],
+        'single_parameter_methods' => [
             'viewAny',
-            'view',
             'create',
-            'update',
-            'delete',
-            'restore',
-            'forceDelete',
+            'deleteAny',
             'forceDeleteAny',
             'restoreAny',
-            'replicate',
             'reorder',
         ],
-        'single_parameter_methods' => ['viewAny', 'create', 'deleteAny', 'forceDeleteAny', 'restoreAny', 'reorder'],
     ],
 
     /*
@@ -191,7 +190,9 @@ return [
     'pages' => [
         'subject' => 'class',
         'prefix' => 'view',
-        'exclude' => [\Filament\Pages\Dashboard::class],
+        'exclude' => [
+            \Filament\Pages\Dashboard::class,
+        ],
     ],
 
     /*
@@ -208,7 +209,10 @@ return [
     'widgets' => [
         'subject' => 'class',
         'prefix' => 'view',
-        'exclude' => [\Filament\Widgets\AccountWidget::class, \Filament\Widgets\FilamentInfoWidget::class],
+        'exclude' => [
+            \Filament\Widgets\AccountWidget::class,
+            \Filament\Widgets\FilamentInfoWidget::class,
+        ],
     ],
 
     /*
@@ -253,4 +257,5 @@ return [
     */
 
     'register_role_policy' => true,
+
 ];

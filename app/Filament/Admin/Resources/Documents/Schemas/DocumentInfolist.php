@@ -48,7 +48,7 @@ class DocumentInfolist
                     ->placeholder('-'),
                 TextEntry::make('deleted_at')
                     ->dateTime()
-                    ->visible(fn (Document $record): bool => $record->trashed()),
+                    ->visible(fn(Document $record): bool => $record->trashed()),
             ]);
     }
 }

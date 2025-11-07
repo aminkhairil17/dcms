@@ -11,9 +11,21 @@ class Document extends Model
     use SoftDeletes;
 
     protected $fillable = [
-        'title', 'description', 'file_path', 'file_name', 'file_size', 'version',
-        'company_id', 'department_id', 'unit_id', 'category_id', 'user_id',
-        'status', 'confidential_level', 'approver_id', 'approved_at'
+        'title',
+        'description',
+        'file_path',
+        'file_name',
+        'file_size',
+        'version',
+        'company_id',
+        'department_id',
+        'unit_id',
+        'category_id',
+        'user_id',
+        'status',
+        'confidential_level',
+        'approver_id',
+        'approved_at'
     ];
 
     protected $casts = [
@@ -49,7 +61,7 @@ class Document extends Model
     public function setFileInformation()
     {
         $filePath = storage_path('app/documents/' . $this->file_path);
-        
+
         if (file_exists($filePath)) {
             $this->file_size = $this->formatFileSize(filesize($filePath));
         }
@@ -70,10 +82,28 @@ class Document extends Model
     }
 
     // Relationships
-    public function company(): BelongsTo { return $this->belongsTo(Company::class); }
-    public function department(): BelongsTo { return $this->belongsTo(Department::class); }
-    public function unit(): BelongsTo { return $this->belongsTo(Unit::class); }
-    public function category(): BelongsTo { return $this->belongsTo(DocumentCategory::class); }
-    public function user(): BelongsTo { return $this->belongsTo(User::class); }
-    public function approver(): BelongsTo { return $this->belongsTo(User::class, 'approver_id'); }
+    public function company(): BelongsTo
+    {
+        return $this->belongsTo(Company::class);
+    }
+    public function department(): BelongsTo
+    {
+        return $this->belongsTo(Department::class);
+    }
+    public function unit(): BelongsTo
+    {
+        return $this->belongsTo(Unit::class);
+    }
+    public function category(): BelongsTo
+    {
+        return $this->belongsTo(DocumentCategory::class);
+    }
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+    public function approver(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'approver_id');
+    }
 }
