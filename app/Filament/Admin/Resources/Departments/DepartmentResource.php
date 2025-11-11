@@ -9,6 +9,7 @@ use App\Filament\Admin\Resources\Departments\Pages\ViewDepartment;
 use App\Filament\Admin\Resources\Departments\Schemas\DepartmentForm;
 use App\Filament\Admin\Resources\Departments\Schemas\DepartmentInfolist;
 use App\Filament\Admin\Resources\Departments\Tables\DepartmentsTable;
+use Tapp\FilamentAuditing\RelationManagers\AuditsRelationManager;
 use App\Models\Department;
 use BackedEnum;
 use UnitEnum;
@@ -45,7 +46,7 @@ class DepartmentResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            AuditsRelationManager::class,
         ];
     }
 

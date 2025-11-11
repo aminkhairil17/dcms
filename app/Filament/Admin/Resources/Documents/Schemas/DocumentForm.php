@@ -9,125 +9,166 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\DateTimePicker;
+use Filament\Forms\Components\RichEditor;
+use App\Models\Company;
+use App\Models\Department;
+use App\Models\DocumentCategory;
+use App\Models\Unit;
 
 class DocumentForm
 {
     public static function configure(Schema $schema): Schema
     {
         return $schema->components([
-            Section::make('Informasi Dokumen')
+            Section::make('Document Type')
+                ->schema([
+                    Select::make('document_type')
+                        ->options([
+                            'file' => 'Upload File',
+                            'form' => 'Create from Form',
+                            'hybrid' => 'Both File & Form',
+                        ])
+                        ->default('file')
+                        ->required()
+                        ->live()
+                        ->afterStateUpdated(function ($state, $set) {
+                            // Reset fields ketika type berubah
+                            if ($state === 'file') {
+                                $set('content', null);
+                            } elseif ($state === 'form') {
+                                $set('file_path', null);
+                            }
+                        }),
+                ])->columns(1),
+
+            Section::make('Document Information')
                 ->schema([
                     TextInput::make('title')
-                        ->label('Judul Dokumen')
                         ->required()
                         ->maxLength(255),
-
                     Textarea::make('description')
-                        ->label('Deskripsi')
-                        ->columnSpanFull()
-                        ->maxLength(65535),
-
-                    TextInput::make('version')
-                        ->label('Versi')
-                        ->default('1.0')
-                        ->maxLength(10)
-                        ->required(),
-
-                    Select::make('status')
-                        ->label('Status')
-                        ->options([
-                            'draft' => 'Draft',
-                            'pending_review' => 'Menunggu Review',
-                            'approved' => 'Disetujui',
-                            'rejected' => 'Ditolak',
-                            'archived' => 'Diarsipkan',
-                        ])
-                        ->default('draft')
-                        ->required(),
-
-                    Select::make('confidential_level')
-                        ->label('Tingkat Kerahasiaan')
-                        ->options([
-                            'public' => 'Publik',
-                            'internal' => 'Internal',
-                            'confidential' => 'Rahasia',
-                        ])
-                        ->default('internal')
-                        ->required(),
+                        ->maxLength(65535)
+                        ->columnSpanFull(),
                 ]),
 
-            Section::make('Upload Dokumen')
+            Section::make('File Upload')
                 ->schema([
                     FileUpload::make('file_path')
-                        ->label('File Dokumen')
+                        ->label('Document File')
                         ->disk('documents')
+                        ->directory('documents')
                         ->preserveFilenames()
-                        ->maxSize(10240) // 10 MB
+                        ->maxSize(10240)
                         ->acceptedFileTypes([
                             'application/pdf',
                             'application/msword',
                             'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
                             'application/vnd.ms-excel',
                             'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-                            'application/vnd.ms-powerpoint',
-                            'application/vnd.openxmlformats-officedocument.presentationml.presentation',
                             'image/jpeg',
                             'image/png',
                         ])
-                        ->storeFileNamesIn('file_name')
-                        ->downloadable()
-                        ->openable()
-                        ->required(),
+                        ->required(fn($get) => in_array($get('document_type'), ['file', 'hybrid']))
+                        ->hidden(fn($get) => $get('document_type') === 'form')
+                        ->helperText(fn($get) => $get('document_type') === 'hybrid' ? 'Optional: Upload supporting file' : 'Upload document file'),
                 ]),
 
-            Section::make('Relasi Organisasi')
+            Section::make('Document Content')
+                ->schema([
+                    RichEditor::make('content')
+                        ->toolbarButtons([
+                            'blockquote',
+                            'bold',
+                            'bulletList',
+                            'codeBlock',
+                            'h2',
+                            'h3',
+                            'italic',
+                            'link',
+                            'orderedList',
+                            'redo',
+                            'strike',
+                            'underline',
+                            'undo',
+                        ])
+                        ->maxLength(65535)
+                        ->required(fn($get) => in_array($get('document_type'), ['form', 'hybrid']))
+                        ->hidden(fn($get) => $get('document_type') === 'file')
+                        ->helperText('Create document content using rich text editor')
+                        ->columnSpanFull(),
+                ])
+                ->hidden(fn($get) => $get('document_type') === 'file'),
+
+            Section::make('Organization')
                 ->schema([
                     Select::make('company_id')
-                        ->label('Perusahaan')
-                        ->relationship('company', 'name')
+                        ->label('Company')
+                        ->options(Company::where('is_active', true)->pluck('name', 'id'))
                         ->searchable()
                         ->preload()
                         ->required()
                         ->live(),
-
                     Select::make('department_id')
-                        ->label('Departemen')
-                        ->relationship('department', 'name')
+                        ->label('Department')
+                        ->options(function (callable $get) {
+                            $companyId = $get('company_id');
+                            if (!$companyId) return [];
+                            return Department::where('company_id', $companyId)
+                                ->where('is_active', true)
+                                ->pluck('name', 'id');
+                        })
                         ->searchable()
                         ->preload()
                         ->required()
                         ->live(),
-
                     Select::make('unit_id')
                         ->label('Unit')
-                        ->relationship('unit', 'name')
+                        ->options(function (callable $get) {
+                            $departmentId = $get('department_id');
+                            if (!$departmentId) return [];
+                            return Unit::where('department_id', $departmentId)
+                                ->where('is_active', true)
+                                ->pluck('name', 'id');
+                        })
                         ->searchable()
                         ->preload()
                         ->required()
                         ->live(),
-
                     Select::make('category_id')
-                        ->label('Kategori Dokumen')
-                        ->relationship('category', 'name')
+                        ->label('Category')
+                        ->options(function (callable $get) {
+                            $companyId = $get('company_id');
+                            if (!$companyId) {
+                                return DocumentCategory::where('is_active', true)->pluck('name', 'id');
+                            }
+                            return DocumentCategory::where('company_id', $companyId)
+                                ->where('is_active', true)
+                                ->pluck('name', 'id');
+                        })
                         ->searchable()
                         ->preload()
                         ->required(),
-                ]),
+                ])->columns(3),
 
-            Section::make('Persetujuan')
+            Section::make('Settings')
                 ->schema([
-                    Select::make('user_id')
-                        ->label('Dibuat Oleh')
-                        ->relationship('user', 'name')
+                    Select::make('status')
+                        ->options([
+                            'draft' => 'Draft',
+                            'published' => 'Published',
+                            'archived' => 'Archived',
+                        ])
+                        ->default('draft')
                         ->required(),
-
-                    Select::make('approver_id')
-                        ->label('Disetujui Oleh')
-                        ->relationship('approver', 'name'),
-
-                    DateTimePicker::make('approved_at')
-                        ->label('Tanggal Persetujuan'),
-                ]),
+                    Select::make('confidential_level')
+                        ->options([
+                            'public' => 'Public',
+                            'internal' => 'Internal',
+                            'confidential' => 'Confidential',
+                        ])
+                        ->default('internal')
+                        ->required(),
+                ])->columns(2),
         ]);
     }
 }

@@ -9,6 +9,7 @@ use App\Filament\Admin\Resources\Companies\Pages\ViewCompany;
 use App\Filament\Admin\Resources\Companies\Schemas\CompanyForm;
 use App\Filament\Admin\Resources\Companies\Schemas\CompanyInfolist;
 use App\Filament\Admin\Resources\Companies\Tables\CompaniesTable;
+use Tapp\FilamentAuditing\RelationManagers\AuditsRelationManager;
 use App\Models\Company;
 use BackedEnum;
 use UnitEnum;
@@ -45,8 +46,8 @@ class CompanyResource extends Resource
     public static function getRelations(): array
     {
         return [
-                //
-            ];
+            AuditsRelationManager::class,
+        ];
     }
 
     public static function getPages(): array

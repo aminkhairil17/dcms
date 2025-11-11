@@ -23,53 +23,38 @@ class DocumentsTable
         return $table
             ->columns([
                 TextColumn::make('title')
-                    ->label('Judul Dokumen')
                     ->searchable()
                     ->sortable()
                     ->limit(50),
-
-                TextColumn::make('company.name')
-                    ->label('Perusahaan')
-                    ->searchable()
-                    ->sortable(),
-
-                TextColumn::make('department.name')
-                    ->label('Departemen')
-                    ->searchable()
-                    ->sortable(),
-
-                TextColumn::make('unit.name')
-                    ->label('Unit')
-                    ->searchable()
-                    ->sortable(),
-
+                TextColumn::make('document_type')
+                    ->badge()
+                    ->color(fn(string $state): string => match ($state) {
+                        'file' => 'success',
+                        'form' => 'primary',
+                        'hybrid' => 'warning',
+                        default => 'gray',
+                    })
+                    ->formatStateUsing(fn(string $state): string => match ($state) {
+                        'file' => 'File',
+                        'form' => 'Form',
+                        'hybrid' => 'Both',
+                        default => $state,
+                    }),
                 TextColumn::make('category.name')
-                    ->label('Kategori')
-                    ->badge()
-                    ->color(fn($record) => $record->category->color ?? 'gray'),
-
-                TextColumn::make('file_name')
-                    ->label('File')
-                    ->url(fn($record) => asset('storage/documents/' . $record->file_path))
-                    ->openUrlInNewTab()
-                    ->color('primary')
-                    ->limit(20),
-
-                TextColumn::make('version')
-                    ->badge()
-                    ->color('primary'),
-
+                    ->searchable()
+                    ->sortable(),
+                TextColumn::make('company.name')
+                    ->searchable()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('status')
                     ->badge()
                     ->color(fn(string $state): string => match ($state) {
                         'draft' => 'gray',
-                        'pending_review' => 'warning',
-                        'approved' => 'success',
-                        'rejected' => 'danger',
+                        'published' => 'success',
                         'archived' => 'secondary',
                         default => 'gray',
                     }),
-
                 TextColumn::make('confidential_level')
                     ->badge()
                     ->color(fn(string $state): string => match ($state) {
@@ -78,16 +63,14 @@ class DocumentsTable
                         'confidential' => 'warning',
                         default => 'gray',
                     }),
-
                 TextColumn::make('user.name')
-                    ->label('Uploaded By')
+                    ->label('Created By')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
-
                 TextColumn::make('created_at')
-                    ->label('Diupload')
-                    ->dateTime('d M Y H:i')
-                    ->sortable(),
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 SelectFilter::make('company')

@@ -19,6 +19,7 @@ use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use Jacobtims\FilamentLogger\FilamentLoggerPlugin;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -28,6 +29,8 @@ class AdminPanelProvider extends PanelProvider
             ->default()
             ->id('admin')
             ->path('admin')
+            ->topNavigation()
+            ->brandLogo(asset('images/logo.png'))
             ->login()
             ->colors([
                 'primary' => Color::Amber,
@@ -36,7 +39,7 @@ class AdminPanelProvider extends PanelProvider
             ->discoverPages(in: app_path('Filament/Admin/Pages'), for: 'App\Filament\Admin\Pages')
             ->pages([Dashboard::class])
             ->discoverWidgets(in: app_path('Filament/Admin/Widgets'), for: 'App\Filament\Admin\Widgets')
-            ->widgets([AccountWidget::class, FilamentInfoWidget::class])
+            ->widgets([])
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,
@@ -48,7 +51,7 @@ class AdminPanelProvider extends PanelProvider
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
             ])
-            ->plugins([FilamentShieldPlugin::make()])
+            ->plugins([FilamentShieldPlugin::make(), FilamentLoggerPlugin::make(),])
             ->authMiddleware([Authenticate::class]);
     }
 }

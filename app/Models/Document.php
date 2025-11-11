@@ -1,14 +1,21 @@
 <?php
-// app/Models/Document.php
+
 namespace App\Models;
 
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Models\Company;
+use App\Models\Department;
+use App\Models\DocumentCategory;
+use App\Models\User;
+
 
 class Document extends Model
 {
-    use SoftDeletes;
+    use LogsActivity, SoftDeletes;
 
     protected $fillable = [
         'title',
@@ -16,7 +23,9 @@ class Document extends Model
         'file_path',
         'file_name',
         'file_size',
-        'version',
+        'content', // Tambahkan
+        'document_type', // Tambahkan
+        'generated_file_path', // Tambahkan
         'company_id',
         'department_id',
         'unit_id',
@@ -24,40 +33,116 @@ class Document extends Model
         'user_id',
         'status',
         'confidential_level',
-        'approver_id',
-        'approved_at'
     ];
 
     protected $casts = [
-        'approved_at' => 'datetime',
+        'document_type' => 'string',
     ];
 
-    // Automatic file information and user assignment
+    // Auto-set document type berdasarkan input
     protected static function boot()
     {
         parent::boot();
 
         static::creating(function ($document) {
-            // Set user_id to current user
+            // Set user_id ke current user
             if (auth()->check()) {
                 $document->user_id = auth()->id();
             }
 
-            // Set file information if file_path is set
+            // Auto-determine document type
+            if ($document->file_path && !$document->content) {
+                $document->document_type = 'file';
+            } elseif ($document->content && !$document->file_path) {
+                $document->document_type = 'form';
+            } elseif ($document->content && $document->file_path) {
+                $document->document_type = 'hybrid';
+            }
+
+            // Generate file dari content jika type form/hybrid
+            if (in_array($document->document_type, ['form', 'hybrid']) && $document->content) {
+                $document->generateFileFromContent();
+            }
+
+            // Set file information jika ada file
             if ($document->file_path) {
                 $document->setFileInformation();
             }
         });
 
         static::updating(function ($document) {
-            // Update file information if file_path changed
+            // Regenerate file jika content berubah
+            if ($document->isDirty('content') && in_array($document->document_type, ['form', 'hybrid'])) {
+                $document->generateFileFromContent();
+            }
+
+            // Update file information jika file_path berubah
             if ($document->isDirty('file_path')) {
                 $document->setFileInformation();
             }
         });
     }
 
-    // Method to set file information
+    // Generate file dari content text
+    public function generateFileFromContent()
+    {
+        if (!$this->content) return;
+
+        $filename = 'document_' . $this->id . '_' . time() . '.html';
+        $filePath = 'documents/generated/' . $filename;
+
+        // Format content sebagai HTML
+        $htmlContent = $this->formatContentAsHtml();
+
+        // Simpan content ke file
+        \Storage::disk('documents')->put($filePath, $htmlContent);
+
+        $this->generated_file_path = $filePath;
+
+        // Untuk document type 'form', set file_path ke generated file
+        if ($this->document_type === 'form') {
+            $this->file_path = $filePath;
+            $this->file_name = $filename;
+            $this->setFileInformation();
+        }
+    }
+
+    // Format content sebagai HTML
+    private function formatContentAsHtml(): string
+    {
+        $html = "
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset='UTF-8'>
+            <title>{$this->title}</title>
+            <style>
+                body { font-family: Arial, sans-serif; margin: 40px; line-height: 1.6; }
+                .header { border-bottom: 2px solid #333; padding-bottom: 20px; margin-bottom: 30px; }
+                .title { font-size: 24px; font-weight: bold; color: #333; }
+                .meta { color: #666; font-size: 14px; margin-top: 10px; }
+                .content { margin-top: 20px; }
+            </style>
+        </head>
+        <body>
+            <div class='header'>
+                <div class='title'>{$this->title}</div>
+                <div class='meta'>
+                    Created: " . now()->format('d M Y H:i') . " | 
+                    Category: {$this->category->name} |
+                    Confidential: {$this->confidential_level}
+                </div>
+            </div>
+            <div class='content'>
+                " . nl2br(e($this->content)) . "
+            </div>
+        </body>
+        </html>";
+
+        return $html;
+    }
+
+    // Existing method untuk file information
     public function setFileInformation()
     {
         $filePath = storage_path('app/documents/' . $this->file_path);
@@ -67,7 +152,6 @@ class Document extends Model
         }
     }
 
-    // Format file size to human readable
     private function formatFileSize($bytes)
     {
         if ($bytes >= 1073741824) {
@@ -79,6 +163,17 @@ class Document extends Model
         } else {
             return $bytes . ' bytes';
         }
+    }
+
+    // Activity Log
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly(['title', 'status', 'confidential_level', 'document_type'])
+            ->logOnlyDirty()
+            ->setDescriptionForEvent(fn(string $eventName) => "Document {$eventName}")
+            ->dontSubmitEmptyLogs()
+            ->logExcept(['file_size', 'updated_at']);
     }
 
     // Relationships
@@ -102,8 +197,20 @@ class Document extends Model
     {
         return $this->belongsTo(User::class);
     }
-    public function approver(): BelongsTo
+
+    // Helper methods
+    public function isFileDocument(): bool
     {
-        return $this->belongsTo(User::class, 'approver_id');
+        return $this->document_type === 'file';
+    }
+
+    public function isFormDocument(): bool
+    {
+        return $this->document_type === 'form';
+    }
+
+    public function isHybridDocument(): bool
+    {
+        return $this->document_type === 'hybrid';
     }
 }
