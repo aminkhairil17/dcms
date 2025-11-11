@@ -11,6 +11,7 @@ use App\Filament\Admin\Resources\Documents\Schemas\DocumentInfolist;
 use App\Filament\Admin\Resources\Documents\Tables\DocumentsTable;
 use App\Models\Document;
 use BackedEnum;
+use UnitEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
@@ -23,6 +24,10 @@ class DocumentResource extends Resource
     protected static ?string $model = Document::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+
+    protected static string|UnitEnum|null $navigationGroup = 'Dokumen';
+
+    protected static ?int $navigationSort = 2;
 
     public static function form(Schema $schema): Schema
     {

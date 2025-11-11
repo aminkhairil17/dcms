@@ -24,7 +24,11 @@ class DepartmentResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-rectangle-group';
 
-    protected static string|UnitEnum|null $navigationGroup = 'Master Data';
+    protected static string|UnitEnum|null $navigationGroup = 'Data Master';
+
+    protected static ?string $navigationLabel = 'Departemen';
+
+    protected static ?int $navigationSort = 4;
 
     protected static ?string $recordTitleAttribute = 'name';
 
@@ -45,9 +49,7 @@ class DepartmentResource extends Resource
 
     public static function getRelations(): array
     {
-        return [
-            AuditsRelationManager::class,
-        ];
+        return [AuditsRelationManager::class];
     }
 
     public static function getPages(): array

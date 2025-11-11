@@ -5,9 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use OwenIt\Auditing\Contracts\Auditable;
+use OwenIt\Auditing\Contracts\Audit;
 
-class Department extends Model
+class Department extends Model implements Auditable
 {
+    use \OwenIt\Auditing\Auditable;
+
     protected $fillable = ['name', 'code', 'company_id', 'is_active'];
 
     public function company(): BelongsTo

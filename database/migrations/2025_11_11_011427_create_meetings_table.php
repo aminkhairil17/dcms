@@ -4,35 +4,33 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
-    public function up(): void
+return new class extends Migration {
+    public function up()
     {
         Schema::create('meetings', function (Blueprint $table) {
             $table->id();
             $table->string('title');
-            $table->text('description')->nullable();
-            $table->dateTime('meeting_date');
+            $table->text('agenda')->nullable();
+            $table->dateTime('date_time');
             $table->string('location')->nullable();
-            $table->string('meeting_code')->unique();
-            
-            // Organizational
-            $table->foreignId('company_id')->constrained()->onDelete('cascade');
-            $table->foreignId('department_id')->constrained()->onDelete('cascade');
-            $table->foreignId('unit_id')->constrained()->onDelete('cascade');
-            $table->foreignId('created_by')->constrained('users')->onDelete('cascade');
-            
-            // Status
-            $table->enum('status', ['draft', 'scheduled', 'ongoing', 'completed', 'cancelled'])->default('draft');
-            $table->enum('meeting_type', ['regular', 'urgent', 'planning', 'review'])->default('regular');
-            
+            $table->enum('status', ['draft', 'ongoing', 'completed', 'cancelled'])->default('draft');
+            $table->foreignId('created_by')->constrained('users');
             $table->timestamps();
-            $table->softDeletes();
+        });
+
+        // Tabel pivot untuk participants
+        Schema::create('meeting_participants', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('meeting_id')->constrained()->onDelete('cascade');
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->enum('attendance', ['confirmed', 'pending', 'declined'])->default('pending');
+            $table->timestamps();
         });
     }
 
-    public function down(): void
+    public function down()
     {
+        Schema::dropIfExists('meeting_participants');
         Schema::dropIfExists('meetings');
     }
 };

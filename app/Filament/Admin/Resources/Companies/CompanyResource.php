@@ -24,7 +24,11 @@ class CompanyResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-building-office';
 
-    protected static string|UnitEnum|null $navigationGroup = 'Master Data';
+    protected static ?string $navigationLabel = 'Perusahaan';
+
+    protected static ?int $navigationSort = 4;
+
+    protected static string|UnitEnum|null $navigationGroup = 'Data Master';
 
     protected static ?string $recordTitleAttribute = 'name';
 
@@ -45,9 +49,7 @@ class CompanyResource extends Resource
 
     public static function getRelations(): array
     {
-        return [
-            AuditsRelationManager::class,
-        ];
+        return [AuditsRelationManager::class];
     }
 
     public static function getPages(): array

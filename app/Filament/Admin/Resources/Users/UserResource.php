@@ -24,7 +24,9 @@ class UserResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-users';
 
-    protected static string | UnitEnum | null $navigationGroup = 'Settings';
+    protected static string|UnitEnum|null $navigationGroup = 'Pengaturan';
+
+    protected static ?int $navigationSort = 6;
 
     protected static ?string $recordTitleAttribute = 'name';
 
@@ -45,9 +47,7 @@ class UserResource extends Resource
 
     public static function getRelations(): array
     {
-        return [
-            AuditsRelationManager::class,
-        ];
+        return [AuditsRelationManager::class];
     }
 
     public static function getPages(): array

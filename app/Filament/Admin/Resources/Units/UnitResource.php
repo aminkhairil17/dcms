@@ -23,7 +23,11 @@ class UnitResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-squares-2x2';
 
-    protected static string|UnitEnum|null $navigationGroup = 'Master Data';
+    protected static string|UnitEnum|null $navigationGroup = 'Data Master';
+
+    protected static ?string $navigationLabel = 'Unit';
+
+    protected static ?int $navigationSort = 4;
 
     protected static ?string $recordTitleAttribute = 'name';
 
