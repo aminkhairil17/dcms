@@ -8,6 +8,7 @@ use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Filament\Tables\Filters\SelectFilter;
 
 class MeetingsTable
 {
@@ -16,19 +17,25 @@ class MeetingsTable
         return $table
             ->columns([
                 TextColumn::make('title')
-                    ->searchable(),
+                    ->label('Judul Rapat')
+                    ->searchable()
+                    ->sortable()
+                    ->limit(50),
                 TextColumn::make('date_time')
-                    ->dateTime()
+                    ->label('Tanggal & Waktu')
+                    ->dateTime('d M Y H:i')
                     ->sortable(),
                 TextColumn::make('location')
-                    ->searchable(),
-                TextColumn::make('status')
-                    ->badge(),
+                    ->label('Lokasi')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: false),
+
                 TextColumn::make('created_by')
                     ->numeric()
                     ->sortable(),
                 TextColumn::make('created_at')
-                    ->dateTime()
+                    ->label('Dibuat Pada')
+                    ->dateTime('d M Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
@@ -37,7 +44,13 @@ class MeetingsTable
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                SelectFilter::make('status')
+                    ->options([
+                        'draft' => 'Draft',
+                        'ongoing' => 'Berlangsung',
+                        'completed' => 'Selesai',
+                        'cancelled' => 'Dibatalkan',
+                    ]),
             ])
             ->recordActions([
                 ViewAction::make(),

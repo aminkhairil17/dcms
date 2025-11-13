@@ -11,10 +11,13 @@ use App\Models\Company;
 use App\Models\Department;
 use App\Models\DocumentCategory;
 use App\Models\User;
+use OwenIt\Auditing\Contracts\Auditable;
+use OwenIt\Auditing\Contracts\Audit;
 
 
-class Document extends Model
+class Document extends Model implements Auditable
 {
+    use \OwenIt\Auditing\Auditable;
     use LogsActivity, SoftDeletes;
 
     protected $fillable = [

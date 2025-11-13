@@ -3,8 +3,10 @@
 namespace App\Filament\Admin\Resources\Documents\Pages;
 
 use App\Filament\Admin\Resources\Documents\DocumentResource;
+use App\Filament\Admin\Resources\Documents\Widgets\MyWidget;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
+
 
 class ListDocuments extends ListRecords
 {
@@ -14,6 +16,12 @@ class ListDocuments extends ListRecords
     {
         return [
             CreateAction::make(),
+        ];
+    }
+    protected function getHeaderWidgets(): array
+    {
+        return [
+            MyWidget::class
         ];
     }
 }

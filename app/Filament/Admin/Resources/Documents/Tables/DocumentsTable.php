@@ -121,7 +121,7 @@ class DocumentsTable
                 Action::make('download')
                     ->icon('heroicon-o-arrow-down-tray')
                     ->label('Download')
-                    ->url(fn(Document $record) => asset('storage/' . $record->file_path))
+                    ->url(fn(Document $record) => asset('storage/documents/' . $record->file_path))
                     ->openUrlInNewTab(),
             ])
             ->toolbarActions([
