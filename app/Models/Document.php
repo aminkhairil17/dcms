@@ -22,6 +22,8 @@ class Document extends Model implements Auditable
 
     protected $fillable = [
         'title',
+        'code_number',
+        'sequence',
         'description',
         'file_path',
         'file_name',
@@ -66,7 +68,6 @@ class Document extends Model implements Auditable
             if (in_array($document->document_type, ['form', 'hybrid']) && $document->content) {
                 $document->generateFileFromContent();
             }
-
             // Set file information jika ada file
             if ($document->file_path) {
                 $document->setFileInformation();
@@ -149,6 +150,8 @@ class Document extends Model implements Auditable
     public function setFileInformation()
     {
         $filePath = storage_path('app/documents/' . $this->file_path);
+
+        $this->file_name = basename($this->file_path);
 
         if (file_exists($filePath)) {
             $this->file_size = $this->formatFileSize(filesize($filePath));
