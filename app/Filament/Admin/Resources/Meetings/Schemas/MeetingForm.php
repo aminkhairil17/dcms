@@ -6,6 +6,8 @@ use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\RichEditor;
+use Filament\Forms\Components\FileUpload;
 use Filament\Schemas\Schema;
 use Filament\Schemas\Components\Section;
 use Filament\Forms\Components\Hidden;
@@ -27,17 +29,31 @@ class MeetingForm
                             ->label('Agenda')
                             ->rows(3)
                             ->columnSpanFull(),
+                        RichEditor::make('content')
+                            ->label('Content')
+                            ->columnSpanFull(),
+                        FileUpload::make('file_path')
+                            ->label('Notulen (PDF / Word)')
+                            ->directory('meetings')
+                            ->disk('private')
+                            ->acceptedFileTypes(['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'])
+                            ->maxSize(2048)
+                            ->columnSpanFull(),
+
+                    ])->columnSpanFull(),
+
+                section::make('Status & Schedule')
+                    ->schema([
                         DateTimePicker::make('date_time')
                             ->label('Tanggal & Waktu')
-                            ->required()
-                            ->minDate(now()),
+                            ->required(),
                         TextInput::make('location')
                             ->label('Lokasi')
                             ->maxLength(255)
                             ->placeholder('Online / Ruang Meeting'),
                         Select::make('status')
                             ->options([
-                                'draft' => 'Draft',
+                                'draft' => 'Direncanakan',
                                 'ongoing' => 'Berlangsung',
                                 'completed' => 'Selesai',
                                 'cancelled' => 'Dibatalkan',
@@ -45,7 +61,7 @@ class MeetingForm
                             ->default('draft')
                             ->required()
                             ->label('Meeting Status'),
-                    ])->columns(1),
+                    ]),
 
                 Section::make('Participants')
                     ->schema([

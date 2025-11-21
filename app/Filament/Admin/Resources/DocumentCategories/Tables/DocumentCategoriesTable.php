@@ -2,7 +2,9 @@
 
 namespace App\Filament\Admin\Resources\DocumentCategories\Tables;
 
+use Dom\Text;
 use Filament\Actions\BulkActionGroup;
+use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
@@ -18,12 +20,9 @@ class DocumentCategoriesTable
             ->columns([
                 TextColumn::make('name')
                     ->searchable(),
-                TextColumn::make('color')
+                TextColumn::make('prefix')
+                    ->label('Prefix')
                     ->searchable(),
-                TextColumn::make('company.name')
-                    ->searchable(),
-                IconColumn::make('requires_approval')
-                    ->boolean(),
                 IconColumn::make('is_active')
                     ->boolean(),
                 TextColumn::make('created_at')

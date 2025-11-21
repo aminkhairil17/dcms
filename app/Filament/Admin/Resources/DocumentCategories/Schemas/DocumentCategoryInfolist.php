@@ -13,11 +13,8 @@ class DocumentCategoryInfolist
         return $schema
             ->components([
                 TextEntry::make('name'),
-                TextEntry::make('color'),
-                TextEntry::make('company.name')
-                    ->label('Company'),
-                IconEntry::make('requires_approval')
-                    ->boolean(),
+                TextEntry::make('prefix')
+                    ->label('Prefix'),
                 IconEntry::make('is_active')
                     ->boolean(),
                 TextEntry::make('created_at')

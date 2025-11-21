@@ -3,6 +3,7 @@
 namespace App\Filament\Admin\Resources\Documents\Schemas;
 
 use App\Models\Document;
+use Dom\Text;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Schema;
 
@@ -13,12 +14,19 @@ class DocumentInfolist
         return $schema
             ->components([
                 TextEntry::make('title'),
+                TextEntry::make('Code Number')
+                    ->label('Code Number')
+                    ->placeholder('-'),
                 TextEntry::make('description')
                     ->placeholder('-')
                     ->columnSpanFull(),
                 TextEntry::make('file_path'),
                 TextEntry::make('file_name'),
                 TextEntry::make('file_size'),
+                TextEntry::make('content')
+                    ->html()
+                    ->placeholder('-')
+                    ->columnSpanFull(),
                 TextEntry::make('version'),
                 TextEntry::make('company.name')
                     ->label('Company'),

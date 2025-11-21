@@ -15,13 +15,8 @@ class DocumentCategoryForm
             ->components([
                 TextInput::make('name')
                     ->required(),
-                TextInput::make('color')
-                    ->required()
-                    ->default('#3b82f6'),
-                Select::make('company_id')
-                    ->relationship('company', 'name')
-                    ->required(),
-                Toggle::make('requires_approval')
+                TextInput::make('prefix')
+                    ->label('Prefix')
                     ->required(),
                 Toggle::make('is_active')
                     ->required(),

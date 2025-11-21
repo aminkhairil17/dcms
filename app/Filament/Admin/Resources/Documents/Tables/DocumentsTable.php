@@ -3,6 +3,7 @@
 namespace App\Filament\Admin\Resources\Documents\Tables;
 
 use App\Models\Document;
+use Dom\Text;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Tables\Columns\TextColumn;
@@ -22,6 +23,12 @@ class DocumentsTable
     {
         return $table
             ->columns([
+                TextColumn::make('code_number')
+                    ->label('Code Number')
+                    ->searchable()
+                    ->sortable()
+                    ->limit(20)
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('title')
                     ->searchable()
                     ->sortable()
@@ -40,7 +47,7 @@ class DocumentsTable
                         'hybrid' => 'Both',
                         default => $state,
                     }),
-                TextColumn::make('category.name')
+                TextColumn::make('category.prefix')
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('company.name')
@@ -53,14 +60,6 @@ class DocumentsTable
                         'draft' => 'gray',
                         'published' => 'success',
                         'archived' => 'secondary',
-                        default => 'gray',
-                    }),
-                TextColumn::make('confidential_level')
-                    ->badge()
-                    ->color(fn(string $state): string => match ($state) {
-                        'public' => 'success',
-                        'internal' => 'primary',
-                        'confidential' => 'warning',
                         default => 'gray',
                     }),
                 TextColumn::make('user.name')
@@ -105,15 +104,6 @@ class DocumentsTable
                         'rejected' => 'Rejected',
                         'archived' => 'Archived',
                     ]),
-
-                SelectFilter::make('confidential_level')
-                    ->options([
-                        'public' => 'Public',
-                        'internal' => 'Internal',
-                        'confidential' => 'Confidential',
-                    ]),
-
-                TrashedFilter::make(),
             ])
             ->recordActions([
                 ViewAction::make(),
@@ -123,6 +113,40 @@ class DocumentsTable
                     ->label('Download')
                     ->url(fn(Document $record) => asset('storage/documents/' . $record->file_path))
                     ->openUrlInNewTab(),
+
+                Action::make('approve')
+                    ->label('Approve')
+                    ->icon('heroicon-o-check-circle')
+                    ->color('success')
+                    ->visible(
+                        fn($record) =>
+                        auth()->user()->hasRole('super_admin') && $record->status === 'draft'
+                    )
+                    ->requiresConfirmation()
+                    ->action(function ($record) {
+                        $record->update([
+                            'status' => 'approved',
+                            'approved_by' => auth()->id(),
+                            'approved_at' => now(),
+                        ]);
+                    }),
+
+                Action::make('reject')
+                    ->label('Reject')
+                    ->icon('heroicon-o-x-circle')
+                    ->color('danger')
+                    ->visible(
+                        fn($record) =>
+                        auth()->user()->hasRole('super_admin') && $record->status === 'draft'
+                    )
+                    ->requiresConfirmation()
+                    ->action(function ($record) {
+                        $record->update([
+                            'status' => 'rejected',
+                            'rejected_by' => auth()->id(),
+                            'rejected_at' => now(),
+                        ]);
+                    }),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

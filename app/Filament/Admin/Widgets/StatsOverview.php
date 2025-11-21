@@ -5,7 +5,6 @@ namespace App\Filament\Admin\Widgets;
 use Filament\Widgets\StatsOverviewWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 use App\Models\Document;
-use App\Filament\Admin\Widgets\DocumentStatsOverview;
 
 class StatsOverview extends StatsOverviewWidget
 {

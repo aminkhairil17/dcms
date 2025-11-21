@@ -14,6 +14,8 @@ use App\Models\Company;
 use App\Models\Department;
 use App\Models\DocumentCategory;
 use App\Models\Unit;
+use Illuminate\Support\Facades\Auth;
+use App\Models\User;
 
 class DocumentForm
 {
@@ -26,7 +28,6 @@ class DocumentForm
                         ->options([
                             'file' => 'Upload File',
                             'form' => 'Create from Form',
-                            'hybrid' => 'Both File & Form',
                         ])
                         ->default('file')
                         ->required()
@@ -45,14 +46,6 @@ class DocumentForm
                     TextInput::make('title')
                         ->required()
                         ->maxLength(255),
-                    Select::make('category_id')
-                        ->label('Category')
-                        ->options(function (callable $get) {
-                            return DocumentCategory::where('is_active', true)->pluck('name', 'id');
-                        })
-                        ->searchable()
-                        ->preload()
-                        ->required(),
                 ])->columnSpanFull(),
             FileUpload::make('file_path')
                 ->label('Document File')
@@ -73,35 +66,89 @@ class DocumentForm
                 ->hidden(fn($get) => $get('document_type') === 'form')
                 ->helperText(fn($get) => $get('document_type') === 'hybrid' ? 'Optional: Upload supporting file' : 'Upload document file')
                 ->columnSpanFull(),
-
             Section::make('Document Content')
                 ->schema([
                     RichEditor::make('content')
                         ->maxLength(65535)
                         ->required(fn($get) => in_array($get('document_type'), ['form', 'hybrid']))
                         ->hidden(fn($get) => $get('document_type') === 'file')
-                        ->helperText('Create document content using rich text editor'),
-                ])->columnSpanFull()
-                ->hidden(fn($get) => $get('document_type') === 'file'),
+                        ->helperText('Create document content using rich text editor')
+                        ->columnSpanFull(),
+                ])
+                ->hidden(fn($get) => $get('document_type') === 'file')
+                ->columnSpanFull(),
+            Section::make('Organization')
+                ->schema([
+                    Select::make('company_id')
+                        ->label('Company')
+                        ->options(fn() => Company::where('is_active', true)->pluck('name', 'id'))
+                        ->searchable()
+                        ->preload()
+                        ->reactive()
+                        ->default(fn() => optional(auth()->user())->company_id ?? null)
+                        ->required(),
+
+                    Select::make('department_id')
+                        ->label('Department')
+                        ->options(function (callable $get) {
+                            $companyId = $get('company_id') ?? optional(auth()->user())->company_id;
+                            return Department::when($companyId, fn($q) => $q->where('company_id', $companyId))
+                                ->where('is_active', true)
+                                ->pluck('name', 'id');
+                        })
+                        ->searchable()
+                        ->preload()
+                        ->reactive()
+                        ->default(fn() => optional(auth()->user())->department_id ?? null)
+                        ->required(),
+
+                    Select::make('unit_id')
+                        ->label('Unit')
+                        ->options(function (callable $get) {
+                            $departmentId = $get('department_id') ?? optional(auth()->user())->department_id;
+                            return Unit::when($departmentId, fn($q) => $q->where('department_id', $departmentId))
+                                ->where('is_active', true)
+                                ->pluck('name', 'id');
+                        })
+                        ->searchable()
+                        ->preload()
+                        ->reactive()
+                        ->default(fn() => optional(auth()->user())->unit_id ?? null)
+                        ->required(),
+
+                    Select::make('category_id')
+                        ->label('Category')
+                        ->options(function (callable $get) {
+                            return DocumentCategory::where('is_active', true)
+                                ->pluck('name', 'id');
+                        })
+                        ->searchable()
+                        ->preload()
+                        ->required(),
+                ]),
+
             Section::make('Settings')
                 ->schema([
                     Select::make('status')
-                        ->options([
-                            'draft' => 'Draft',
-                            'published' => 'Published',
-                            'archived' => 'Archived',
-                        ])
+                        ->options(function () {
+                            if (auth()->user()->hasRole('Direktur')) {
+                                // Kalau Direktur -> boleh semua
+                                return [
+                                    'draft' => 'Draft',
+                                    'published' => 'Published',
+                                    'archived' => 'Archived',
+                                ];
+                            }
+
+                            // Bukan Direktur -> hilangkan pilihan "Published"
+                            return [
+                                'draft' => 'Draft',
+                                'archived' => 'Archived',
+                            ];
+                        })
                         ->default('draft')
                         ->required(),
-                    Select::make('confidential_level')
-                        ->options([
-                            'public' => 'Public',
-                            'internal' => 'Internal',
-                            'confidential' => 'Confidential',
-                        ])
-                        ->default('internal')
-                        ->required(),
-                ])->columnSpanFull(),
+                ]),
         ]);
     }
 }

@@ -7,13 +7,10 @@ use Spatie\Activitylog\LogOptions;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use App\Models\Company;
-use App\Models\Department;
-use App\Models\DocumentCategory;
-use App\Models\User;
 use OwenIt\Auditing\Contracts\Auditable;
-use OwenIt\Auditing\Contracts\Audit;
-
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 
 class Document extends Model implements Auditable
 {
@@ -23,98 +20,132 @@ class Document extends Model implements Auditable
     protected $fillable = [
         'title',
         'code_number',
-        'sequence',
         'description',
         'file_path',
         'file_name',
-        'file_size',
-        'content', // Tambahkan
-        'document_type', // Tambahkan
-        'generated_file_path', // Tambahkan
+        'content',
+        'document_type',
+        'generated_file_path',
         'company_id',
         'department_id',
         'unit_id',
         'category_id',
         'user_id',
         'status',
-        'confidential_level',
+        'version', // Tambahkan version
     ];
 
     protected $casts = [
-        'document_type' => 'string',
+        // No special casts needed
     ];
 
-    // Auto-set document type berdasarkan input
     protected static function boot()
     {
         parent::boot();
 
         static::creating(function ($document) {
-            // Set user_id ke current user
-            if (auth()->check()) {
-                $document->user_id = auth()->id();
+            // ⭐ AUTO-SET user_id dari user yang login
+            if (Auth::check() && !$document->user_id) {
+                $document->user_id = Auth::id();
             }
 
-            // Auto-determine document type
-            if ($document->file_path && !$document->content) {
-                $document->document_type = 'file';
-            } elseif ($document->content && !$document->file_path) {
-                $document->document_type = 'form';
-            } elseif ($document->content && $document->file_path) {
-                $document->document_type = 'hybrid';
+            // Auto-generate code_number jika belum ada
+            if (!$document->code_number) {
+                $document->code_number = $document->generateCodeNumber();
             }
 
-            // Generate file dari content jika type form/hybrid
+            // Auto-set version jika belum ada
+            if (!$document->version) {
+                $document->version = '1.0';
+            }
+
+            // Auto-detect document type
+            if (!$document->document_type) {
+                $document->detectDocumentType();
+            }
+        });
+
+        static::created(function ($document) {
+            // Generate file untuk form/hybrid documents
             if (in_array($document->document_type, ['form', 'hybrid']) && $document->content) {
                 $document->generateFileFromContent();
             }
-            // Set file information jika ada file
-            if ($document->file_path) {
-                $document->setFileInformation();
-            }
-        });
-
-        static::updating(function ($document) {
-            // Regenerate file jika content berubah
-            if ($document->isDirty('content') && in_array($document->document_type, ['form', 'hybrid'])) {
-                $document->generateFileFromContent();
-            }
-
-            // Update file information jika file_path berubah
-            if ($document->isDirty('file_path')) {
-                $document->setFileInformation();
-            }
         });
     }
 
-    // Generate file dari content text
-    public function generateFileFromContent()
+    /**
+     * Generate code number: COMPANY-DEPARTMENT-UNIT-CATEGORY-001
+     */
+    public function generateCodeNumber(): string
     {
-        if (!$this->content) return;
+        $companyCode = $this->company?->code ?: 'COM';
+        $departmentCode = $this->department?->code ?: 'DEPT';
+        $unitCode = $this->unit?->code ?: '';
+        $categoryCode = $this->category?->code ?: 'CAT';
 
-        $filename = 'document_' . $this->id . '_' . time() . '.html';
-        $filePath = 'documents/generated/' . $filename;
+        // Format dengan atau tanpa unit
+        $baseCode = $unitCode
+            ? "{$companyCode}-{$departmentCode}-{$unitCode}-{$categoryCode}"
+            : "{$companyCode}-{$departmentCode}-{$categoryCode}";
 
-        // Format content sebagai HTML
-        $htmlContent = $this->formatContentAsHtml();
+        // Cari nomor terakhir untuk kombinasi ini
+        $lastNumber = self::withTrashed()
+            ->where('company_id', $this->company_id)
+            ->where('department_id', $this->department_id)
+            ->where('unit_id', $this->unit_id)
+            ->where('category_id', $this->category_id)
+            ->whereNotNull('code_number')
+            ->count();
 
-        // Simpan content ke file
-        \Storage::disk('documents')->put($filePath, $htmlContent);
+        $sequence = $lastNumber + 1;
 
-        $this->generated_file_path = $filePath;
+        return "{$baseCode}-" . str_pad($sequence, 3, '0', STR_PAD_LEFT);
+    }
 
-        // Untuk document type 'form', set file_path ke generated file
-        if ($this->document_type === 'form') {
-            $this->file_path = $filePath;
-            $this->file_name = $filename;
-            $this->setFileInformation();
+    /**
+     * Auto-detect document type
+     */
+    public function detectDocumentType(): void
+    {
+        if ($this->file_path && $this->content) {
+            $this->document_type = 'hybrid';
+        } elseif ($this->file_path) {
+            $this->document_type = 'file';
+        } elseif ($this->content) {
+            $this->document_type = 'form';
         }
     }
 
-    // Format content sebagai HTML
-    private function formatContentAsHtml(): string
+    /**
+     * Generate HTML file dari content
+     */
+    public function generateFileFromContent(): bool
     {
-        $html = "
+        if (!$this->content) return false;
+
+        try {
+            $filename = "doc-{$this->id}-" . time() . ".html";
+            $filePath = "generated/{$filename}";
+
+            $html = $this->buildHtmlContent();
+            Storage::disk('documents')->put($filePath, $html);
+
+            $this->generated_file_path = $filePath;
+            $this->saveQuietly();
+
+            return true;
+        } catch (\Exception $e) {
+            Log::error("Generate file failed: {$e->getMessage()}");
+            return false;
+        }
+    }
+
+    /**
+     * Build HTML content
+     */
+    private function buildHtmlContent(): string
+    {
+        return "
         <!DOCTYPE html>
         <html>
         <head>
@@ -125,64 +156,24 @@ class Document extends Model implements Auditable
                 .header { border-bottom: 2px solid #333; padding-bottom: 20px; margin-bottom: 30px; }
                 .title { font-size: 24px; font-weight: bold; color: #333; }
                 .meta { color: #666; font-size: 14px; margin-top: 10px; }
-                .content { margin-top: 20px; }
+                .content { margin-top: 20px; white-space: pre-wrap; }
             </style>
         </head>
         <body>
             <div class='header'>
                 <div class='title'>{$this->title}</div>
                 <div class='meta'>
-                    Created: " . now()->format('d M Y H:i') . " | 
-                    Category: {$this->category->name} |
-                    Confidential: {$this->confidential_level}
+                    <strong>Document Number:</strong> {$this->code_number} | 
+                    <strong>Type:</strong> {$this->document_type} |
+                    <strong>Status:</strong> {$this->status}
                 </div>
             </div>
-            <div class='content'>
-                " . nl2br(e($this->content)) . "
-            </div>
+            <div class='content'>{$this->content}</div>
         </body>
         </html>";
-
-        return $html;
     }
 
-    // Existing method untuk file information
-    public function setFileInformation()
-    {
-        $filePath = storage_path('app/documents/' . $this->file_path);
-
-        $this->file_name = basename($this->file_path);
-
-        if (file_exists($filePath)) {
-            $this->file_size = $this->formatFileSize(filesize($filePath));
-        }
-    }
-
-    private function formatFileSize($bytes)
-    {
-        if ($bytes >= 1073741824) {
-            return number_format($bytes / 1073741824, 2) . ' GB';
-        } elseif ($bytes >= 1048576) {
-            return number_format($bytes / 1048576, 2) . ' MB';
-        } elseif ($bytes >= 1024) {
-            return number_format($bytes / 1024, 2) . ' KB';
-        } else {
-            return $bytes . ' bytes';
-        }
-    }
-
-    // Activity Log
-    public function getActivitylogOptions(): LogOptions
-    {
-        return LogOptions::defaults()
-            ->logOnly(['title', 'status', 'confidential_level', 'document_type'])
-            ->logOnlyDirty()
-            ->setDescriptionForEvent(fn(string $eventName) => "Document {$eventName}")
-            ->dontSubmitEmptyLogs()
-            ->logExcept(['file_size', 'updated_at']);
-    }
-
-    // Relationships
+    // ========== RELATIONSHIPS ==========
     public function company(): BelongsTo
     {
         return $this->belongsTo(Company::class);
@@ -204,19 +195,12 @@ class Document extends Model implements Auditable
         return $this->belongsTo(User::class);
     }
 
-    // Helper methods
-    public function isFileDocument(): bool
+    // ========== ACTIVITY LOG ==========
+    public function getActivitylogOptions(): LogOptions
     {
-        return $this->document_type === 'file';
-    }
-
-    public function isFormDocument(): bool
-    {
-        return $this->document_type === 'form';
-    }
-
-    public function isHybridDocument(): bool
-    {
-        return $this->document_type === 'hybrid';
+        return LogOptions::defaults()
+            ->logOnly(['title', 'code_number', 'status', 'document_type'])
+            ->logOnlyDirty()
+            ->setDescriptionForEvent(fn(string $eventName) => "Document {$this->code_number} {$eventName}");
     }
 }

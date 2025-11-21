@@ -8,18 +8,11 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class DocumentCategory extends Model
 {
-    protected $fillable = ['name', 'color', 'company_id', 'requires_approval', 'is_active'];
+    protected $fillable = ['name', 'prefix', 'is_active'];
 
     protected $casts = [
-        'requires_approval' => 'boolean',
         'is_active' => 'boolean',
     ];
-
-    public function company(): BelongsTo
-    {
-        return $this->belongsTo(Company::class);
-    }
-
     public function documents(): HasMany
     {
         return $this->hasMany(Document::class);
