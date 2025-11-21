@@ -13,22 +13,19 @@ class ListMeetings extends ListRecords
 
     protected function getHeaderActions(): array
     {
-        return [
-            CreateAction::make(),
-        ];
+        return [CreateAction::make()];
     }
     public function getTabs(): array
     {
         return [
             null => Tab::make('All'),
-            'direncanakan' => Tab::make()->query(fn($query) => $query->where('status', 'draft')),
-            'Berlangsung' => Tab::make()->query(fn($query) => $query->where('status', 'ongoing')),
+            'terjadwal' => Tab::make()->query(fn($query) => $query->where('status', 'draft')),
             'Selesai' => Tab::make()->query(fn($query) => $query->where('status', 'completed')),
             'dibatalkan' => Tab::make()->query(fn($query) => $query->where('status', 'cancelled')),
         ];
     }
-    public function getDefaultActiveTab(): string | int | null
+    public function getDefaultActiveTab(): string|int|null
     {
-        return 'ongoing';
+        return 'terjadwal';
     }
 }

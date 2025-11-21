@@ -2,25 +2,33 @@
 
 namespace App\Filament\Admin\Widgets;
 
-use \Guava\Calendar\Filament\CalendarWidget;
+use App\Models\Meeting;
+use Guava\Calendar\Filament\CalendarWidget;
 use Guava\Calendar\ValueObjects\CalendarEvent;
 use Guava\Calendar\ValueObjects\FetchInfo;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Guava\Calendar\Enums\CalendarViewType;
 
 class MyCalendarWidget extends CalendarWidget
-
 {
-    //protected string $view = 'filament-widgets::filament.admin.widgets.my-calendar-widget';
     protected CalendarViewType $calendarView = CalendarViewType::DayGridMonth;
-    protected function getEvents(FetchInfo $info): Collection | array | Builder
+
+    protected function getEvents(FetchInfo $info): Collection|array
     {
-        return [
-            CalendarEvent::make()
-                ->title('My first calendar')
-                ->start(now())
-                ->end(now()->addHours(2)),
-        ];
+        return Meeting::query()
+            ->get()
+            ->map(function ($meeting) {
+                // START = kolom datetime
+                $start = $meeting->date_time;
+
+                // END optional: kalau tidak ada, pakai +1 jam dari start
+                $end = $meeting->date_time;
+
+                return CalendarEvent::make()
+                    ->title($meeting->title)
+                    ->start($start)
+                    ->end($end)
+                    ->url(route('filament.admin.resources.meetings.edit', $meeting)); // opsional
+            });
     }
 }

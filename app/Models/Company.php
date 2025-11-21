@@ -32,4 +32,15 @@ class Company extends Model implements Auditable
     {
         return $this->hasMany(User::class);
     }
+    // Get document counter untuk bulan ini
+    public function getCurrentMonthDocumentCount($departmentId = null): int
+    {
+        $query = $this->documents()->whereYear('created_at', date('Y'))->whereMonth('created_at', date('m'));
+
+        if ($departmentId) {
+            $query->where('department_id', $departmentId);
+        }
+
+        return $query->count();
+    }
 }
