@@ -66,18 +66,6 @@ class DocumentResource extends Resource
     }
     public static function getEloquentQuery(): Builder
     {
-        $query = parent::getEloquentQuery();
-
-        $user = auth()->user();
-
-        // Jika user tidak punya role Super Admin
-        if (!$user->hasRole('super_admin')) {
-            $query
-                ->where('company_id', $user->company_id)
-                ->where('department_id', $user->department_id)
-                ->where('unit_id', $user->unit_id);
-        }
-
-        return $query;
+        return parent::getEloquentQuery()->access();
     }
 }

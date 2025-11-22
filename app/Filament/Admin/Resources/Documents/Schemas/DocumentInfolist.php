@@ -14,15 +14,12 @@ class DocumentInfolist
         return $schema
             ->components([
                 TextEntry::make('title'),
-                TextEntry::make('Code Number')
-                    ->label('Code Number')
-                    ->placeholder('-'),
+                TextEntry::make('code_number')
+                    ->label('Code Number'),
                 TextEntry::make('description')
                     ->placeholder('-')
                     ->columnSpanFull(),
                 TextEntry::make('file_path'),
-                TextEntry::make('file_name'),
-                TextEntry::make('file_size'),
                 TextEntry::make('content')
                     ->html()
                     ->placeholder('-')
