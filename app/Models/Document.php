@@ -7,10 +7,12 @@ use Spatie\Activitylog\LogOptions;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Builder;
 use OwenIt\Auditing\Contracts\Auditable;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class Document extends Model implements Auditable
 {
@@ -78,29 +80,53 @@ class Document extends Model implements Auditable
      */
     public function generateCodeNumber(): string
     {
+        $year = date('Y');
+
+        // Cari document numbering berdasarkan kombinasi
+        $documentNumbering = DocumentNumbering::where([
+            'category_id' => $this->category_id,
+            'company_id' => $this->company_id,
+            'department_id' => $this->department_id,
+            'year' => $year,
+        ])->first();
+
+        // Jika tidak ditemukan, buat baru
+        if (!$documentNumbering) {
+            $documentNumbering = DocumentNumbering::create([
+                'category_id' => $this->category_id,
+                'company_id' => $this->company_id,
+                'department_id' => $this->department_id,
+                'year' => $year,
+                'last_number' => 0,
+            ]);
+        }
+
+        // Increment last_number dengan transaction untuk menghindari race condition
+        DB::transaction(function () use ($documentNumbering) {
+            $documentNumbering->lockForUpdate();
+            $documentNumbering->increment('last_number');
+        });
+
+        // Refresh untuk mendapatkan last_number terbaru
+        $documentNumbering->refresh();
+
+        // Generate kode perusahaan, departemen, dan kategori
         $companyCode = $this->company?->code ?: 'COM';
         $departmentCode = $this->department?->code ?: 'DEPT';
+        $categoryCode = $this->category?->prefix ?: 'CAT';
         $unitCode = $this->unit?->code ?: '';
-        $categoryCode = $this->category?->code ?: 'CAT';
 
-        // Format dengan atau tanpa unit
-        $baseCode = $unitCode
-            ? "{$companyCode}-{$departmentCode}-{$unitCode}-{$categoryCode}"
-            : "{$companyCode}-{$departmentCode}-{$categoryCode}";
+        // Format nomor dokumen
+        $sequence = str_pad($documentNumbering->last_number, 3, '0', STR_PAD_LEFT);
 
-        // Cari nomor terakhir untuk kombinasi ini
-        $lastNumber = self::withTrashed()
-            ->where('company_id', $this->company_id)
-            ->where('department_id', $this->department_id)
-            ->where('unit_id', $this->unit_id)
-            ->where('category_id', $this->category_id)
-            ->whereNotNull('code_number')
-            ->count();
-
-        $sequence = $lastNumber + 1;
-
-        return "{$baseCode}-" . str_pad($sequence, 3, '0', STR_PAD_LEFT);
+        // Pilih format berdasarkan ada/tidaknya unit
+        if (!empty($unitCode)) {
+            return "{$companyCode}-{$departmentCode}-{$unitCode}-{$categoryCode}-{$sequence}";
+        } else {
+            return "{$companyCode}-{$departmentCode}-{$categoryCode}-{$sequence}";
+        }
     }
+
 
     /**
      * Auto-detect document type
@@ -202,5 +228,27 @@ class Document extends Model implements Auditable
             ->logOnly(['title', 'code_number', 'status', 'document_type'])
             ->logOnlyDirty()
             ->setDescriptionForEvent(fn(string $eventName) => "Document {$this->code_number} {$eventName}");
+    }
+    public function scopeAccess(Builder $query)
+    {
+        $user = auth()->user();
+
+        if ($user->hasRole('super_admin')) {
+            // Super admin has access to all documents
+            return $query;
+        }
+
+        return $query->where(function ($q) use ($user) {
+            if ($user->hasRole('direktur')) {
+                // Direktur akses semua dokumen dalam perusahaan
+                $q->where('company_id', $user->company_id);
+            } elseif ($user->hasRole('manager')) {
+                // Manager akses semua dokumen dalam departemen
+                $q->where('department_id', $user->department_id);
+            } else {
+                // Staff akses dokumen unit-nya sendiri
+                $q->where('unit_id', $user->unit_id);
+            }
+        });
     }
 }

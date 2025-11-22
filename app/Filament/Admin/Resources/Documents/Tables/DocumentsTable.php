@@ -28,6 +28,8 @@ class DocumentsTable
                     ->searchable()
                     ->sortable()
                     ->limit(20)
+                    ->weight('bold')
+                    ->color('primary')
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('title')
                     ->searchable()

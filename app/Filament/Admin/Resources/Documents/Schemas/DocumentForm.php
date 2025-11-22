@@ -42,7 +42,10 @@ class DocumentForm
                         }),
                     TextInput::make('Code Number')
                         ->label('Code Number')
-                        ->maxLength(255),
+                        ->maxLength(255)
+                        ->readOnly()
+                        ->default(fn() => 'AUTO-GENERATED'),
+
                     TextInput::make('title')
                         ->required()
                         ->maxLength(255),

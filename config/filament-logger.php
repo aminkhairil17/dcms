@@ -3,10 +3,8 @@
 return [
     'datetime_format' => 'd/m/Y H:i:s',
     'date_format' => 'd/m/Y',
-
     'activity_resource' => \Jacobtims\FilamentLogger\Resources\ActivityResource::class,
     'scoped_to_tenant' => true,
-    'navigation_sort' => 6,
 
     'resources' => [
         'enabled' => true,
@@ -18,7 +16,9 @@ return [
             // App\Filament\Resources\UserResource::class,
         ],
         'cluster' => null,
+        'authorize' => true,
         'navigation_group' => 'Pengaturan',
+        'navigation_icon' => 'heroicon-o-collection',
     ],
 
     'access' => [
@@ -26,6 +26,9 @@ return [
         'logger' => \Jacobtims\FilamentLogger\Loggers\AccessLogger::class,
         'color' => 'danger',
         'log_name' => 'Access',
+        'authorize' => true,
+
+
     ],
 
     'notifications' => [
@@ -41,8 +44,9 @@ return [
         'color' => 'warning',
         'logger' => \Jacobtims\FilamentLogger\Loggers\ModelLogger::class,
         'register' => [
-            // App\Models\User::class,
+            App\Models\User::class,
         ],
+        'authorize' => true,
     ],
 
     'custom' => [

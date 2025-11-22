@@ -142,7 +142,7 @@ class MeetingForm
                 TextInput::make('location')->label('Lokasi')->maxLength(255)->placeholder('Online / Ruang Meeting'),
                 Select::make('status')
                     ->options([
-                        'draft' => 'Direncanakan',
+                        'scheduled' => 'Dijadwalkan',
                         'ongoing' => 'Berlangsung',
                         'completed' => 'Selesai',
                         'cancelled' => 'Dibatalkan',
