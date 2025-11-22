@@ -2,64 +2,79 @@
 
 namespace App\Filament\Admin\Resources\Units;
 
-use App\Filament\Admin\Resources\Units\Pages\CreateUnit;
-use App\Filament\Admin\Resources\Units\Pages\EditUnit;
-use App\Filament\Admin\Resources\Units\Pages\ListUnits;
-use App\Filament\Admin\Resources\Units\Pages\ViewUnit;
-use App\Filament\Admin\Resources\Units\Schemas\UnitForm;
-use App\Filament\Admin\Resources\Units\Schemas\UnitInfolist;
-use App\Filament\Admin\Resources\Units\Tables\UnitsTable;
+use App\Filament\Admin\Resources\Units\Pages\ManageUnits;
 use App\Models\Unit;
 use BackedEnum;
 use UnitEnum;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
+use Filament\Infolists\Components\IconEntry;
+use Filament\Infolists\Components\TextEntry;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
+use Filament\Tables\Columns\IconColumn;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
 class UnitResource extends Resource
 {
     protected static ?string $model = Unit::class;
 
-    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-squares-2x2';
-
-    protected static string|UnitEnum|null $navigationGroup = 'Data Master';
-
-    protected static ?string $navigationLabel = 'Unit';
-
-    protected static ?int $navigationSort = 4;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCube;
 
     protected static ?string $recordTitleAttribute = 'name';
 
+    protected static string|UnitEnum|null $navigationGroup = 'Data Master';
+
     public static function form(Schema $schema): Schema
     {
-        return UnitForm::configure($schema);
+        return $schema->components([
+            TextInput::make('name')->required(),
+            Select::make('department_id')->relationship('department', 'name')->required(),
+            Toggle::make('is_active')->required(),
+        ]);
     }
 
     public static function infolist(Schema $schema): Schema
     {
-        return UnitInfolist::configure($schema);
+        return $schema->components([
+            TextEntry::make('name'),
+            TextEntry::make('department.name')->label('Department'),
+            IconEntry::make('is_active')->boolean(),
+            TextEntry::make('created_at')->dateTime()->placeholder('-'),
+            TextEntry::make('updated_at')->dateTime()->placeholder('-'),
+        ]);
     }
 
     public static function table(Table $table): Table
     {
-        return UnitsTable::configure($table);
-    }
-
-    public static function getRelations(): array
-    {
-        return [
+        return $table
+            ->recordTitleAttribute('name')
+            ->columns([
+                TextColumn::make('name')->searchable(),
+                TextColumn::make('department.name')->searchable(),
+                IconColumn::make('is_active')->boolean(),
+                TextColumn::make('created_at')->dateTime()->sortable()->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('updated_at')->dateTime()->sortable()->toggleable(isToggledHiddenByDefault: true),
+            ])
+            ->filters([
                 //
-            ];
+            ])
+            ->recordActions([ViewAction::make(), EditAction::make(), DeleteAction::make()])
+            ->toolbarActions([BulkActionGroup::make([DeleteBulkAction::make()])]);
     }
 
     public static function getPages(): array
     {
         return [
-            'index' => ListUnits::route('/'),
-            'create' => CreateUnit::route('/create'),
-            'view' => ViewUnit::route('/{record}'),
-            'edit' => EditUnit::route('/{record}/edit'),
+            'index' => ManageUnits::route('/'),
         ];
     }
 }

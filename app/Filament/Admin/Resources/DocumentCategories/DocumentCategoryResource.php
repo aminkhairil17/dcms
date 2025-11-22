@@ -2,60 +2,80 @@
 
 namespace App\Filament\Admin\Resources\DocumentCategories;
 
-use App\Filament\Admin\Resources\DocumentCategories\Pages\CreateDocumentCategory;
-use App\Filament\Admin\Resources\DocumentCategories\Pages\EditDocumentCategory;
-use App\Filament\Admin\Resources\DocumentCategories\Pages\ListDocumentCategories;
-use App\Filament\Admin\Resources\DocumentCategories\Pages\ViewDocumentCategory;
-use App\Filament\Admin\Resources\DocumentCategories\Schemas\DocumentCategoryForm;
-use App\Filament\Admin\Resources\DocumentCategories\Schemas\DocumentCategoryInfolist;
-use App\Filament\Admin\Resources\DocumentCategories\Tables\DocumentCategoriesTable;
+use App\Filament\Admin\Resources\DocumentCategories\Pages\ManageDocumentCategories;
 use App\Models\DocumentCategory;
 use BackedEnum;
 use UnitEnum;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
+use Filament\Infolists\Components\IconEntry;
+use Filament\Infolists\Components\TextEntry;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
+use Filament\Tables\Columns\IconColumn;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
 class DocumentCategoryResource extends Resource
 {
     protected static ?string $model = DocumentCategory::class;
 
-    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-tag';
-
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedFolder;
     protected static string|UnitEnum|null $navigationGroup = 'Data Master';
 
-    protected static ?string $navigationLabel = 'Kategori Dokumen';
+    protected static ?string $recordTitleAttribute = 'name';
 
     public static function form(Schema $schema): Schema
     {
-        return DocumentCategoryForm::configure($schema);
+        return $schema->components([
+            TextInput::make('name')->required(),
+            TextInput::make('prefix'),
+            TextInput::make('akronim'),
+            Toggle::make('is_active')->required(),
+        ]);
     }
 
     public static function infolist(Schema $schema): Schema
     {
-        return DocumentCategoryInfolist::configure($schema);
+        return $schema->components([
+            TextEntry::make('name'),
+            TextEntry::make('prefix')->placeholder('-'),
+            TextEntry::make('akronim')->placeholder('-'),
+            IconEntry::make('is_active')->boolean(),
+            TextEntry::make('created_at')->dateTime()->placeholder('-'),
+            TextEntry::make('updated_at')->dateTime()->placeholder('-'),
+        ]);
     }
 
     public static function table(Table $table): Table
     {
-        return DocumentCategoriesTable::configure($table);
-    }
-
-    public static function getRelations(): array
-    {
-        return [
-            //
-        ];
+        return $table
+            ->recordTitleAttribute('name')
+            ->columns([
+                TextColumn::make('name')->searchable(),
+                TextColumn::make('prefix')->searchable(),
+                TextColumn::make('akronim')->searchable(),
+                IconColumn::make('is_active')->boolean(),
+                TextColumn::make('created_at')->dateTime()->sortable()->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('updated_at')->dateTime()->sortable()->toggleable(isToggledHiddenByDefault: true),
+            ])
+            ->filters([
+                //
+            ])
+            ->recordActions([ViewAction::make(), EditAction::make(), DeleteAction::make()])
+            ->toolbarActions([BulkActionGroup::make([DeleteBulkAction::make()])]);
     }
 
     public static function getPages(): array
     {
         return [
-            'index' => ListDocumentCategories::route('/'),
-            'create' => CreateDocumentCategory::route('/create'),
-            'view' => ViewDocumentCategory::route('/{record}'),
-            'edit' => EditDocumentCategory::route('/{record}/edit'),
+            'index' => ManageDocumentCategories::route('/'),
         ];
     }
 }

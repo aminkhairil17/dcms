@@ -2,63 +2,82 @@
 
 namespace App\Filament\Admin\Resources\Departments;
 
-use App\Filament\Admin\Resources\Departments\Pages\CreateDepartment;
-use App\Filament\Admin\Resources\Departments\Pages\EditDepartment;
-use App\Filament\Admin\Resources\Departments\Pages\ListDepartments;
-use App\Filament\Admin\Resources\Departments\Pages\ViewDepartment;
-use App\Filament\Admin\Resources\Departments\Schemas\DepartmentForm;
-use App\Filament\Admin\Resources\Departments\Schemas\DepartmentInfolist;
-use App\Filament\Admin\Resources\Departments\Tables\DepartmentsTable;
-use Tapp\FilamentAuditing\RelationManagers\AuditsRelationManager;
+use App\Filament\Admin\Resources\Departments\Pages\ManageDepartments;
 use App\Models\Department;
 use BackedEnum;
-use UnitEnum;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
+use Filament\Infolists\Components\IconEntry;
+use Filament\Infolists\Components\TextEntry;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
+use Filament\Tables\Columns\IconColumn;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use UnitEnum;
 
 class DepartmentResource extends Resource
 {
     protected static ?string $model = Department::class;
 
-    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-rectangle-group';
-
-    protected static string|UnitEnum|null $navigationGroup = 'Data Master';
-
-    protected static ?string $navigationLabel = 'Departemen';
-
-    protected static ?int $navigationSort = 4;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBuildingOffice;
 
     protected static ?string $recordTitleAttribute = 'name';
 
+    protected static string|UnitEnum|null $navigationGroup = 'Data Master';
+
     public static function form(Schema $schema): Schema
     {
-        return DepartmentForm::configure($schema);
+        return $schema->components([
+            TextInput::make('name')->required(),
+            TextInput::make('code')->required(),
+            Select::make('company_id')->relationship('company', 'name')->required(),
+            Toggle::make('is_active')->required(),
+        ]);
     }
 
     public static function infolist(Schema $schema): Schema
     {
-        return DepartmentInfolist::configure($schema);
+        return $schema->components([
+            TextEntry::make('name'),
+            TextEntry::make('code'),
+            TextEntry::make('company.name')->label('Company'),
+            IconEntry::make('is_active')->boolean(),
+            TextEntry::make('created_at')->dateTime()->placeholder('-'),
+            TextEntry::make('updated_at')->dateTime()->placeholder('-'),
+        ]);
     }
 
     public static function table(Table $table): Table
     {
-        return DepartmentsTable::configure($table);
-    }
-
-    public static function getRelations(): array
-    {
-        return [AuditsRelationManager::class];
+        return $table
+            ->recordTitleAttribute('name')
+            ->columns([
+                TextColumn::make('name')->searchable(),
+                TextColumn::make('code')->searchable(),
+                TextColumn::make('company.name')->searchable(),
+                IconColumn::make('is_active')->boolean(),
+                TextColumn::make('created_at')->dateTime()->sortable()->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('updated_at')->dateTime()->sortable()->toggleable(isToggledHiddenByDefault: true),
+            ])
+            ->filters([
+                //
+            ])
+            ->recordActions([ViewAction::make(), EditAction::make(), DeleteAction::make()])
+            ->toolbarActions([BulkActionGroup::make([DeleteBulkAction::make()])]);
     }
 
     public static function getPages(): array
     {
         return [
-            'index' => ListDepartments::route('/'),
-            'create' => CreateDepartment::route('/create'),
-            'view' => ViewDepartment::route('/{record}'),
-            'edit' => EditDepartment::route('/{record}/edit'),
+            'index' => ManageDepartments::route('/'),
         ];
     }
 }
