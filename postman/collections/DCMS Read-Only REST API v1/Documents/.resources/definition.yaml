@@ -1,0 +1,4 @@
+$kind: collection
+name: Documents
+description: Read-only endpoints for documents.
+order: 1000

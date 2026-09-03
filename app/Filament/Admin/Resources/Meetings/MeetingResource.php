@@ -30,6 +30,14 @@ class MeetingResource extends Resource
 
     protected static ?string $navigationLabel = 'Rapat';
 
+    protected static string|UnitEnum|null $navigationGroup = 'Rapat';
+
+    protected static ?int $navigationSort = 1;
+
+    protected static ?string $modelLabel = 'Rapat';
+
+    protected static ?string $pluralModelLabel = 'Rapat';
+
     protected static ?string $recordTitleAttribute = 'title';
 
     public static function form(Schema $schema): Schema

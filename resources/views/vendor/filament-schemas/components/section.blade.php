@@ -47,6 +47,7 @@
     @endif
 
     <x-filament::section
+        style="height: 100%; display: flex; flex-direction: column; flex: 1 1 0%;"
         :after-header="$afterHeader"
         :aside="$isAside"
         :collapsed="$isCollapsed"

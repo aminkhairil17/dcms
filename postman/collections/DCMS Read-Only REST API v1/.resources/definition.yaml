@@ -1,0 +1,14 @@
+$kind: collection
+name: DCMS Read-Only REST API v1
+description: |-
+  Read-only REST API for the DCMS (Laravel) application.
+
+  - **Read-only:** All endpoints are GET-only.
+  - **Base URL:** All routes are served under `/api/v1`.
+  - **Auth:** No authentication required by default.
+  - **Response envelope:** Responses follow a standard JSON envelope:
+    `{ success, message, data, meta }`.
+variables:
+  - key: baseUrl
+    value: 'http://localhost:8000'
+    description: Base URL of the DCMS API. Requests target {{baseUrl}}/api/v1/...

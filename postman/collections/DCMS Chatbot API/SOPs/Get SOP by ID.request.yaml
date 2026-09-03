@@ -1,0 +1,8 @@
+$kind: http-request
+method: GET
+url: '{{base_url}}/api/v1/sops/{{sop_id}}'
+order: 2000
+description: 'Ambil detail satu SOP berdasarkan ID. Termasuk parsed step-by-step procedures, revision history, dan related documents.'
+pathVariables:
+  - key: sop_id
+    value: '1'

@@ -15,7 +15,7 @@ class DepartmentInfolist
                 TextEntry::make('name'),
                 TextEntry::make('code'),
                 TextEntry::make('company.name')
-                    ->label('Company'),
+                    ->label('Perusahaan'),
                 IconEntry::make('is_active')
                     ->boolean(),
                 TextEntry::make('created_at')

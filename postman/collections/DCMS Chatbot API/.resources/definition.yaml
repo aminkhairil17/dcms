@@ -1,0 +1,5 @@
+$kind: collection
+name: DCMS Chatbot API
+description: "Read-only REST API untuk chatbot DCMS Syifa Global Group. Semua endpoint GET, tidak perlu autentikasi. Base URL: [http://dcms.syifaglobalgroup.com/api/v1](http://dcms.syifaglobalgroup.com/api/v1)"
+variables:
+  base_url: http://dcms.syifaglobalgroup.com

@@ -18,21 +18,35 @@ class DocumentCategoriesTable
     {
         return $table
             ->columns([
+                // Mobile card
                 TextColumn::make('name')
-                    ->searchable(),
+                    ->label('Kategori')
+                    ->searchable()
+                    ->sortable()
+                    ->view('filament.tables.columns.document-category-mobile-card')
+                    ->grow(),
+
+                // Desktop columns
                 TextColumn::make('prefix')
-                    ->label('Prefix')
-                    ->searchable(),
+                    ->label('Awalan')
+                    ->searchable()
+                    ->visibleFrom('md'),
                 IconColumn::make('is_active')
-                    ->boolean(),
+                    ->label('Aktif')
+                    ->boolean()
+                    ->visibleFrom('md'),
                 TextColumn::make('created_at')
+                    ->label('Dibuat Pada')
                     ->dateTime()
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->visibleFrom('md'),
                 TextColumn::make('updated_at')
+                    ->label('Diperbarui Pada')
                     ->dateTime()
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->visibleFrom('md'),
             ])
             ->filters([
                 //

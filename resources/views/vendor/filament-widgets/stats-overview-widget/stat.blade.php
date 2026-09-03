@@ -20,7 +20,7 @@
     {{
         $getExtraAttributeBag()
             ->class([
-                'fi-wi-stats-overview-stat',
+                'fi-wi-stats-overview-stat fi-wi-stat-animated',
             ])
     }}
 >

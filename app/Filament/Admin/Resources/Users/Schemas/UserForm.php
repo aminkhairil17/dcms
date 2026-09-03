@@ -17,7 +17,7 @@ class UserForm
     {
         return $schema->components([
             TextInput::make('name')->required(),
-            TextInput::make('email')->label('Email address')->email()->required(),
+            TextInput::make('email')->label('Alamat Email')->email()->required(),
             TextInput::make('username')->required()->maxLength(255),
             TextInput::make('password')
                 ->password()
@@ -25,14 +25,18 @@ class UserForm
                 ->dehydrated(fn($state) => filled($state))
                 ->required(fn(string $context): bool => $context === 'create'),
             Select::make('company_id')
-                ->label('Company')
+                ->label('Perusahaan')
                 ->options(Company::where('is_active', true)->pluck('name', 'id'))
                 ->searchable()
                 ->preload()
                 ->nullable()
-                ->live(),
+                ->live()
+                ->afterStateUpdated(function (callable $set) {
+                    $set('department_id', null);
+                    $set('unit_id', null);
+                }),
             Select::make('department_id')
-                ->label('Department')
+                ->label('Departemen')
                 ->options(function (callable $get) {
                     $companyId = $get('company_id');
                     if (!$companyId) {
@@ -43,7 +47,10 @@ class UserForm
                 ->searchable()
                 ->preload()
                 ->nullable()
-                ->live(),
+                ->live()
+                ->afterStateUpdated(function (callable $set) {
+                    $set('unit_id', null);
+                }),
             Select::make('unit_id')
                 ->label('Unit')
                 ->options(function (callable $get) {
@@ -56,8 +63,8 @@ class UserForm
                 ->searchable()
                 ->preload()
                 ->nullable(),
-            Select::make('roles')->relationship('roles', 'name')->multiple()->preload()->searchable(),
-            Toggle::make('is_active')->label('Active')->default(true)->required(),
+            Select::make('roles')->label('Peran')->relationship('roles', 'name')->multiple()->preload()->searchable(),
+            Toggle::make('is_active')->label('Aktif')->default(true)->required(),
         ]);
     }
 }

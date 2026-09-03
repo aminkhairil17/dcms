@@ -1,0 +1,25 @@
+$kind: http-request
+name: List SOPs
+order: 1000
+method: GET
+url: '{{baseUrl}}/api/v1/sops'
+description: |-
+  List SOPs. Supports full-text search, department filtering and pagination.
+  Response uses the standard envelope: { success, message, data, meta }.
+queryParams:
+  - key: q
+    value: ''
+    description: Full-text search (title, code_number, description).
+    disabled: true
+  - key: department
+    value: ''
+    description: Department name or code (partial match).
+    disabled: true
+  - key: page
+    value: '1'
+    description: 'Page number (default: 1).'
+    disabled: true
+  - key: limit
+    value: '10'
+    description: 'Records per page, max 100 (default: 10).'
+    disabled: true

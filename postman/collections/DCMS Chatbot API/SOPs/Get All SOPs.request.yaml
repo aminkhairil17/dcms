@@ -1,0 +1,16 @@
+$kind: http-request
+method: GET
+url: '{{base_url}}/api/v1/sops'
+order: 1000
+description: 'Ambil daftar semua SOP (Standard Operating Procedure). Filter: q (search), department, page, limit (max 100)'
+queryParams:
+  - key: q
+    value: ''
+    description: full-text search
+  - key: department
+    value: ''
+    description: filter by department name/code
+  - key: page
+    value: '1'
+  - key: limit
+    value: '10'

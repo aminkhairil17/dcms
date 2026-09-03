@@ -9,10 +9,25 @@ use Filament\Resources\Pages\ViewRecord;
 class ViewMeeting extends ViewRecord
 {
     protected static string $resource = MeetingResource::class;
+    
+    public function getTitle(): string
+    {
+        return 'Detail Rapat';
+    }
+
 
     protected function getHeaderActions(): array
     {
         return [
+            \Filament\Actions\Action::make('tutorial')
+                ->label('Panduan')
+                ->icon('heroicon-o-information-circle')
+                ->color('info')
+                ->modalHeading('Petunjuk Notulensi')
+                ->modalWidth('4xl')
+                ->modalContent(view('filament.tutorial-modal', ['image' => 'notulen.jpg']))
+                ->modalSubmitAction(false)
+                ->modalCancelActionLabel('Tutup'),
             EditAction::make(),
         ];
     }

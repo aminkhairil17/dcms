@@ -35,4 +35,22 @@ return [
         ],
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | n8n (WhatsApp bridge)
+    |--------------------------------------------------------------------------
+    |
+    | Notifikasi DCMS dikirim ke sebuah Webhook n8n (HTTP POST). Di dalam n8n,
+    | payload diteruskan ke node WhatsApp untuk menghasilkan pop-up di HP.
+    |
+    |  N8N_WEBHOOK_URL : URL Production Webhook dari node Webhook di n8n.
+    |  N8N_WEBHOOK_SECRET : (opsional) token rahasia; dikirim sebagai header
+    |                       X-DCMS-Signature dan divalidasi di dalam workflow n8n.
+    |
+    */
+    'n8n' => [
+        'webhook_url' => env('N8N_WEBHOOK_URL'),
+        'secret'      => env('N8N_WEBHOOK_SECRET'),
+    ],
+
 ];

@@ -25,14 +25,19 @@
     if (is_string($width)) {
         $width = Width::tryFrom($width) ?? $width;
     }
+
+    $isTopbarGroupDropdown = str((string) $attributes->get('class'))->contains('fi-topbar-nav-group-dropdown');
 @endphp
 
 <div
     x-data="filamentDropdown"
+    @if ($isTopbarGroupDropdown)
+        x-on:fi-topbar-dropdown-opening.window="if ($event.detail.dropdown !== $el) close()"
+    @endif
     {{ $attributes->class(['fi-dropdown']) }}
 >
     <div
-        x-on:mousedown="if ($event.button === 0) toggle($event)"
+        x-on:mousedown="if ($event.button === 0) { @if ($isTopbarGroupDropdown) window.dispatchEvent(new CustomEvent('fi-topbar-dropdown-opening', { detail: { dropdown: $root } })) @endif; toggle($event) }"
         {{ $trigger->attributes->class(['fi-dropdown-trigger']) }}
     >
         {{ $trigger }}

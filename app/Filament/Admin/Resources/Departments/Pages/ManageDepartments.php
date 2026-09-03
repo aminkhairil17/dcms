@@ -13,7 +13,11 @@ class ManageDepartments extends ManageRecords
     protected function getHeaderActions(): array
     {
         return [
-            CreateAction::make(),
+            CreateAction::make()
+                ->label('Tambah Departemen')
+                ->modalHeading('Tambah Departemen')
+                ->modalSubmitActionLabel('Tambah')
+                ->modalCancelActionLabel('Batal'),
         ];
     }
 }

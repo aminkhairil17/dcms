@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Unit extends Model
 {
-    protected $fillable = ['name', 'department_id', 'is_active'];
+    protected $fillable = ['name','prefix', 'department_id', 'is_active'];
 
     public function department(): BelongsTo
     {
@@ -23,5 +23,10 @@ class Unit extends Model
     public function users(): HasMany
     {
         return $this->hasMany(User::class);
+    }
+
+    public function accessibleDocuments(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(Document::class, 'document_unit_access', 'unit_id', 'document_id')->withTimestamps();
     }
 }

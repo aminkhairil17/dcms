@@ -6,6 +6,7 @@ namespace App\Policies;
 
 use Illuminate\Foundation\Auth\User as AuthUser;
 use App\Models\Document;
+use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class DocumentPolicy
@@ -29,7 +30,66 @@ class DocumentPolicy
 
     public function update(AuthUser $authUser, Document $document): bool
     {
-        return $authUser->can('Update:Document');
+        if (! $authUser->can('Update:Document')) {
+            return false;
+        }
+
+        // Pemilik dokumen selalu bisa edit
+        if ($authUser->id === $document->user_id) {
+            return true;
+        }
+
+        // Admin dengan permission khusus bisa edit dokumen milik orang lain
+        if ($authUser->can('edit_other_documents')) {
+            return true;
+        }
+
+        // Kabid bisa update (ACC/Tolak) dokumen dalam departemennya
+        if ($authUser->hasRole('kabid')) {
+            /** @var User $authUser */
+            if ($authUser->department_id && $document->department_id === $authUser->department_id) {
+                return true;
+            }
+            if (! $authUser->department_id && $document->company_id === $authUser->company_id) {
+                return true;
+            }
+        }
+
+        // Direktur bisa update (ACC/Tolak) dokumen dalam perusahaannya
+        if ($authUser->hasRole('direktur') && $document->company_id === $authUser->company_id) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Apakah user bisa mereview (approve/reject) dokumen.
+     * Digunakan oleh Filament Action di Reviewer Panel.
+     */
+    public function review(AuthUser $authUser, Document $document): bool
+    {
+        /** @var User $authUser */
+
+        // Kabid: review dokumen di departemennya yang sedang menunggu ACC Kabid
+        if ($authUser->hasRole('kabid') && $document->status === Document::STATUS_PENDING_KABID) {
+            if ($authUser->department_id) {
+                return $document->department_id === $authUser->department_id;
+            }
+            return $document->company_id === $authUser->company_id;
+        }
+
+        // Direktur: review dokumen yang di-ACC Kabid atau yang menunggu persetujuan Direktur
+        if ($authUser->hasRole('direktur') && in_array($document->status, [Document::STATUS_PENDING_KABID, Document::STATUS_PENDING_DIREKTUR])) {
+            return $document->company_id === $authUser->company_id;
+        }
+
+        // Super admin bisa review semua
+        if ($authUser->hasRole('super_admin')) {
+            return true;
+        }
+
+        return false;
     }
 
     public function delete(AuthUser $authUser, Document $document): bool
@@ -67,4 +127,13 @@ class DocumentPolicy
         return $authUser->can('Reorder:Document');
     }
 
+    public function viewOwnCompany(AuthUser $authUser): bool
+    {
+        return $authUser->can('view_own_company_data');
+    }
+
+    public function viewAllCompanies(AuthUser $authUser): bool
+    {
+        return $authUser->can('view_all_companies_data');
+    }
 }

@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class DocumentCategory extends Model
 {
-    protected $fillable = ['name', 'prefix', 'is_active'];
+    protected $fillable = ['name', 'prefix', 'company_id', 'is_active'];
 
     protected $casts = [
         'is_active' => 'boolean',

@@ -20,6 +20,8 @@ use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 use UnitEnum;
 
@@ -33,12 +35,22 @@ class DepartmentResource extends Resource
 
     protected static string|UnitEnum|null $navigationGroup = 'Data Master';
 
+    protected static ?string $modelLabel = 'Departemen';
+
+    protected static ?string $pluralModelLabel = 'Departemen';
+
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
-            TextInput::make('name')->required(),
-            TextInput::make('code')->required(),
-            Select::make('company_id')->relationship('company', 'name')->required(),
+            TextInput::make('name')->label('Nama')->required(),
+            TextInput::make('code')->label('Kode')->required(),
+            Select::make('company_id')
+                ->label('Perusahaan')
+                ->relationship('company', 'name')
+                ->live()
+                ->afterStateUpdated(fn ($state) => session()->put('last_company_id', $state))
+                ->default(fn () => session('last_company_id'))
+                ->required(),
             Toggle::make('is_active')->required(),
         ]);
     }
@@ -46,9 +58,9 @@ class DepartmentResource extends Resource
     public static function infolist(Schema $schema): Schema
     {
         return $schema->components([
-            TextEntry::make('name'),
-            TextEntry::make('code'),
-            TextEntry::make('company.name')->label('Company'),
+            TextEntry::make('name')->label('Nama'),
+            TextEntry::make('code')->label('Kode'),
+            TextColumn::make('company.name')->label('Perusahaan')->searchable(),
             IconEntry::make('is_active')->boolean(),
             TextEntry::make('created_at')->dateTime()->placeholder('-'),
             TextEntry::make('updated_at')->dateTime()->placeholder('-'),
@@ -57,21 +69,7 @@ class DepartmentResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return $table
-            ->recordTitleAttribute('name')
-            ->columns([
-                TextColumn::make('name')->searchable(),
-                TextColumn::make('code')->searchable(),
-                TextColumn::make('company.name')->searchable(),
-                IconColumn::make('is_active')->boolean(),
-                TextColumn::make('created_at')->dateTime()->sortable()->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('updated_at')->dateTime()->sortable()->toggleable(isToggledHiddenByDefault: true),
-            ])
-            ->filters([
-                //
-            ])
-            ->recordActions([ViewAction::make(), EditAction::make(), DeleteAction::make()])
-            ->toolbarActions([BulkActionGroup::make([DeleteBulkAction::make()])]);
+        return Tables\DepartmentsTable::configure($table);
     }
 
     public static function getPages(): array

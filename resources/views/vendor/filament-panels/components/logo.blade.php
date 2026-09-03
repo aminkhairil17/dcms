@@ -41,9 +41,10 @@
                 $attributes->class([
                     $getLogoClasses($isDarkMode),
                 ])
+                ->style(['color: #ffffff !important; font-weight: 800 !important;'])
             }}
         >
-            {{ $brandName }}
+            <span style="color: #ffffff !important; font-weight: 800 !important; text-shadow: 0 1px 2px rgba(0,0,0,0.2);">{{ $brandName }}</span>
         </div>
     @endif
 @endcapture

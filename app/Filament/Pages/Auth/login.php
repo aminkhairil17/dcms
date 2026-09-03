@@ -2,15 +2,20 @@
 
 namespace App\Filament\Pages\Auth;
 
-
 use Filament\Auth\Pages\Login as BaseLogin;
-use Illuminate\Validation\ValidationException;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Component;
 use Filament\Schemas\Schema;
+use Illuminate\Validation\ValidationException;
 
 class Login extends BaseLogin
 {
+    // Pastikan tidak menggunakan static
+    protected string $view = 'filament.custom-login';
+
+    /**
+     * Override method form menggunakan Schema sesuai permintaan parent class
+     */
     public function form(Schema $schema): Schema
     {
         return $schema
@@ -18,17 +23,31 @@ class Login extends BaseLogin
                 $this->getLoginFormComponent(),
                 $this->getPasswordFormComponent(),
                 $this->getRememberFormComponent(),
-            ])->statePath('data');
+            ])
+            ->statePath('data');
     }
 
     protected function getLoginFormComponent(): Component
     {
         return TextInput::make('login')
-            ->label('Username / Email')
+            ->label('Nama pengguna / Email')
+            ->placeholder('Masukkan nama pengguna atau email')
             ->required()
             ->autocomplete()
             ->autofocus()
             ->extraInputAttributes(['tabindex' => 1]);
+    }
+
+    protected function getPasswordFormComponent(): Component
+    {
+        return TextInput::make('password')
+            ->label('Kata sandi')
+            ->placeholder('••••••••')
+            ->password()
+            ->revealable()
+            ->autocomplete('current-password')
+            ->required()
+            ->extraInputAttributes(['tabindex' => 2]);
     }
 
     protected function getCredentialsFromFormData(array $data): array
@@ -40,6 +59,7 @@ class Login extends BaseLogin
             'password'  => $data['password'],
         ];
     }
+
     protected function throwFailureValidationException(): never
     {
         throw ValidationException::withMessages([

@@ -28,6 +28,61 @@ class DocumentResource extends Resource
 
     protected static ?int $navigationSort = 2;
 
+    protected static ?string $modelLabel = 'Dokumen';
+
+    protected static ?string $pluralModelLabel = 'Dokumen';
+
+    protected static ?string $recordTitleAttribute = 'title';
+
+    protected static int $globalSearchResultsLimit = 10;
+
+    public static function getGlobalSearchResultDetails(\Illuminate\Database\Eloquent\Model $record): array
+    {
+        return [
+            'Nomor Kode' => $record->code_number ?? '—',
+            'Departemen' => $record->department?->name ?? '—',
+            'Status'     => match($record->status) {
+                'draft'            => 'Pending',
+                'pending_kabid'    => 'Menunggu Kabid',
+                'pending_direktur' => 'Menunggu Direktur',
+                'approved'         => 'Disetujui',
+                'rejected'         => 'Ditolak',
+                'archived'         => 'Diarsipkan',
+                default            => $record->status,
+            },
+        ];
+    }
+
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['title', 'code_number', 'description', 'content'];
+    }
+
+    protected static string|UnitEnum|null $navigationGroup = 'Manajemen Dokumen';
+
+    public static function getNavigationBadge(): ?string
+    {
+        $pending = \Illuminate\Support\Facades\Cache::remember(
+            'nav_badge_documents_pending',
+            30,
+            fn () => Document::query()
+                ->whereIn('status', ['pending_kabid', 'pending_direktur'])
+                ->count()
+        );
+
+        return $pending > 0 ? (string) $pending : null;
+    }
+
+    public static function getNavigationBadgeColor(): string|array|null
+    {
+        return 'warning';
+    }
+
+    public static function getNavigationBadgeTooltip(): ?string
+    {
+        return 'Dokumen menunggu review';
+    }
+
     public static function form(Schema $schema): Schema
     {
         return DocumentForm::configure($schema);
@@ -53,10 +108,10 @@ class DocumentResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => ListDocuments::route('/'),
+            'index'  => ListDocuments::route('/'),
             'create' => CreateDocument::route('/create'),
-            'view' => ViewDocument::route('/{record}'),
-            'edit' => EditDocument::route('/{record}/edit'),
+            'view'   => ViewDocument::route('/{record}'),
+            'edit'   => EditDocument::route('/{record}/edit'),
         ];
     }
 
@@ -64,6 +119,7 @@ class DocumentResource extends Resource
     {
         return parent::getRecordRouteBindingEloquentQuery()->withoutGlobalScopes([SoftDeletingScope::class]);
     }
+
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()->access();

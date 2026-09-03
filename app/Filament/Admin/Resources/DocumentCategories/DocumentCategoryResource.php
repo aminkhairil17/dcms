@@ -28,6 +28,11 @@ class DocumentCategoryResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedFolder;
     protected static string|UnitEnum|null $navigationGroup = 'Data Master';
+    
+
+    protected static ?string $modelLabel = 'Kategori Dokumen';
+
+    protected static ?string $pluralModelLabel = 'Kategori Dokumen';
 
     protected static ?string $recordTitleAttribute = 'name';
 
@@ -36,7 +41,6 @@ class DocumentCategoryResource extends Resource
         return $schema->components([
             TextInput::make('name')->required(),
             TextInput::make('prefix'),
-            TextInput::make('akronim'),
             Toggle::make('is_active')->required(),
         ]);
     }
@@ -46,7 +50,6 @@ class DocumentCategoryResource extends Resource
         return $schema->components([
             TextEntry::make('name'),
             TextEntry::make('prefix')->placeholder('-'),
-            TextEntry::make('akronim')->placeholder('-'),
             IconEntry::make('is_active')->boolean(),
             TextEntry::make('created_at')->dateTime()->placeholder('-'),
             TextEntry::make('updated_at')->dateTime()->placeholder('-'),
@@ -55,21 +58,7 @@ class DocumentCategoryResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return $table
-            ->recordTitleAttribute('name')
-            ->columns([
-                TextColumn::make('name')->searchable(),
-                TextColumn::make('prefix')->searchable(),
-                TextColumn::make('akronim')->searchable(),
-                IconColumn::make('is_active')->boolean(),
-                TextColumn::make('created_at')->dateTime()->sortable()->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('updated_at')->dateTime()->sortable()->toggleable(isToggledHiddenByDefault: true),
-            ])
-            ->filters([
-                //
-            ])
-            ->recordActions([ViewAction::make(), EditAction::make(), DeleteAction::make()])
-            ->toolbarActions([BulkActionGroup::make([DeleteBulkAction::make()])]);
+        return Tables\DocumentCategoriesTable::configure($table);
     }
 
     public static function getPages(): array

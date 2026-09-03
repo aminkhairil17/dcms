@@ -1,5 +1,5 @@
 @props([
-    'teleport' => false,
+    'teleport' => true,
 ])
 
 @php

@@ -67,4 +67,15 @@ class MeetingMinutePolicy
         return $authUser->can('Reorder:MeetingMinute');
     }
 
+
+    public function viewOwnCompany(AuthUser $authUser): bool
+    {
+        return $authUser->can('view_own_company_data');
+    }
+
+
+    public function viewAllCompanies(AuthUser $authUser): bool
+    {
+        return $authUser->can('view_all_companies_data');
+    }
 }

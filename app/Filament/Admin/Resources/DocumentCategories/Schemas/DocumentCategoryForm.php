@@ -14,11 +14,13 @@ class DocumentCategoryForm
         return $schema
             ->components([
                 TextInput::make('name')
+                    ->label('Nama Kategori')
                     ->required(),
                 TextInput::make('prefix')
-                    ->label('Prefix')
+                    ->label('Awalan')
                     ->required(),
                 Toggle::make('is_active')
+                    ->label('Aktif')
                     ->required(),
             ]);
     }

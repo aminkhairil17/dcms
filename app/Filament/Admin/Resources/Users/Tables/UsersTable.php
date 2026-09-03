@@ -20,45 +20,66 @@ class UsersTable
     {
         return $table
             ->columns([
+                // Mobile card (hidden on desktop via CSS)
                 TextColumn::make('name')
-                    ->label('Name')
+                    ->label('Pengguna')
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->view('filament.tables.columns.user-mobile-card')
+                    ->grow(),
 
+                // Desktop-only columns
                 TextColumn::make('email')
                     ->label('Email')
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->visibleFrom('md'),
 
                 TextColumn::make('company.name')
-                    ->label('Company')
+                    ->label('Perusahaan')
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->visibleFrom('md'),
+
+                TextColumn::make('department.name')
+                    ->label('Departemen')
+                    ->searchable()
+                    ->sortable()
+                    ->visibleFrom('md'),
+
+                TextColumn::make('unit.name')
+                    ->label('Unit')
+                    ->searchable()
+                    ->sortable()
+                    ->visibleFrom('md'),
 
                 TextColumn::make('roles.name')
-                    ->label('Role')
-                    ->badge(),
+                    ->label('Peran')
+                    ->badge()
+                    ->visibleFrom('md'),
 
                 IconColumn::make('is_active')
-                    ->label('Active')
-                    ->boolean(),
+                    ->label('Aktif')
+                    ->boolean()
+                    ->visibleFrom('md'),
 
                 TextColumn::make('created_at')
-                    ->label('Created At')
+                    ->label('Dibuat Pada')
                     ->dateTime()
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->visibleFrom('md'),
             ])
 
             ->filters([
                 SelectFilter::make('company')
                     ->relationship('company', 'name')
-                    ->label('Company')
+                    ->label('Perusahaan')
                     ->searchable()
                     ->preload(),
 
                 TernaryFilter::make('is_active')
-                    ->label('Active Status')
+                    ->label('Status Aktif')
                     ->boolean(),
             ])
 

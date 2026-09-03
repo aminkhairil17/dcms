@@ -77,4 +77,16 @@ return [
         'reorder' => 'Susun Ulang',
         'restore_any' => 'Pulihkan Apa Saja',
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Custom Widget Labels
+    |--------------------------------------------------------------------------
+    */
+    
+    'document_expiry_widget' => 'Dokumen Kedaluwarsa',
+    'priority_actions_widget' => 'Aksi Prioritas',
+    'quick_access_hub_widget' => 'Pusat Akses Cepat',
+    'document_analytics_widget' => 'Analitik Dokumen',
+    'employee_activity_hub_widget' => 'Aktivitas Pegawai',
 ];

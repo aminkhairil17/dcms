@@ -1,0 +1,18 @@
+$kind: http-request
+method: GET
+url: '{{base_url}}/api/v1/schedules'
+order: 1000
+description: 'Ambil daftar jadwal rapat. Filter: startDate (Y-m-d), endDate (Y-m-d), status (upcoming|completed|canceled), participant_id'
+queryParams:
+  - key: startDate
+    value: ''
+    description: 'format Y-m-d'
+  - key: endDate
+    value: ''
+    description: 'format Y-m-d'
+  - key: status
+    value: upcoming
+    description: 'upcoming|completed|canceled'
+  - key: participant_id
+    value: ''
+    description: filter by user ID

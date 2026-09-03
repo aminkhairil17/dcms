@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Web Push Notification Demo</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <div class="badge">Push API & Service Worker</div>
+      <h1>Web Push Notification Demo</h1>
+      <p>Sistem notifikasi push lengkap dengan Node.js, Express, VAPID Keys, dan Service Worker.</p>
+    </header>
+
+    <main class="grid">
+      <!-- Status Card -->
+      <section class="card status-card">
+        <h2>Status Fitur</h2>
+        
+        <div class="status-item">
+          <span class="label">Status Izin Notifikasi:</span>
+          <span id="permission-status" class="status-badge badge-neutral">Mengecek...</span>
+        </div>
+
+        <div class="status-item">
+          <span class="label">Service Worker:</span>
+          <span id="sw-status" class="status-badge badge-neutral">Mengecek...</span>
+        </div>
+
+        <div class="status-item">
+          <span class="label">Status Subscription:</span>
+          <span id="subscription-status" class="status-badge badge-neutral">Belum Subscribed</span>
+        </div>
+
+        <div class="button-group">
+          <button id="btn-subscribe" class="btn btn-primary">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+            Izinkan & Subscribe Notifikasi
+          </button>
+          <button id="btn-unsubscribe" class="btn btn-danger" disabled>
+            Unsubscribe Notifikasi
+          </button>
+        </div>
+      </section>
+
+      <!-- Form Kirim Test Notifikasi -->
+      <section class="card form-card">
+        <h2>Uji Coba Kirim Push Notification</h2>
+        <p class="card-desc">Kirim notifikasi dari backend ke browser Anda melalui Web Push Service.</p>
+        
+        <form id="form-send-notification">
+          <div class="form-group">
+            <label for="notif-title">Judul Notifikasi (Title)</label>
+            <input type="text" id="notif-title" placeholder="Contoh: Pesan Baru Diterima!" value="Halo dari Web Push!" required>
+          </div>
+
+          <div class="form-group">
+            <label for="notif-body">Isi Pesan (Body)</label>
+            <textarea id="notif-body" rows="3" placeholder="Contoh: Anda memiliki 1 pesan baru yang belum dibaca." required>Ini adalah uji coba pesan notifikasi push secara real-time dari server Node.js!</textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="notif-url">URL Tujuan saat Diklik (Target URL)</label>
+            <input type="url" id="notif-url" placeholder="https://..." value="https://google.com" required>
+          </div>
+
+          <button type="submit" id="btn-send" class="btn btn-success" disabled>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+            Kirim Notifikasi Push
+          </button>
+        </form>
+      </section>
+
+      <!-- Technical Log / Object Viewer Card -->
+      <section class="card json-card">
+        <h2>Detail Data & Log</h2>
+        <div class="tech-item">
+          <span class="tech-label">VAPID Public Key dari Server:</span>
+          <code id="vapid-key-display">Loading...</code>
+        </div>
+
+        <div class="tech-item">
+          <span class="tech-label">Objek PushSubscription JSON:</span>
+          <pre id="subscription-json">Belum ada subscription aktif.</pre>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <p>Web Push Notification Architecture &bull; Client-side & Service Worker & Backend Express</p>
+    </footer>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

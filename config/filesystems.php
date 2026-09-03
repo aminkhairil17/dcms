@@ -65,8 +65,8 @@ return [
         'documents' => [
             'driver' => 'local',
             'root' => storage_path('app/public/documents'),
-            'url' => env('APP_URL') . '/storage/documents/',
-            'visibility' => 'private',
+            'url' => env('APP_URL', 'http://localhost') . '/storage/documents',
+            'visibility' => 'public',
         ],
     ],
 

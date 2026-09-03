@@ -3,17 +3,27 @@
 namespace App\Filament\Admin\Resources\Documents\Schemas;
 
 use Filament\Schemas\Schema;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\View;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\ToggleButtons;
 use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\RichEditor;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Toggle;
+use Filament\Notifications\Notification;
 use App\Models\Company;
 use App\Models\Department;
+use App\Models\Document;
 use App\Models\DocumentCategory;
+use App\Models\DocumentNumbering;
 use App\Models\Unit;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 
@@ -21,137 +31,730 @@ class DocumentForm
 {
     public static function configure(Schema $schema): Schema
     {
-        return $schema->components([
-            Section::make('Document Information')
+        return $schema->columns(1)->components([
+            
+            \Filament\Forms\Components\Placeholder::make('rejection_history')
+                ->hiddenLabel()
+                ->content(function ($record) {
+                    if (!$record || $record->status !== \App\Models\Document::STATUS_REJECTED) {
+                        return null;
+                    }
+                    $rejections = $record->rejections()->with('user')->get();
+                    if ($rejections->isEmpty()) {
+                        return null;
+                    }
+                    
+                    $html = '<div class="p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400" role="alert">';
+                    $html .= '<h3 class="font-bold text-lg mb-2 flex items-center"><svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clip-rule="evenodd"></path></svg> Riwayat Penolakan Dokumen</h3>';
+                    $html .= '<ul class="list-disc pl-5 space-y-2">';
+                    foreach ($rejections as $rej) {
+                        $roleName = ucfirst($rej->role);
+                        $date = $rej->created_at->format('d M Y H:i');
+                        $html .= "<li><strong>{$rej->user->name} ({$roleName})</strong> pada {$date}: <br> <span class='italic'>\"{$rej->notes}\"</span></li>";
+                    }
+                    $html .= '</ul>';
+                    $html .= '<p class="mt-3 font-semibold">Silakan perbaiki dokumen dan perbarui Versi Dokumen di bawah, lalu simpan.</p>';
+                    $html .= '</div>';
+                    
+                    return new \Illuminate\Support\HtmlString($html);
+                })
+                ->visible(fn ($record) => $record && $record->status === \App\Models\Document::STATUS_REJECTED)
+                ->columnSpanFull(),
+
+            /* ─── TIPE DOKUMEN ─── */
+            Section::make('Tipe Dokumen')
+                ->description('Pilih jenis dokumen yang akan dibuat')
+                ->icon('heroicon-o-squares-2x2')
+                ->iconColor('primary')
+                ->columnSpanFull()
                 ->schema([
-                    Select::make('document_type')
+                    ToggleButtons::make('document_type')
+                        ->label('')
                         ->options([
-                            'file' => 'Upload File',
-                            'form' => 'Create from Form',
+                            'file' => 'Unggah Berkas',
+                            'form' => 'Buat dari Formulir',
+                            'hybrid' => 'Gabungan',
+                        ])
+                        ->icons([
+                            'file' => 'heroicon-o-paper-clip',
+                            'form' => 'heroicon-o-pencil-square',
+                            'hybrid' => 'heroicon-o-squares-plus',
+                        ])
+                        ->colors([
+                            'file' => 'primary',
+                            'form' => 'primary',
+                            'hybrid' => 'warning',
                         ])
                         ->default('file')
                         ->required()
                         ->live()
+                        ->inline()
                         ->afterStateUpdated(function ($state, $set) {
-                            // Reset fields ketika type berubah
                             if ($state === 'file') {
                                 $set('content', null);
                             } elseif ($state === 'form') {
                                 $set('file_path', null);
+                                $set('file_name', null);
                             }
                         }),
-                    TextInput::make('Code Number')
-                        ->label('Code Number')
+                ]),
+
+            View::make('filament.admin.resources.documents.partials.document-readiness-assistant')
+                ->viewData(fn(Get $get): array => self::buildReadinessAssistantData($get))
+                ->columnSpanFull(),
+
+            /* ─── IDENTITAS DOKUMEN ─── */
+            Section::make('Identitas Dokumen')
+                ->description('Isi informasi dasar dokumen')
+                ->icon('heroicon-o-document-text')
+                ->iconColor('primary')
+                ->columnSpanFull()
+                ->schema([
+                    TextInput::make('code_number')
+                        ->label('Nomor Kode')
                         ->maxLength(255)
                         ->readOnly()
-                        ->default(fn() => 'AUTO-GENERATED'),
+                        ->afterStateHydrated(function (Get $get, Set $set, ?string $operation, $state): void {
+                            if ($operation !== 'create') {
+                                return;
+                            }
+
+                            $set('code_number', self::buildCodePreview(
+                                $get('company_id'),
+                                $get('department_id'),
+                                $get('unit_id'),
+                                $get('category_id'),
+                            ));
+                        })
+                        ->dehydrated(false)
+                        ->prefixIcon('heroicon-o-hashtag')
+                        ->helperText('Pratinjau nomor kode dibuat otomatis berdasarkan perusahaan, departemen, unit, dan kategori.'),
 
                     TextInput::make('title')
+                        ->label('Judul Dokumen')
                         ->required()
-                        ->maxLength(255),
-                ])->columnSpanFull(),
-            FileUpload::make('file_path')
-                ->label('Document File')
-                ->disk('documents')
-                ->directory('documents')
-                ->preserveFilenames()
-                ->maxSize(10240)
-                ->acceptedFileTypes([
-                    'application/pdf',
-                    'application/msword',
-                    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-                    'application/vnd.ms-excel',
-                    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-                    'image/jpeg',
-                    'image/png',
-                ])
-                ->required(fn($get) => in_array($get('document_type'), ['file', 'hybrid']))
+                        ->live(onBlur: true)
+                        ->maxLength(255)
+                        ->prefixIcon('heroicon-o-pencil')
+                        ->placeholder('Masukkan judul dokumen'),
+
+                    TextInput::make('version')
+                        ->label('Versi Dokumen')
+                        ->default('1.0')
+                        ->maxLength(50)
+                        ->prefixIcon('heroicon-o-document-duplicate')
+                        ->helperText('Perbarui nomor versi saat merevisi dokumen yang ditolak (misal: 1.1)'),
+                ]),
+
+            /* ─── BERKAS DOKUMEN ─── */
+            Section::make('Berkas Dokumen')
+                ->description('Unggah berkas dokumen (PDF, Word, Excel, atau Gambar)')
+                ->icon('heroicon-o-paper-clip')
+                ->iconColor('success')
+                ->columnSpanFull()
                 ->hidden(fn($get) => $get('document_type') === 'form')
-                ->helperText(fn($get) => $get('document_type') === 'hybrid' ? 'Optional: Upload supporting file' : 'Upload document file')
-                ->columnSpanFull(),
-            Section::make('Document Content')
+                ->schema([
+                    Hidden::make('file_name'),
+                    FileUpload::make('file_path')
+                        ->label('')
+                        ->live()
+                        ->disk('documents')
+                        ->directory('documents')
+                        ->preserveFilenames()
+                        ->afterStateUpdated(function ($state, callable $set, $record) {
+                            if ($state) {
+                                $set('file_name', basename($state));
+
+                                // ── Duplicate File Detection ──
+                                $hash = Document::computeFileHash($state);
+                                if ($hash) {
+                                    $existingDoc = Document::findDuplicateByHash(
+                                        $hash,
+                                        $record?->id
+                                    );
+                                    if ($existingDoc) {
+                                        $title = $existingDoc->title ?? 'Tidak diketahui';
+                                        $code  = $existingDoc->code_number ?? '-';
+                                        $deletedInfo = $existingDoc->trashed()
+                                            ? ' (di Recycle Bin)'
+                                            : '';
+
+                                        Notification::make()
+                                            ->title('File Duplikat Terdeteksi')
+                                            ->body("File yang Anda unggah identik dengan dokumen yang sudah ada: **{$title}** [{$code}]{$deletedInfo}. Silakan gunakan dokumen tersebut atau unggah file yang berbeda.")
+                                            ->danger()
+                                            ->persistent()
+                                            ->send();
+
+                                        // Reset file upload
+                                        $set('file_path', null);
+                                        $set('file_name', null);
+                                        return;
+                                    }
+                                    // Store hash in hidden field for saving
+                                    $set('_computed_file_hash', $hash);
+                                }
+                            } else {
+                                $set('file_name', null);
+                                $set('_computed_file_hash', null);
+                            }
+                        })
+                        ->maxSize(10240)
+                        ->acceptedFileTypes([
+                            'application/pdf',
+                            'application/msword',
+                            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                            'application/vnd.ms-excel',
+                            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                            'image/jpeg',
+                            'image/png',
+                        ])
+                        ->required(fn($get) => in_array($get('document_type'), ['file', 'hybrid']))
+                        ->helperText('Maksimal 10 MB. Format: PDF, DOC, DOCX, XLS, XLSX, JPG, PNG'),
+
+                    // Hidden field to carry computed hash to CreateDocument/EditDocument
+                    Hidden::make('_computed_file_hash'),
+                ]),
+
+            /* ─── KONTEN FORMULIR ─── */
+            Section::make('Konten Dokumen')
+                ->description('Tulis isi dokumen menggunakan editor teks kaya')
+                ->icon('heroicon-o-pencil-square')
+                ->iconColor('info')
+                ->columnSpanFull()
+                ->hidden(fn($get) => $get('document_type') === 'file')
                 ->schema([
                     RichEditor::make('content')
+                        ->label('')
+                        ->live(debounce: 900)
                         ->maxLength(65535)
                         ->required(fn($get) => in_array($get('document_type'), ['form', 'hybrid']))
-                        ->hidden(fn($get) => $get('document_type') === 'file')
-                        ->helperText('Create document content using rich text editor')
-                        ->columnSpanFull(),
-                ])
-                ->hidden(fn($get) => $get('document_type') === 'file')
-                ->columnSpanFull(),
-            Section::make('Organization')
+                        ->helperText('Gunakan toolbar di atas untuk memformat teks'),
+                ]),
+
+            /* ─── ORGANISASI ─── */
+            Section::make('Organisasi')
+                ->description('Tentukan perusahaan, departemen, unit, dan kategori dokumen')
+                ->icon('heroicon-o-building-office-2')
+                ->iconColor('warning')
+                ->columnSpanFull()
+                ->extraAttributes(['class' => 'relative !z-20'])
                 ->schema([
                     Select::make('company_id')
-                        ->label('Company')
+                        ->label('Perusahaan')
                         ->options(fn() => Company::where('is_active', true)->pluck('name', 'id'))
                         ->searchable()
                         ->preload()
+                        ->native(false)
+                        ->live()
                         ->reactive()
-                        ->default(fn() => optional(auth()->user())->company_id ?? null)
+                        ->prefixIcon('heroicon-o-building-office')
+                        ->default(function () {
+                            /** @var User $user */
+                            $user = Auth::user();
+                            return optional($user)->company_id ?? null;
+                        })
+                        ->disabled(function () {
+                            /** @var User $user */
+                            $user = Auth::user();
+                            return !$user->hasRole(['super_admin', 'direktur']);
+                        })
+                        ->dehydrated()
+                        ->afterStateUpdated(function (Set $set, Get $get, ?string $operation): void {
+                            $set('department_id', null);
+                            $set('unit_id', null);
+                            self::syncCodePreview($set, $get, $operation);
+                        })
                         ->required(),
 
                     Select::make('department_id')
-                        ->label('Department')
+                        ->label('Departemen')
                         ->options(function (callable $get) {
-                            $companyId = $get('company_id') ?? optional(auth()->user())->company_id;
+                            /** @var User $user */
+                            $user = Auth::user();
+                            $companyId = $get('company_id') ?? optional($user)->company_id;
                             return Department::when($companyId, fn($q) => $q->where('company_id', $companyId))
                                 ->where('is_active', true)
                                 ->pluck('name', 'id');
                         })
                         ->searchable()
                         ->preload()
+                        ->native(false)
+                        ->live()
                         ->reactive()
-                        ->default(fn() => optional(auth()->user())->department_id ?? null)
+                        ->prefixIcon('heroicon-o-building-office-2')
+                        ->default(function () {
+                            /** @var User $user */
+                            $user = Auth::user();
+                            return optional($user)->department_id ?? null;
+                        })
+                        ->disabled(function () {
+                            /** @var User $user */
+                            $user = Auth::user();
+                            return !$user->hasRole(['super_admin', 'direktur']);
+                        })
+                        ->dehydrated()
+                        ->afterStateUpdated(function (Set $set, Get $get, ?string $operation): void {
+                            $set('unit_id', null);
+                            self::syncCodePreview($set, $get, $operation);
+                        })
                         ->required(),
 
                     Select::make('unit_id')
                         ->label('Unit')
                         ->options(function (callable $get) {
-                            $departmentId = $get('department_id') ?? optional(auth()->user())->department_id;
+                            /** @var User $user */
+                            $user = Auth::user();
+                            $departmentId = $get('department_id') ?? optional($user)->department_id;
                             return Unit::when($departmentId, fn($q) => $q->where('department_id', $departmentId))
                                 ->where('is_active', true)
                                 ->pluck('name', 'id');
                         })
                         ->searchable()
                         ->preload()
+                        ->native(false)
+                        ->live()
                         ->reactive()
-                        ->default(fn() => optional(auth()->user())->unit_id ?? null)
+                        ->prefixIcon('heroicon-o-user-group')
+                        ->default(function () {
+                            /** @var User $user */
+                            $user = Auth::user();
+                            return optional($user)->unit_id ?? null;
+                        })
+                        ->disabled(function () {
+                            /** @var User $user */
+                            $user = Auth::user();
+                            return !$user->hasRole(['super_admin', 'direktur', 'kabid']);
+                        })
+                        ->dehydrated()
+                        ->afterStateUpdated(function (Set $set, Get $get, ?string $operation): void {
+                            self::syncCodePreview($set, $get, $operation);
+                        })
                         ->required(),
 
                     Select::make('category_id')
-                        ->label('Category')
-                        ->options(function (callable $get) {
-                            return DocumentCategory::where('is_active', true)
-                                ->pluck('name', 'id');
-                        })
+                        ->label('Kategori Dokumen')
+                        ->options(fn() => DocumentCategory::where('is_active', true)->pluck('name', 'id'))
                         ->searchable()
                         ->preload()
+                        ->native(false)
+                        ->live()
+                        ->prefixIcon('heroicon-o-tag')
+                        ->afterStateUpdated(function (Set $set, Get $get, ?string $operation): void {
+                            self::syncCodePreview($set, $get, $operation);
+                        })
                         ->required(),
                 ]),
 
-            Section::make('Settings')
+            /* ─── STATUS ─── */
+            Section::make('Status Publikasi')
+                ->description('Atur status awal dokumen setelah disimpan')
+                ->icon('heroicon-o-cog-6-tooth')
+                ->iconColor('gray')
+                ->extraAttributes([
+                    'class' => 'document-status-section',
+                ])
+                ->columnSpanFull()
                 ->schema([
-                    Select::make('status')
+                    ToggleButtons::make('status')
+                        ->label('')
                         ->options(function () {
-                            if (auth()->user()->hasRole('Direktur')) {
-                                // Kalau Direktur -> boleh semua
+                            /** @var User|null $user */
+                            $user = Auth::user();
+                            $canDirectApprove = $user && ($user->can('direct_approve_document') || $user->hasRole(['direktur', 'super_admin']));
+
+                            if ($canDirectApprove) {
                                 return [
                                     'draft' => 'Draft',
-                                    'published' => 'Published',
-                                    'archived' => 'Archived',
+                                    'approved' => 'Diterbitkan',
+                                    'archived' => 'Diarsipkan',
                                 ];
                             }
 
-                            // Bukan Direktur -> hilangkan pilihan "Published"
                             return [
                                 'draft' => 'Draft',
-                                'archived' => 'Archived',
+                                'pending_kabid' => 'Pending',
+                                'archived' => 'Diarsipkan',
                             ];
                         })
+                        ->icons([
+                            'draft' => 'heroicon-o-pencil',
+                            'pending_kabid' => 'heroicon-o-paper-airplane',
+                            'approved' => 'heroicon-o-check-circle',
+                            'archived' => 'heroicon-o-archive-box',
+                        ])
+                        ->colors([
+                            'draft' => 'primary',
+                            'pending_kabid' => 'primary',
+                            'approved' => 'primary',
+                            'archived' => 'primary',
+                        ])
                         ->default('draft')
-                        ->required(),
+                        ->required()
+                        ->live()
+                        ->inline()
+                        ->helperText(function () {
+                            /** @var User|null $user */
+                            $user = Auth::user();
+                            $canDirectApprove = $user && ($user->can('direct_approve_document') || $user->hasRole(['direktur', 'super_admin']));
+
+                            if ($canDirectApprove) {
+                                return 'Draft = simpan sementara. Diterbitkan = dokumen langsung diterbitkan & aktif (akses Direktur).';
+                            }
+
+                            return 'Draft = simpan sementara. Pending = ajukan dokumen untuk peninjauan persetujuan.';
+                        }),
+
+                    Toggle::make('is_public')
+                        ->label('Dokumen Publik (Terlihat oleh semua departemen)')
+                        ->helperText('Jika diaktifkan, dokumen ini dapat dilihat oleh seluruh departemen dalam perusahaan. Jika dinonaktifkan, hanya departemen Anda yang bisa melihat.')
+                        ->default(false),
                 ]),
+
+            /* ─── HAK AKSES GRANULAR ─── */
+            Section::make('Hak Akses Granular Unit')
+                ->description('Atur unit mana saja yang diberikan hak akses tambahan untuk membaca dokumen ini')
+                ->icon('heroicon-o-key')
+                ->iconColor('success')
+                ->columnSpanFull()
+                ->hidden()
+                ->extraAttributes(['class' => 'relative !z-10'])
+                ->schema([
+                    Select::make('allowedUnits')
+                        ->label('Unit Tambahan Yang Diizinkan Mengakses')
+                        ->relationship('allowedUnits', 'name')
+                        ->multiple()
+                        ->searchable()
+                        ->preload()
+                        ->prefixIcon('heroicon-o-user-group')
+                        ->placeholder('Pilih unit lain yang dapat mengakses dokumen ini...')
+                        ->helperText('Kosongkan jika dokumen hanya diakses oleh unit utama dokumen ini. Jika dipilih, pegawai di unit-unit tersebut akan diberikan izin khusus untuk membaca dokumen ini.'),
+                ]),
+
+            /* ─── INFORMASI TAMBAHAN ─── */
+            Section::make('Informasi Tambahan')
+                ->description('Deskripsi singkat dan masa berlaku dokumen (opsional)')
+                ->icon('heroicon-o-information-circle')
+                ->iconColor('info')
+                ->columnSpanFull()
+                ->collapsible()
+                ->schema([
+                    Textarea::make('description')
+                        ->label('Deskripsi')
+                        ->rows(3)
+                        ->maxLength(1000)
+                        ->placeholder('Tuliskan deskripsi singkat tentang dokumen ini (opsional)...')
+                        ->helperText('Deskripsi membantu reviewer dan pengguna lain memahami isi dokumen dengan cepat.'),
+
+                    // ── Expired Date + "Berlaku Selamanya" ──
+                    Toggle::make('is_permanent')
+                        ->label('Berlaku Selamanya')
+                        ->helperText('Aktifkan jika dokumen tidak memiliki batas masa berlaku.')
+                        ->default(true)
+                        ->live()
+                        ->afterStateUpdated(function (bool $state, Set $set): void {
+                            if ($state) {
+                                // Cleared expires_at when set to permanent
+                                $set('expires_at', null);
+                            }
+                        })
+                        ->dehydrated(false),  // Not a DB column – handled in mutateFormData
+
+                    DatePicker::make('expires_at')
+                        ->label('Berlaku Hingga (Tanggal Kedaluwarsa)')
+                        ->icon('heroicon-o-calendar')
+                        ->native(false)
+                        ->displayFormat('d M Y')
+                        ->placeholder('Pilih tanggal berakhirnya dokumen')
+                        ->minDate(today()->addDay())
+                        ->helperText('Sistem akan mengingatkan 30 hari sebelum kedaluwarsa.')
+                        ->hidden(fn(Get $get): bool => (bool) $get('is_permanent'))
+                        ->required(fn(Get $get): bool => ! (bool) $get('is_permanent')),
+
+                    Toggle::make('is_mandatory_read')
+                        ->label('Wajib Dibaca (Compliance Hub)')
+                        ->helperText('Aktifkan agar dokumen ini muncul sebagai dokumen wajib baca untuk pegawai divisi terkait.')
+                        ->default(false),
+                ]),
+
         ]);
+    }
+
+    private static function buildReadinessAssistantData(Get $get): array
+    {
+        $documentType = $get('document_type') ?: 'file';
+        $title = trim((string) ($get('title') ?? ''));
+        $hasFile = filled($get('file_path'));
+        $hasContent = filled(trim(strip_tags((string) ($get('content') ?? ''))));
+        $companyId = $get('company_id');
+        $departmentId = $get('department_id');
+        $unitId = $get('unit_id');
+        $categoryId = $get('category_id');
+        $status = $get('status') ?: 'draft';
+        $isMandatoryRead = (bool) $get('is_mandatory_read');
+        $isPermanent = (bool) $get('is_permanent');
+        $expiresAt = $get('expires_at');
+
+        $checklist = [
+            [
+                'label' => 'Judul dokumen',
+                'completed' => $title !== '',
+                'description' => $title !== '' ? $title : 'Tambahkan judul yang jelas agar mudah dicari.',
+            ],
+        ];
+
+        if (in_array($documentType, ['file', 'hybrid'])) {
+            $checklist[] = [
+                'label' => 'Berkas utama',
+                'completed' => $hasFile,
+                'description' => $hasFile
+                    ? 'Berkas sudah diunggah dan siap disimpan.'
+                    : 'Unggah PDF, Word, Excel, JPG, atau PNG untuk melengkapi dokumen.',
+            ];
+        }
+
+        if (in_array($documentType, ['form', 'hybrid'])) {
+            $checklist[] = [
+                'label' => 'Isi formulir',
+                'completed' => $hasContent,
+                'description' => $hasContent
+                    ? 'Konten formulir sudah terisi.'
+                    : 'Tambahkan isi dokumen pada editor agar informasi tidak kosong.',
+            ];
+        }
+
+        $checklist[] = [
+            'label' => 'Perusahaan',
+            'completed' => filled($companyId),
+            'description' => filled($companyId)
+                ? 'Perusahaan sudah dipilih.'
+                : 'Pilih perusahaan agar dokumen masuk ke struktur yang benar.',
+        ];
+
+        $checklist[] = [
+            'label' => 'Departemen',
+            'completed' => filled($departmentId),
+            'description' => filled($departmentId)
+                ? 'Departemen sudah dipilih.'
+                : 'Pilih departemen untuk menentukan alur review yang tepat.',
+        ];
+
+        $checklist[] = [
+            'label' => 'Unit kerja',
+            'completed' => filled($unitId),
+            'description' => filled($unitId)
+                ? 'Unit kerja sudah dipilih.'
+                : 'Pilih unit agar kepemilikan dokumen lebih presisi.',
+        ];
+
+        $checklist[] = [
+            'label' => 'Kategori',
+            'completed' => filled($categoryId),
+            'description' => filled($categoryId)
+                ? 'Kategori sudah dipilih.'
+                : 'Pilih kategori agar nomor dokumen tergenerate dengan pola yang sesuai.',
+        ];
+
+        $checklist[] = [
+            'label' => 'Status awal',
+            'completed' => filled($status),
+            'description' => self::getStatusHint($status),
+        ];
+
+        $checklist[] = [
+            'label' => 'Masa berlaku',
+            'completed' => $isPermanent || filled($expiresAt),
+            'description' => $isPermanent
+                ? 'Dokumen berlaku selamanya (tanpa batas waktu).'
+                : (filled($expiresAt)
+                    ? 'Tanggal kedaluwarsa dokumen sudah diatur.'
+                    : 'Pilih tanggal kedaluwarsa dokumen (Berlaku Hingga).'),
+        ];
+
+        $checklist[] = [
+            'label' => 'Wajib dibaca',
+            'completed' => true,
+            'description' => $isMandatoryRead
+                ? 'Dokumen ditandai sebagai Wajib Dibaca (Compliance Hub).'
+                : 'Dokumen ini opsional (tidak wajib dibaca).',
+        ];
+
+        $completedSteps = collect($checklist)->where('completed', true)->count();
+        $totalSteps = count($checklist);
+        $progress = $totalSteps > 0 ? (int) round(($completedSteps / $totalSteps) * 100) : 0;
+
+        [$tone, $headline, $summary] = match (true) {
+            $progress >= 100 => [
+                'success',
+                'Siap diproses',
+                'Dokumen sudah lengkap untuk disimpan. Setelah tersimpan, Anda bisa langsung melanjutkan proses review sesuai kebutuhan.',
+            ],
+            $progress >= 70 => [
+                'warning',
+                'Hampir lengkap',
+                'Tinggal sedikit lagi. Lengkapi poin yang masih kosong supaya dokumen tidak tertahan di proses berikutnya.',
+            ],
+            default => [
+                'danger',
+                'Masih perlu dilengkapi',
+                'Beberapa bagian penting masih kosong. Asisten ini membantu Anda melihat apa yang perlu dibereskan terlebih dulu.',
+            ],
+        };
+
+        return [
+            'documentTypeLabel' => match ($documentType) {
+                'file' => 'Unggah Berkas',
+                'form' => 'Formulir',
+                'hybrid' => 'Gabungan',
+                default => 'Dokumen',
+            },
+            'progress' => $progress,
+            'completedSteps' => $completedSteps,
+            'totalSteps' => $totalSteps,
+            'tone' => $tone,
+            'headline' => $headline,
+            'summary' => $summary,
+            'checklist' => $checklist,
+            'missingItems' => collect($checklist)
+                ->reject(fn(array $item): bool => $item['completed'])
+                ->pluck('label')
+                ->values()
+                ->all(),
+            'codePreview' => self::buildCodePreview($companyId, $departmentId, $unitId, $categoryId),
+            'codePreviewNote' => filled($companyId) && filled($departmentId) && filled($unitId) && filled($categoryId)
+                ? 'Pratinjau pola nomor dokumen sudah siap. Nomor final akan dibuat otomatis saat dokumen disimpan.'
+                : 'Lengkapi struktur organisasi dan kategori untuk melihat pola nomor dokumen yang lebih akurat.',
+            'statusLabel' => match ($status) {
+                'approved' => 'Diterbitkan',
+                'archived' => 'Diarsipkan',
+                default => 'Pending',
+            },
+            'nextStep' => self::buildNextStepMessage($documentType, $progress, $status),
+        ];
+    }
+
+    private static function buildCodePreview(
+        int|string|null $companyId,
+        int|string|null $departmentId,
+        int|string|null $unitId,
+        int|string|null $categoryId,
+    ): string {
+        $companyCode = self::resolvePreviewSegment(
+            Company::query()->find($companyId),
+            ['code'],
+            'COM',
+        );
+        $departmentCode = self::resolvePreviewSegment(
+            Department::query()->find($departmentId),
+            ['code'],
+            'DEPT',
+        );
+        $unitCode = self::resolvePreviewSegment(
+            Unit::query()->find($unitId),
+            ['code', 'prefix', 'name'],
+            'UNIT',
+        );
+        $categoryCode = self::resolvePreviewSegment(
+            DocumentCategory::query()->find($categoryId),
+            ['prefix', 'name'],
+            'CAT',
+        );
+        $sequence = self::getNextSequencePreview($companyId, $departmentId, $categoryId);
+
+        return implode('-', [
+            $companyCode,
+            $departmentCode,
+            $unitCode,
+            $categoryCode,
+            $sequence,
+        ]);
+    }
+
+    private static function getNextSequencePreview(
+        int|string|null $companyId,
+        int|string|null $departmentId,
+        int|string|null $categoryId,
+    ): string {
+        if (! filled($companyId) || ! filled($departmentId) || ! filled($categoryId)) {
+            return '001';
+        }
+
+        $lastNumber = (int) (DocumentNumbering::query()
+            ->where('company_id', $companyId)
+            ->where('department_id', $departmentId)
+            ->where('category_id', $categoryId)
+            ->where('year', now()->year)
+            ->value('last_number') ?? 0);
+
+        return str_pad((string) ($lastNumber + 1), 3, '0', STR_PAD_LEFT);
+    }
+
+    private static function resolvePreviewSegment(mixed $record, array $fields, string $fallback): string
+    {
+        if (! $record) {
+            return $fallback;
+        }
+
+        foreach ($fields as $field) {
+            $value = data_get($record, $field);
+
+            if (blank($value)) {
+                continue;
+            }
+
+            if ($field === 'name') {
+                $words = preg_split('/\s+/', trim((string) $value)) ?: [];
+                $initials = collect($words)
+                    ->filter()
+                    ->map(fn(string $word): string => strtoupper(substr($word, 0, 1)))
+                    ->implode('');
+
+                return substr($initials !== '' ? $initials : strtoupper((string) $value), 0, 6);
+            }
+
+            return strtoupper((string) $value);
+        }
+
+        return $fallback;
+    }
+
+    private static function syncCodePreview(Set $set, Get $get, ?string $operation): void
+    {
+        if ($operation !== 'create') {
+            return;
+        }
+
+        $set('code_number', self::buildCodePreview(
+            $get('company_id'),
+            $get('department_id'),
+            $get('unit_id'),
+            $get('category_id'),
+        ));
+    }
+
+    private static function getStatusHint(string $status): string
+    {
+        return match ($status) {
+            'approved' => 'Dokumen akan langsung aktif setelah disimpan.',
+            'archived' => 'Dokumen disimpan sebagai arsip dan tidak masuk proses aktif.',
+            default => 'Dokumen disimpan sebagai pending/draft dan bisa diajukan review setelahnya.',
+        };
+    }
+
+    private static function buildNextStepMessage(string $documentType, int $progress, string $status): string
+    {
+        if ($progress < 100) {
+            return 'Fokuskan pengisian pada item yang masih berwarna abu-abu agar dokumen cepat siap diproses.';
+        }
+
+        if ($documentType === 'hybrid') {
+            return 'Dokumen gabungan sudah lengkap. Sistem akan menyimpan berkas dan konten formulir dalam satu alur.';
+        }
+
+        if ($status === 'archived') {
+            return 'Dokumen siap diarsipkan. Pastikan memang belum perlu diajukan ke alur review aktif.';
+        }
+
+        return 'Dokumen siap disimpan. Setelah itu Anda bisa lanjut ke proses review dari daftar dokumen.';
     }
 }

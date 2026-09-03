@@ -1,0 +1,4 @@
+$kind: collection
+name: SOPs
+description: Read-only endpoints for SOPs.
+order: 2000

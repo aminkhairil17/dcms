@@ -21,7 +21,7 @@ return [
             'pages' => true,
             'widgets' => true,
             'resources' => true,
-            'custom_permissions' => false,
+            'custom_permissions' => true,
         ],
     ],
 
@@ -118,10 +118,19 @@ return [
     'policies' => [
         'path' => app_path('Policies'),
         'merge' => true,
-        'generate' => true,
+        'generate' => false,
         'methods' => [
-            'viewAny', 'view', 'create', 'update', 'delete', 'restore',
-            'forceDelete', 'forceDeleteAny', 'restoreAny', 'replicate', 'reorder',
+            'viewAny',
+            'view',
+            'create',
+            'update',
+            'delete',
+            'restore',
+            'forceDelete',
+            'forceDeleteAny',
+            'restoreAny',
+            'replicate',
+            'reorder',
         ],
         'single_parameter_methods' => [
             'viewAny',
@@ -226,7 +235,19 @@ return [
     |
     */
 
-    'custom_permissions' => [],
+    'custom_permissions' => [
+        'view_any_company_participants',
+        'view_all_companies_data',
+        'view_own_company_data',
+        'edit_other_documents',
+        'direct_approve_document',
+        'access_reminder_hub',
+        'send_mandatory_read_reminder',
+        'create_personal_reminder',
+        'create_own_reminder',
+        'send_meeting_reminder',
+        'send_expiry_reminder',
+    ],
 
     /*
     |--------------------------------------------------------------------------
@@ -241,7 +262,7 @@ return [
 
     'discovery' => [
         'discover_all_resources' => false,
-        'discover_all_widgets' => false,
+        'discover_all_widgets' => true,
         'discover_all_pages' => false,
     ],
 

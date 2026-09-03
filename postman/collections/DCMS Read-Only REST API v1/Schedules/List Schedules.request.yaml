@@ -1,0 +1,25 @@
+$kind: http-request
+name: List Schedules
+order: 1000
+method: GET
+url: '{{baseUrl}}/api/v1/schedules'
+description: |-
+  List meeting schedules. Supports date range, status and participant filtering.
+  Response uses the standard envelope: { success, message, data, meta }.
+queryParams:
+  - key: startDate
+    value: ''
+    description: Meetings on or after this date (Y-m-d).
+    disabled: true
+  - key: endDate
+    value: ''
+    description: Meetings on or before this date (Y-m-d).
+    disabled: true
+  - key: status
+    value: ''
+    description: Meeting status (upcoming|completed|canceled).
+    disabled: true
+  - key: participant_id
+    value: ''
+    description: Filter meetings where this user ID is a participant.
+    disabled: true

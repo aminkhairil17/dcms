@@ -2,7 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Filament\Models\Contracts\FilamentUser;
+use Filament\Panel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -10,45 +11,44 @@ use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use OwenIt\Auditing\Contracts\Auditable;
-use OwenIt\Auditing\Contracts\Audit;
+use NotificationChannels\WebPush\HasPushSubscriptions;
 
-class User extends Authenticatable implements MustVerifyEmail, Auditable
+class User extends Authenticatable implements Auditable, FilamentUser
 {
-    use \OwenIt\Auditing\Auditable;
-    use HasFactory, Notifiable, HasRoles;
+    use \OwenIt\Auditing\Auditable, HasFactory, Notifiable, HasRoles, HasPushSubscriptions;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
     protected $fillable = [
-        'name',
-        'email',
-        'username',
-        'password',
-        'company_id',
-        'department_id',
-        'unit_id',
-        'email_verified_at',
+        'name', 
+        'email', 
+        'phone', 
+        'username', 
+        'password', 
+        'company_id', 
+        'department_id', 
+        'unit_id', 
+        'email_verified_at', 
         'is_active',
     ];
 
     /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
+     * Nomor tujuan untuk channel notifikasi WhatsApp via n8n.
+     * Laravel memanggil routeNotificationFor{Channel}() secara otomatis.
      */
+    public function routeNotificationForN8n(): ?string
+    {
+        return $this->phone;
+    }
+
+    public function routeNotificationForWhatsapp(): ?string
+    {
+        return $this->phone;
+    }
+
     protected $hidden = [
-        'password',
+        'password', 
         'remember_token',
     ];
 
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
     protected $casts = [
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
@@ -59,88 +59,96 @@ class User extends Authenticatable implements MustVerifyEmail, Auditable
     ];
 
     /**
-     * Scope a query to only include active users.
+     * Filament Panel Access
      */
-    public function scopeActive($query)
+    public function canAccessPanel(Panel $panel): bool
+    {
+        // Anda bisa menyesuaikan ini, misalnya: return $this->is_active;
+        return true; 
+    }
+
+    /**
+     * Query Scopes
+     * Menangani error: Call to undefined method User::active()
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeActive(\Illuminate\Database\Eloquent\Builder $query): \Illuminate\Database\Eloquent\Builder
     {
         return $query->where('is_active', true);
     }
 
     /**
-     * Get the company that owns the user.
+     * Relations
      */
-    public function company(): BelongsTo
+    public function company(): BelongsTo 
+    { 
+        return $this->belongsTo(Company::class); 
+    }
+
+    public function department(): BelongsTo 
+    { 
+        return $this->belongsTo(Department::class); 
+    }
+
+    public function unit(): BelongsTo 
+    { 
+        return $this->belongsTo(Unit::class); 
+    }
+
+    public function documents(): HasMany 
+    { 
+        return $this->hasMany(Document::class); 
+    }
+    
+    public function approvedDocuments(): HasMany 
+    { 
+        return $this->hasMany(Document::class, 'approver_id'); 
+    }
+
+    public function documentBookmarks(): HasMany
     {
-        return $this->belongsTo(Company::class);
+        return $this->hasMany(DocumentBookmark::class);
+    }
+
+    public function readAcknowledgments(): HasMany
+    {
+        return $this->hasMany(DocumentReadAcknowledgment::class);
+    }
+
+    public function changeRequests(): HasMany
+    {
+        return $this->hasMany(DocumentChangeRequest::class);
+    }
+
+    public function discussions(): HasMany
+    {
+        return $this->hasMany(DocumentDiscussion::class);
     }
 
     /**
-     * Get the department that owns the user.
+     * Helpers
      */
-    public function department(): BelongsTo
-    {
-        return $this->belongsTo(Department::class);
+    public function isActive(): bool 
+    { 
+        return (bool) $this->is_active; 
+    }
+
+    public function isEmailVerified(): bool 
+    { 
+        return $this->email_verified_at !== null; 
     }
 
     /**
-     * Get the unit that owns the user.
-     */
-    public function unit(): BelongsTo
-    {
-        return $this->belongsTo(Unit::class);
-    }
-
-    /**
-     * Get the documents for the user.
-     */
-    public function documents(): HasMany
-    {
-        return $this->hasMany(Document::class);
-    }
-
-    /**
-     * Get the approved documents for the user.
-     */
-    public function approvedDocuments(): HasMany
-    {
-        return $this->hasMany(Document::class, 'approver_id');
-    }
-
-    /**
-     * Check if user is active.
-     */
-    public function isActive(): bool
-    {
-        return $this->is_active === true;
-    }
-
-    /**
-     * Check if user email is verified.
-     */
-    public function isEmailVerified(): bool
-    {
-        return $this->email_verified_at !== null;
-    }
-
-    /**
-     * Get user's full organizational path.
+     * Accessors
      */
     public function getOrganizationPathAttribute(): string
     {
         $path = [];
-
-        if ($this->company) {
-            $path[] = $this->company->name;
-        }
-
-        if ($this->department) {
-            $path[] = $this->department->name;
-        }
-
-        if ($this->unit) {
-            $path[] = $this->unit->name;
-        }
-
+        if ($this->company) $path[] = $this->company->name;
+        if ($this->department) $path[] = $this->department->name;
+        if ($this->unit) $path[] = $this->unit->name;
         return implode(' → ', $path);
     }
 }

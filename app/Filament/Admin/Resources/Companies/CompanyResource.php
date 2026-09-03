@@ -19,8 +19,9 @@ use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\Toggle;
-use Filament\Tables\Table;
 use Filament\Tables\Columns\IconColumn;
+use Filament\Tables\Filters\TernaryFilter;
+use Filament\Tables\Table;
 
 class CompanyResource extends Resource
 {
@@ -29,6 +30,10 @@ class CompanyResource extends Resource
     protected static string|BackedEnum|null $navigationIcon = Heroicon::BuildingOffice;
 
     protected static string|UnitEnum|null $navigationGroup = 'Data Master';
+
+    protected static ?string $modelLabel = 'Perusahaan';
+
+    protected static ?string $pluralModelLabel = 'Perusahaan';
 
     protected static ?string $recordTitleAttribute = 'name';
 
@@ -60,33 +65,7 @@ class CompanyResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return $table
-            ->recordTitleAttribute('name')
-            ->columns([
-                TextColumn::make('name')
-                    ->searchable(),
-                TextColumn::make('code')
-                    ->searchable(),
-                IconColumn::make('is_active')
-                    ->boolean(),
-                TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-            ])
-            ->filters([
-                //
-            ])
-            ->recordActions([
-                ViewAction::make(),
-                EditAction::make(),
-                DeleteAction::make(),
-            ])
-            ->toolbarActions([
-                BulkActionGroup::make([
-                    DeleteBulkAction::make(),
-                ]),
-            ]);
+        return Tables\CompaniesTable::configure($table);
     }
 
     public static function getPages(): array

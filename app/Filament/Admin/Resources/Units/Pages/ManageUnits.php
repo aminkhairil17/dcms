@@ -13,7 +13,11 @@ class ManageUnits extends ManageRecords
     protected function getHeaderActions(): array
     {
         return [
-            CreateAction::make(),
+            CreateAction::make()
+                ->label('Tambah Unit')
+                ->modalHeading('Tambah Unit')
+                ->modalSubmitActionLabel('Tambah')
+                ->modalCancelActionLabel('Batal'),
         ];
     }
 }

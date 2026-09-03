@@ -13,10 +13,13 @@ class CompanyForm
         return $schema
             ->components([
                 TextInput::make('name')
+                    ->label('Nama Perusahaan')
                     ->required(),
                 TextInput::make('code')
+                    ->label('Kode')
                     ->required(),
                 Toggle::make('is_active')
+                    ->label('Aktif')
                     ->required(),
             ]);
     }

@@ -1,0 +1,13 @@
+$kind: http-request
+name: Get Schedule by ID
+order: 2000
+method: GET
+url: '{{baseUrl}}/api/v1/schedules/:id'
+description: |-
+  Get a single meeting schedule by its numeric ID.
+  The path variable `:id` is the schedule ID (numeric). Returns full meeting detail with participants & attachments.
+  Response uses the standard envelope: { success, message, data, meta }.
+pathVariables:
+  - key: id
+    value: '1'
+    description: The schedule ID (numeric).

@@ -34,12 +34,13 @@
 
 <x-filament::dropdown
     :placement="($position === UserMenuPosition::Topbar) ? 'bottom-end' : 'top-end'"
-    :teleport="$position === UserMenuPosition::Topbar"
+    teleport
     :attributes="
         \Filament\Support\prepare_inherited_attributes($attributes)
             ->class(['fi-user-menu'])
     "
 >
+
     <x-slot name="trigger">
         @if ($position === UserMenuPosition::Topbar)
             <button

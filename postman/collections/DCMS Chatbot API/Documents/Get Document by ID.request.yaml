@@ -1,0 +1,8 @@
+$kind: http-request
+method: GET
+url: '{{base_url}}/api/v1/documents/{{document_id}}'
+order: 2000
+description: 'Ambil detail satu dokumen berdasarkan ID. Termasuk info author, review workflow, file URL, expiry, dan hierarki organisasi.'
+pathVariables:
+  - key: document_id
+    value: '1'

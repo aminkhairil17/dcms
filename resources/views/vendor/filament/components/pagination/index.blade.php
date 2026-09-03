@@ -59,42 +59,53 @@
     @endif
 
     @if (count($pageOptions) > 1)
-        <div class="fi-pagination-records-per-page-select-ctn">
-            <label class="fi-pagination-records-per-page-select fi-compact">
-                <x-filament::input.wrapper>
-                    <x-filament::input.select
-                        :wire:model.live="$currentPageOptionProperty"
+        <div class="fi-pagination-records-per-page-select-ctn hidden md:inline-flex items-center">
+            <x-filament::dropdown placement="top-end" class="fi-pagination-records-dropdown">
+                <x-slot name="trigger">
+                    <button
+                        type="button"
+                        class="fi-pagination-records-combined-pill group inline-flex flex-row items-center bg-white border border-slate-200 rounded-lg shadow-sm hover:border-blue-600 transition-all duration-200 focus:outline-none overflow-hidden"
                     >
-                        @foreach ($pageOptions as $option)
-                            <option value="{{ $option }}">
-                                {{ $option === 'all' ? __('filament::components/pagination.fields.records_per_page.options.all') : $option }}
-                            </option>
-                        @endforeach
-                    </x-filament::input.select>
-                </x-filament::input.wrapper>
+                        <!-- Divider Left: "per halaman" label -->
+                        <span class="fi-pagination-records-combined-pill-label px-3 py-1.5 text-xs font-semibold text-slate-500 bg-slate-50 border-r border-slate-200 select-none group-hover:text-slate-700">
+                            {{ __('filament::components/pagination.fields.records_per_page.label') }}
+                        </span>
 
-                <span class="fi-sr-only">
-                    {{ __('filament::components/pagination.fields.records_per_page.label') }}
-                </span>
-            </label>
+                        <!-- Divider Right: Selected Number + Chevron Icon -->
+                        <span class="fi-pagination-records-combined-pill-value inline-flex flex-row items-center gap-2 px-3 py-1.5 text-xs font-bold text-slate-700 group-hover:text-blue-600">
+                            <span>{{ $paginator->perPage() }}</span>
+                            <x-filament::icon
+                                icon="heroicon-m-chevron-down"
+                                class="fi-pagination-records-chevron w-3.5 h-3.5 text-slate-400 group-hover:text-blue-600 transition-transform duration-300"
+                            />
+                        </span>
+                    </button>
+                </x-slot>
 
-            <label class="fi-pagination-records-per-page-select">
-                <x-filament::input.wrapper
-                    :prefix="__('filament::components/pagination.fields.records_per_page.label')"
-                >
-                    <x-filament::input.select
-                        :wire:model.live="$currentPageOptionProperty"
-                    >
-                        @foreach ($pageOptions as $option)
-                            <option value="{{ $option }}">
-                                {{ $option === 'all' ? __('filament::components/pagination.fields.records_per_page.options.all') : $option }}
-                            </option>
-                        @endforeach
-                    </x-filament::input.select>
-                </x-filament::input.wrapper>
-            </label>
+                <x-filament::dropdown.list>
+                    @foreach ($pageOptions as $option)
+                        @php
+                            $isSelected = (string) $paginator->perPage() === (string) $option;
+                        @endphp
+                        <x-filament::dropdown.list.item
+                            :wire:click="'$set(\'' . $currentPageOptionProperty . '\', \'' . $option . '\')'"
+                            :icon="$isSelected ? 'heroicon-m-check' : null"
+                            :color="$isSelected ? 'primary' : 'gray'"
+                            class="fi-pagination-option-item"
+                        >
+                            {{ $option === 'all' ? __('filament::components/pagination.fields.records_per_page.options.all') : $option }}
+                        </x-filament::dropdown.list.item>
+                    @endforeach
+                </x-filament::dropdown.list>
+            </x-filament::dropdown>
         </div>
     @endif
+
+
+
+
+
+
 
     @if ($paginator->hasMorePages())
         @php

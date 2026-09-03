@@ -3,7 +3,7 @@
 return [
     'datetime_format' => 'd/m/Y H:i:s',
     'date_format' => 'd/m/Y',
-    'activity_resource' => \Jacobtims\FilamentLogger\Resources\ActivityResource::class,
+    'activity_resource' => \App\Filament\Admin\Resources\ActivityResource::class,
     'scoped_to_tenant' => true,
 
     'resources' => [

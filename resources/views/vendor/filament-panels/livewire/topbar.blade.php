@@ -120,6 +120,7 @@
 
                         @if ($groupLabel)
                             <x-filament::dropdown
+                                class="fi-topbar-nav-group-dropdown"
                                 placement="bottom-start"
                                 teleport
                                 :attributes="\Filament\Support\prepare_inherited_attributes($groupExtraTopbarAttributeBag)"

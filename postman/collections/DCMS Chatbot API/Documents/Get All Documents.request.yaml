@@ -1,0 +1,23 @@
+$kind: http-request
+method: GET
+url: '{{base_url}}/api/v1/documents'
+order: 1000
+description: 'Ambil daftar semua dokumen. Filter: q (search), category, status (draft|pending_kabid|pending_direktur|approved|rejected|archived), sortBy, order, page, limit (max 100)'
+queryParams:
+  - key: q
+    value: ''
+    description: full-text search
+  - key: category
+    value: ''
+    description: filter by category name/prefix
+  - key: status
+    value: approved
+    description: 'filter status: draft|pending_kabid|pending_direktur|approved|rejected|archived'
+  - key: sortBy
+    value: created_at
+  - key: order
+    value: desc
+  - key: page
+    value: '1'
+  - key: limit
+    value: '10'

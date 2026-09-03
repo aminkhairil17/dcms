@@ -14,13 +14,18 @@ class DepartmentForm
         return $schema
             ->components([
                 TextInput::make('name')
+                    ->label('Nama')
                     ->required(),
                 TextInput::make('code')
+                    ->label('Kode')
                     ->required(),
                 Select::make('company_id')
+                    ->label('Perusahaan')
                     ->relationship('company', 'name')
+                    ->default(session('last_company_id'))
                     ->required(),
                 Toggle::make('is_active')
+                    ->label('Aktif')
                     ->required(),
             ]);
     }

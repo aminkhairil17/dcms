@@ -18,6 +18,7 @@
     $actionIsModalSlideOver = $action->isModalSlideOver();
     $actionIsModalFooterSticky = $action->isModalFooterSticky();
     $actionIsModalHeaderSticky = $action->isModalHeaderSticky();
+    $actionModalTeleport = $actionIsModalSlideOver ? null : 'body';
     $actionModalWidth = $action->getModalWidth();
     $actionLivewireCallMountedActionName = $action->hasFormWrapper() ? $action->getLivewireCallMountedActionName() : null;
     $actionModalWireKey = "{$this->getId()}.actions.{$action->getName()}.modal";
@@ -40,6 +41,7 @@
     :slide-over="$actionIsModalSlideOver"
     :sticky-footer="$actionIsModalFooterSticky"
     :sticky-header="$actionIsModalHeaderSticky"
+    :teleport="$actionModalTeleport"
     :width="$actionModalWidth"
     :wire:key="$actionModalWireKey"
     :wire:submit.prevent="$actionLivewireCallMountedActionName"

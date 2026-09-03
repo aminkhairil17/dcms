@@ -1,0 +1,13 @@
+$kind: http-request
+name: Get SOP by ID
+order: 2000
+method: GET
+url: '{{baseUrl}}/api/v1/sops/:id'
+description: |-
+  Get a single SOP by its numeric ID.
+  The path variable `:id` is the SOP ID (numeric). Returns 404 if the record is not a SOP.
+  Response uses the standard envelope: { success, message, data, meta }.
+pathVariables:
+  - key: id
+    value: '1'
+    description: The SOP ID (numeric).
