@@ -162,6 +162,11 @@ class MeetingForm
                     ->label('Tanggal & Waktu Mulai')
                     ->required()
                     ->live()
+                    ->hint(fn () => request()->query('date_time')
+                        ? '📅 Tanggal diisi dari kalender — silakan lengkapi jam mulai rapat.'
+                        : null
+                    )
+                    ->hintColor('primary')
                     ->afterStateUpdated(function ($state, callable $set, callable $get) {
                         // Auto-isi end_time +2 jam jika belum diisi
                         if (!$get('end_time') && $state) {

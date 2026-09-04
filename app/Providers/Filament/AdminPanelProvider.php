@@ -1336,7 +1336,7 @@ class AdminPanelProvider extends PanelProvider
                                 box-sizing: border-box !important;
                             }
 
-                            /* GRID 2x2 DI DALAM KONTAINER IBU: 2 Kolom Menyamping */
+                            /* GRID 3-kartu: Baris 1 = lebar penuh, Baris 2 = 2 persegi */
                             .fi-wi-stats-overview [class*="grid"],
                             .fi-wi-stats-overview div:has(> .fi-wi-stats-overview-stat) {
                                 display: grid !important;
@@ -1346,15 +1346,42 @@ class AdminPanelProvider extends PanelProvider
                                 max-width: 100% !important;
                                 box-sizing: border-box !important;
                             }
+
+                            /* Override Filament CSS custom props untuk grid */
+                            .fi-wi-stats-overview .fi-grid {
+                                --cols-default: repeat(2, minmax(0, 1fr)) !important;
+                            }
+
+                            /* Kartu pertama (Rapat Hari Ini): persegi panjang lebar penuh */
+                            .fi-wi-stats-overview [class*="grid"] > *:first-child,
+                            .fi-wi-stats-overview div:has(> .fi-wi-stats-overview-stat) > *:first-child,
+                            .fi-wi-stats-overview .fi-grid > .fi-grid-col:nth-child(1) {
+                                grid-column: span 2 / span 2 !important;
+                                --col-span-default: span 2 / span 2 !important;
+                            }
+
+                            /* Kartu kedua (Undangan Rapat): persegi kiri bawah */
+                            .fi-wi-stats-overview [class*="grid"] > *:nth-child(2),
+                            .fi-wi-stats-overview div:has(> .fi-wi-stats-overview-stat) > *:nth-child(2),
+                            .fi-wi-stats-overview .fi-grid > .fi-grid-col:nth-child(2) {
+                                grid-column: span 1 / span 1 !important;
+                                --col-span-default: span 1 / span 1 !important;
+                            }
+
+                            /* Kartu ketiga (Total Rapat Mendatang): persegi kanan bawah */
+                            .fi-wi-stats-overview [class*="grid"] > *:nth-child(3),
+                            .fi-wi-stats-overview div:has(> .fi-wi-stats-overview-stat) > *:nth-child(3),
+                            .fi-wi-stats-overview .fi-grid > .fi-grid-col:nth-child(3) {
+                                grid-column: span 1 / span 1 !important;
+                                --col-span-default: span 1 / span 1 !important;
+                            }
                             
-                            /* Kartu Statistik: Persegi panjang horizontal ringkas & presisi (2x2) */
+                            /* Kartu Statistik: Semua kartu punya tinggi minimum */
                             .fi-wi-stats-overview-stat {
                                 background-color: #ffffff !important;
                                 padding: 0.55rem 0.75rem !important;
                                 width: 100% !important;
-                                height: 70px !important;
-                                min-height: 70px !important;
-                                max-height: 70px !important;
+                                min-height: 65px !important;
                                 border-radius: 12px !important;
                                 border: 1.5px solid rgba(0, 0, 0, 0.07) !important;
                                 box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
@@ -1363,6 +1390,25 @@ class AdminPanelProvider extends PanelProvider
                                 justify-content: space-between !important;
                                 overflow: hidden !important;
                                 box-sizing: border-box !important;
+                            }
+
+                            /* Kartu pertama: persegi panjang (lebih tinggi) */
+                            .fi-wi-stats-overview [class*="grid"] > *:first-child .fi-wi-stats-overview-stat,
+                            .fi-wi-stats-overview div:has(> .fi-wi-stats-overview-stat) > *:first-child .fi-wi-stats-overview-stat {
+                                min-height: 80px !important;
+                                height: auto !important;
+                                max-height: none !important;
+                            }
+
+                            /* Kartu ke-2 dan ke-3: persegi panjang kecil */
+                            .fi-wi-stats-overview [class*="grid"] > *:nth-child(2) .fi-wi-stats-overview-stat,
+                            .fi-wi-stats-overview [class*="grid"] > *:nth-child(3) .fi-wi-stats-overview-stat,
+                            .fi-wi-stats-overview div:has(> .fi-wi-stats-overview-stat) > *:nth-child(2) .fi-wi-stats-overview-stat,
+                            .fi-wi-stats-overview div:has(> .fi-wi-stats-overview-stat) > *:nth-child(3) .fi-wi-stats-overview-stat {
+                                aspect-ratio: unset !important;
+                                height: 80px !important;
+                                min-height: 80px !important;
+                                max-height: 80px !important;
                             }
                             
                             .fi-wi-stats-overview-stat-content {

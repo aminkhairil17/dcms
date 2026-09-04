@@ -14,7 +14,7 @@ class MeetingTodayWidget extends BaseTableWidget
     use HasWidgetShield;
 
     protected static ?int $sort = 2;
-    protected int|string|array $columnSpan = 1;
+    protected int|string|array $columnSpan = 'full';
     protected static ?string $heading = 'Jadwal Rapat Hari Ini';
 
     public function table(Table $table): Table

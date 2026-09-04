@@ -6,12 +6,38 @@ use App\Filament\Admin\Resources\Meetings\MeetingResource;
 use Filament\Resources\Pages\CreateRecord;
 use App\Mail\MeetingInvitationMail;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Carbon;
 
 class CreateMeeting extends CreateRecord
 {
     protected static string $resource = MeetingResource::class;
 
     protected static bool $canCreateAnother = false;
+
+    /**
+     * Pre-fill the date part of date_time from the calendar widget shortcut.
+     * Time is intentionally left empty so the user must still enter the start time.
+     */
+    protected function fillForm(): void
+    {
+        parent::fillForm();
+
+        $dateParam = request()->query('date_time');
+
+        if ($dateParam) {
+            try {
+                // Parse the clicked date — keep only the date, set time to 00:00
+                // User still has to fill in the correct start time
+                $date = Carbon::parse($dateParam)->startOfDay()->format('Y-m-d\TH:i');
+
+                $this->form->fill([
+                    'date_time' => $date,
+                ]);
+            } catch (\Throwable $e) {
+                // Silently ignore parse errors
+            }
+        }
+    }
     
     public function getTitle(): string
     {
