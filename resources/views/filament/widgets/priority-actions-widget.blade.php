@@ -17,15 +17,17 @@
                                 class="pa-item"
                                 style="--pa-delay: {{ 80 + $index * 50 }}ms;"
                             >
-                                <div class="pa-item-main">
+                                <div class="pa-item-header">
                                     <div class="pa-item-title">{{ $document['title'] }}</div>
-                                    <div class="pa-item-meta">
-                                        <span class="pa-item-code">{{ $document['code'] }}</span>
+                                    <span class="pa-badge pa-badge--{{ $document['badgeColor'] }}">{{ $document['badge'] }}</span>
+                                </div>
+                                <div class="pa-item-meta">
+                                    <div><span class="pa-item-code">{{ $document['code'] }}</span></div>
+                                    <div class="pa-meta-bottom">
                                         <span>{{ $document['meta'] }}</span>
-                                        <span>{{ $document['updatedAt'] }}</span>
+                                        <span class="pa-meta-time"><span class="pa-meta-dot">&bull;</span> {{ $document['updatedAt'] }}</span>
                                     </div>
                                 </div>
-                                <span class="pa-badge pa-badge--{{ $document['badgeColor'] }}">{{ $document['badge'] }}</span>
                             </a>
                         @endforeach
                     </div>
@@ -114,19 +116,19 @@
         }
 
         /* List items */
-        .pa-list { display: grid; gap: 0.35rem; }
+        .pa-list { display: flex; flex-direction: column; gap: 0.35rem; }
 
         .pa-item {
             display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 1rem;
-            padding: 0.7rem 0.85rem;
-            border-radius: 0.65rem;
+            flex-direction: column;
+            gap: 0.4rem;
+            padding: 0.6rem 0.75rem; /* Compact padding */
+            border-radius: 0.5rem;
             text-decoration: none;
             color: inherit;
-            border: 1px solid transparent;
-            transition: background 0.18s ease, border-color 0.18s ease, transform 0.18s ease;
+            border: 1px solid #f1f5f9;
+            background: #fafafa; /* Slight distinct background */
+            transition: all 0.2s ease;
         }
 
         .pa-item:hover {
@@ -135,41 +137,71 @@
             transform: translateX(2px);
         }
 
-        .pa-item-main { min-width: 0; }
+        .pa-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 0.5rem;
+            width: 100%;
+        }
 
         .pa-item-title {
-            font-size: 0.875rem;
-            font-weight: 600;
-            color: #1e293b;
-            white-space: nowrap;
+            font-size: 0.8rem; /* Smaller font */
+            font-weight: 700;
+            color: #0f172a;
+            line-height: 1.3;
+            /* Wrap up to 2 lines */
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
             overflow: hidden;
-            text-overflow: ellipsis;
+            word-break: break-word;
+            flex: 1;
         }
 
         .pa-item-meta {
             display: flex;
-            flex-wrap: wrap;
-            gap: 0.4rem;
-            margin-top: 0.2rem;
-            font-size: 0.75rem;
-            color: #94a3b8;
+            flex-direction: column;
+            gap: 0.35rem;
         }
 
         .pa-item-code {
-            background: #dbeafe;
-            color: #1d4ed8;
+            background: #eff6ff;
+            color: #2563eb;
             border-radius: 4px;
             padding: 1px 6px;
             font-weight: 600;
-            font-size: 0.72rem;
+            font-size: 0.65rem;
+            border: 1px solid #dbeafe;
+            display: inline-block;
+        }
+
+        .pa-meta-bottom {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            column-gap: 0.35rem;
+            row-gap: 0.15rem;
+            font-size: 0.65rem;
+            color: #64748b;
+        }
+        
+        .pa-meta-time {
+            white-space: nowrap;
+        }
+
+        .pa-meta-dot {
+            color: #cbd5e1;
+            font-size: 0.6rem;
+            margin-right: 0.1rem;
         }
 
         /* Badges */
         .pa-badge {
             flex-shrink: 0;
-            padding: 0.28rem 0.7rem;
-            border-radius: 999px;
-            font-size: 0.72rem;
+            padding: 0.15rem 0.4rem;
+            border-radius: 4px;
+            font-size: 0.6rem;
             font-weight: 700;
             white-space: nowrap;
         }
