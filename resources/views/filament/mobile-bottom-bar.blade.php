@@ -18,7 +18,7 @@ $profileUrl = url("/{$panelPath}/profile");
 $isDashActive = ($currentPath === $panelPath || $currentPath === "{$panelPath}/");
 $isDocActive = str_contains($currentPath, 'documents') && !str_contains($currentPath, 'create');
 $isMeetingActive = str_contains($currentPath, 'meetings');
-$isProfileActive = str_contains($currentPath, 'profile');
+$isMenuActive = false; // menu button is never "active" like a page
 @endphp
 
 {{-- Compact Mobile Bottom Navigation Bar --}}
@@ -54,17 +54,23 @@ $isProfileActive = str_contains($currentPath, 'profile');
             <span class="dcms-mbb-label">Rapat</span>
         </a>
 
-        {{-- 4. Akun --}}
-        <a href="{{ $profileUrl }}" onclick="window.location.href='{{ $profileUrl }}'; return false;" class="dcms-mbb-item {{ $isProfileActive ? 'active' : '' }}">
+        {{-- 4. Menu --}}
+        <button type="button"
+                class="dcms-mbb-item {{ $isMenuActive ? 'active' : '' }}"
+                onclick="dcmsOpenMenu()"
+                aria-label="Buka Menu">
             <div class="dcms-mbb-icon">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="{{ $isProfileActive ? '2.5' : '1.8' }}">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0zM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
                 </svg>
             </div>
-            <span class="dcms-mbb-label">Akun</span>
-        </a>
+            <span class="dcms-mbb-label">Menu</span>
+        </button>
     </div>
 </nav>
+
+{{-- Mobile Menu Overlay --}}
+@include('filament.mobile-menu-overlay')
 
 <style>
     /* ═══════════════════════════════════════════════════
@@ -199,6 +205,12 @@ $isProfileActive = str_contains($currentPath, 'profile');
             -webkit-tap-highlight-color: transparent;
             cursor: pointer !important;
             pointer-events: auto !important;
+            /* Reset button styles */
+            background: none !important;
+            border: none !important;
+            padding: 0 !important;
+            font-family: inherit !important;
+            outline: none !important;
         }
 
         .dcms-mbb-item.active {
