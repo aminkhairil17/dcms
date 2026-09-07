@@ -96,6 +96,23 @@ class AdminPanelProvider extends PanelProvider
                             }
                         }
 
+                        /* ================================================
+                           HIDE DEFAULT SIDEBAR (Replaced by Menu)
+                        ================================================ */
+                        aside.fi-sidebar {
+                            display: none !important;
+                        }
+                        .fi-main-ctn, .fi-main {
+                            padding-left: 0 !important;
+                            margin-left: 0 !important;
+                        }
+                        /* Hide hamburger menu button in topbar */
+                        .fi-topbar .fi-icon-btn.fi-sidebar-collapse-btn,
+                        .fi-topbar-open-sidebar-btn,
+                        .fi-topbar-close-sidebar-btn {
+                            display: none !important;
+                        }
+
                         /* Hide mobile bottom bar on login & auth screens */
                         .fi-simple-layout .dcms-mobile-bottom-bar,
                         .fi-body-login .dcms-mobile-bottom-bar,
