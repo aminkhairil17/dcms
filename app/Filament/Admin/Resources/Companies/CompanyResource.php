@@ -5,23 +5,14 @@ namespace App\Filament\Admin\Resources\Companies;
 use App\Filament\Admin\Resources\Companies\Pages\ManageCompanies;
 use App\Models\Company;
 use BackedEnum;
-use Dom\Text;
-use UnitEnum;
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteAction;
-use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\EditAction;
-use Filament\Actions\ViewAction;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Forms\Components\Toggle;
-use Filament\Tables\Columns\IconColumn;
-use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
+use UnitEnum;
 
 class CompanyResource extends Resource
 {
@@ -59,7 +50,7 @@ class CompanyResource extends Resource
                 TextEntry::make('name'),
                 TextEntry::make('code'),
                 TextEntry::make('is_active')
-                    ->formatStateUsing(fn(bool $state): string => $state ? 'Aktif' : 'Tidak Aktif'),
+                    ->formatStateUsing(fn (bool $state): string => $state ? 'Aktif' : 'Tidak Aktif'),
             ]);
     }
 

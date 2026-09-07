@@ -72,14 +72,17 @@ class Register extends BaseRegister
             ->label('Departemen')
             ->options(function ($get) {
                 $companyId = $get('company_id');
-                if (!$companyId) return [];
+                if (! $companyId) {
+                    return [];
+                }
+
                 return Department::where('company_id', $companyId)->pluck('name', 'id');
             })
             ->searchable()
             ->preload()
             ->reactive()
-            ->afterStateUpdated(fn($set) => $set('unit_id', null))
-            ->disabled(fn($get) => !$get('company_id'));
+            ->afterStateUpdated(fn ($set) => $set('unit_id', null))
+            ->disabled(fn ($get) => ! $get('company_id'));
     }
 
     protected function getUnitFormComponent(): Select
@@ -88,12 +91,15 @@ class Register extends BaseRegister
             ->label('Unit')
             ->options(function ($get) {
                 $departmentId = $get('department_id');
-                if (!$departmentId) return [];
+                if (! $departmentId) {
+                    return [];
+                }
+
                 return Unit::where('department_id', $departmentId)->pluck('name', 'id');
             })
             ->searchable()
             ->preload()
             ->reactive()
-            ->disabled(fn($get) => !$get('department_id'));
+            ->disabled(fn ($get) => ! $get('department_id'));
     }
 }

@@ -11,6 +11,7 @@ use Filament\Schemas\Components\Tabs\Tab;
 class ListMeetings extends ListRecords
 {
     protected static string $resource = MeetingResource::class;
+
     public function getTitle(): string
     {
         return 'Daftar Rapat';
@@ -30,9 +31,10 @@ class ListMeetings extends ListRecords
                 ->modalCancelActionLabel('Tutup'),
             CreateAction::make()
                 ->label('Tambah Rapat')
-                ->createAnother(false)
+                ->createAnother(false),
         ];
     }
+
     public function mount(): void
     {
         parent::mount();
@@ -43,10 +45,10 @@ class ListMeetings extends ListRecords
             ->where(function ($query) {
                 $query->where(function ($q) {
                     $q->whereNotNull('end_time')
-                      ->where('end_time', '<=', now());
+                        ->where('end_time', '<=', now());
                 })->orWhere(function ($q) {
                     $q->whereNull('end_time')
-                      ->where('date_time', '<=', now());
+                        ->where('date_time', '<=', now());
                 });
             })
             ->update(['status' => 'completed']);
@@ -56,11 +58,12 @@ class ListMeetings extends ListRecords
     {
         return [
             null => Tab::make('Semua'),
-            'terjadwal' => Tab::make('Terjadwal')->query(fn($query) => $query->where('status', 'scheduled')),
-            'berakhir' => Tab::make('Berakhir')->query(fn($query) => $query->where('status', 'completed')),
-            'batal' => Tab::make('Batal')->query(fn($query) => $query->where('status', 'cancelled')),
+            'terjadwal' => Tab::make('Terjadwal')->query(fn ($query) => $query->where('status', 'scheduled')),
+            'berakhir' => Tab::make('Berakhir')->query(fn ($query) => $query->where('status', 'completed')),
+            'batal' => Tab::make('Batal')->query(fn ($query) => $query->where('status', 'cancelled')),
         ];
     }
+
     public function getDefaultActiveTab(): string|int|null
     {
         return 'terjadwal';

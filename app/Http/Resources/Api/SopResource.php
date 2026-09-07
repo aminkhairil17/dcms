@@ -34,10 +34,10 @@ class SopResource extends DocumentResource
                     ->limit(5)
                     ->get(['id', 'title', 'code_number', 'version', 'status'])
                     ->map(fn ($doc) => [
-                        'id'          => $doc->id,
-                        'title'       => $doc->title,
+                        'id' => $doc->id,
+                        'title' => $doc->title,
                         'code_number' => $doc->code_number,
-                        'version'     => $doc->version,
+                        'version' => $doc->version,
                     ])
                     ->values()
                     ->all();
@@ -76,7 +76,7 @@ class SopResource extends DocumentResource
 
             if ($cleaned !== '') {
                 $steps[] = [
-                    'step'        => $stepNumber++,
+                    'step' => $stepNumber++,
                     'description' => $cleaned,
                 ];
             }
@@ -103,12 +103,12 @@ class SopResource extends DocumentResource
                 return isset($changed['version']) || isset($changed['status']);
             })
             ->map(fn ($log) => [
-                'event'      => $log->event ?? $log->description,
-                'version'    => $log->properties['attributes']['version'] ?? null,
-                'status'     => $log->properties['attributes']['status'] ?? null,
+                'event' => $log->event ?? $log->description,
+                'version' => $log->properties['attributes']['version'] ?? null,
+                'status' => $log->properties['attributes']['status'] ?? null,
                 'changed_by' => $log->causer?->name,
                 'changed_at' => $log->created_at?->toISOString(),
-                'description'=> Str::limit($log->description, 120),
+                'description' => Str::limit($log->description, 120),
             ])
             ->sortByDesc('changed_at')
             ->values()

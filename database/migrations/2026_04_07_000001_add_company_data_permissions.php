@@ -22,7 +22,7 @@ return new class extends Migration
     public function up(): void
     {
         $guardName = 'web';
-        $now       = now();
+        $now = now();
 
         foreach ($this->permissions as $name) {
             // firstOrCreate agar tidak duplikat jika seeder pernah dijalankan
@@ -33,7 +33,7 @@ return new class extends Migration
 
             if (! $exists) {
                 DB::table('permissions')->insert([
-                    'name'       => $name,
+                    'name' => $name,
                     'guard_name' => $guardName,
                     'created_at' => $now,
                     'updated_at' => $now,
@@ -63,7 +63,7 @@ return new class extends Migration
                     if (! $alreadyAssigned) {
                         DB::table('role_has_permissions')->insert([
                             'permission_id' => $permission->id,
-                            'role_id'       => $superAdminRole->id,
+                            'role_id' => $superAdminRole->id,
                         ]);
                     }
                 }
@@ -91,7 +91,7 @@ return new class extends Migration
                 if (! $alreadyAssigned) {
                     DB::table('role_has_permissions')->insert([
                         'permission_id' => $permission->id,
-                        'role_id'       => $direkturRole->id,
+                        'role_id' => $direkturRole->id,
                     ]);
                 }
             }

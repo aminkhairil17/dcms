@@ -2,20 +2,19 @@
 
 namespace App\Filament\Admin\Resources\Meetings\Tables;
 
-use Dom\Text;
+use Carbon\Carbon;
+use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
-use Filament\Actions\Action;
+use Filament\Forms\Components\DatePicker;
 use Filament\Notifications\Notification;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Table;
-use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\Filter;
-use Filament\Forms\Components\DatePicker;
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Carbon\Carbon;
 
 class MeetingsTable
 {
@@ -78,7 +77,7 @@ class MeetingsTable
                     ->visibleFrom('md'),
                 TextColumn::make('updated_at')->dateTime()->sortable()->toggleable(isToggledHiddenByDefault: true)->visibleFrom('md'),
             ])
-                ->defaultSort('date_time', 'desc')
+            ->defaultSort('date_time', 'desc')
             ->filters([
                 Filter::make('is_invited')
                     ->label('Rapat Undangan Saya')
@@ -92,7 +91,7 @@ class MeetingsTable
                 SelectFilter::make('company_id')
                     ->label('Perusahaan')
                     ->relationship('company', 'name')
-                    ->visible(fn() => auth()->user()->hasRole('super_admin')),
+                    ->visible(fn () => auth()->user()->hasRole('super_admin')),
                 SelectFilter::make('month')
                     ->label('Bulan')
                     ->options([
@@ -109,8 +108,7 @@ class MeetingsTable
                         '11' => 'November',
                         '12' => 'Desember',
                     ])
-                    ->query(fn (Builder $query, array $data) => 
-                        $query->when($data['value'], fn ($q, $month) => $q->whereMonth('date_time', $month))
+                    ->query(fn (Builder $query, array $data) => $query->when($data['value'], fn ($q, $month) => $q->whereMonth('date_time', $month))
                     ),
                 Filter::make('date_filter')
                     ->form([
@@ -131,11 +129,12 @@ class MeetingsTable
                     ->indicateUsing(function (array $data): array {
                         $indicators = [];
                         if ($data['date_from'] ?? null) {
-                            $indicators[] = 'Mulai: ' . Carbon::parse($data['date_from'])->translatedFormat('d M Y');
+                            $indicators[] = 'Mulai: '.Carbon::parse($data['date_from'])->translatedFormat('d M Y');
                         }
                         if ($data['date_until'] ?? null) {
-                            $indicators[] = 'Sampai: ' . Carbon::parse($data['date_until'])->translatedFormat('d M Y');
+                            $indicators[] = 'Sampai: '.Carbon::parse($data['date_until'])->translatedFormat('d M Y');
                         }
+
                         return $indicators;
                     }),
             ])
@@ -145,13 +144,12 @@ class MeetingsTable
                 Action::make('viewNotulen')
                     ->label('Hasil Notulen')
                     ->icon('heroicon-o-document')
-                    ->visible(fn($record) => 
-                        !empty($record->file_path) && 
-                        (auth()->user()->hasRole(['super_admin', 'Sekretaris']) || 
-                         $record->created_by === auth()->id() || 
+                    ->visible(fn ($record) => ! empty($record->file_path) &&
+                        (auth()->user()->hasRole(['super_admin', 'Sekretaris']) ||
+                         $record->created_by === auth()->id() ||
                          $record->participants()->where('users.id', auth()->id())->exists())
                     )
-                    ->url(fn($record) => route('notulen.view', $record))
+                    ->url(fn ($record) => route('notulen.view', $record))
                     ->openUrlInNewTab(),
                 Action::make('cancel')
                     ->label('Batal')
@@ -162,8 +160,7 @@ class MeetingsTable
                     ->modalDescription('Apakah Anda yakin ingin membatalkan rapat ini? Tindakan ini tidak dapat dibatalkan.')
                     ->modalSubmitActionLabel('Ya, Batalkan')
                     ->modalCancelActionLabel('Tidak')
-                    ->visible(fn($record) => 
-                        in_array($record->status, ['terjadwal', 'scheduled']) && 
+                    ->visible(fn ($record) => in_array($record->status, ['terjadwal', 'scheduled']) &&
                         (auth()->user()->hasRole(['super_admin', 'Sekretaris']) || $record->created_by === auth()->id())
                     )
                     ->action(function ($record) {

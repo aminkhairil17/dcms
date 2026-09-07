@@ -13,7 +13,9 @@ class MeetingInvitedWidget extends BaseTableWidget
     use HasWidgetShield;
 
     protected static ?int $sort = 3;
+
     protected int|string|array $columnSpan = 'full';
+
     protected static ?string $heading = 'Undangan Rapat Mendatang';
 
     public function table(Table $table): Table

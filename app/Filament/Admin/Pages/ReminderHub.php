@@ -55,7 +55,9 @@ class ReminderHub extends Page
     {
         /** @var User|null $user */
         $user = Auth::user();
-        if (!$user) return false;
+        if (! $user) {
+            return false;
+        }
 
         return $user->can('access_reminder_hub')
             || $user->can('send_mandatory_read_reminder')
@@ -67,7 +69,9 @@ class ReminderHub extends Page
     }
 
     public bool $showPersonalModal = false;
+
     public string $personalTitle = '';
+
     public string $personalNotes = '';
 
     public function openPersonalModal(): void
@@ -75,12 +79,13 @@ class ReminderHub extends Page
         /** @var User|null $user */
         $user = Auth::user();
 
-        if ($user && !$user->can('create_own_reminder') && !$user->can('create_personal_reminder')) {
+        if ($user && ! $user->can('create_own_reminder') && ! $user->can('create_personal_reminder')) {
             FilamentNotification::make()
                 ->title('Akses Ditolak')
                 ->danger()
                 ->body('Anda tidak memiliki izin (create_own_reminder) untuk membuat pengingat pribadi.')
                 ->send();
+
             return;
         }
 
@@ -99,14 +104,17 @@ class ReminderHub extends Page
         /** @var User|null $user */
         $user = Auth::user();
 
-        if (!$user) return;
+        if (! $user) {
+            return;
+        }
 
-        if (!$user->can('create_own_reminder') && !$user->can('create_personal_reminder')) {
+        if (! $user->can('create_own_reminder') && ! $user->can('create_personal_reminder')) {
             FilamentNotification::make()
                 ->title('Akses Ditolak')
                 ->danger()
                 ->body('Anda tidak memiliki izin (create_own_reminder) untuk membuat pengingat pribadi.')
                 ->send();
+
             return;
         }
 
@@ -115,6 +123,7 @@ class ReminderHub extends Page
                 ->title('Judul Pengingat Wajib Diisi')
                 ->warning()
                 ->send();
+
             return;
         }
 
@@ -134,7 +143,7 @@ class ReminderHub extends Page
                 ->body('Pengingat pribadi telah dikirim ke notifikasi lonceng Anda.')
                 ->send();
         } catch (\Throwable $e) {
-            Log::error('Failed creating PersonalReminderNotification: ' . $e->getMessage());
+            Log::error('Failed creating PersonalReminderNotification: '.$e->getMessage());
         }
     }
 
@@ -143,12 +152,13 @@ class ReminderHub extends Page
         /** @var User $currentUser */
         $currentUser = Auth::user();
 
-        if (!$currentUser->can('send_mandatory_read_reminder') && !$currentUser->hasRole(['super_admin', 'direktur', 'kabid', 'manager'])) {
+        if (! $currentUser->can('send_mandatory_read_reminder') && ! $currentUser->hasRole(['super_admin', 'direktur', 'kabid', 'manager'])) {
             FilamentNotification::make()
                 ->title('Akses Ditolak')
                 ->danger()
                 ->body('Anda tidak memiliki izin (send_mandatory_read_reminder) untuk mengirim pengingat dokumen wajib baca.')
                 ->send();
+
             return;
         }
 
@@ -156,7 +166,7 @@ class ReminderHub extends Page
         $mandatoryDocs = Document::query()
             ->where('status', Document::STATUS_APPROVED)
             ->where('is_mandatory_read', true)
-            ->when(!$currentUser->hasRole('super_admin') && $currentUser->company_id, function ($q) use ($currentUser) {
+            ->when(! $currentUser->hasRole('super_admin') && $currentUser->company_id, function ($q) use ($currentUser) {
                 $q->where('company_id', $currentUser->company_id);
             })
             ->get();
@@ -167,6 +177,7 @@ class ReminderHub extends Page
                 ->warning()
                 ->body('Tidak ditemukan dokumen aktif berstatus wajib baca saat ini.')
                 ->send();
+
             return;
         }
 
@@ -178,8 +189,8 @@ class ReminderHub extends Page
 
             // Target penerima: user yang berhak melihat dokumen tetapi belum membaca
             $targetUsers = User::query()
-                ->when(!$currentUser->hasRole('super_admin') && $currentUser->company_id, fn($q) => $q->where('company_id', $currentUser->company_id))
-                ->when(!$doc->is_public && $doc->department_id, fn($q) => $q->where('department_id', $doc->department_id))
+                ->when(! $currentUser->hasRole('super_admin') && $currentUser->company_id, fn ($q) => $q->where('company_id', $currentUser->company_id))
+                ->when(! $doc->is_public && $doc->department_id, fn ($q) => $q->where('department_id', $doc->department_id))
                 ->whereNotIn('id', $readUserIds)
                 ->get();
 
@@ -188,7 +199,7 @@ class ReminderHub extends Page
                     Notification::send($targetUsers, new MandatoryDocumentReminderNotification($doc));
                     $sentCount += $targetUsers->count();
                 } catch (\Throwable $e) {
-                    Log::error('Failed sending MandatoryDocumentReminderNotification: ' . $e->getMessage());
+                    Log::error('Failed sending MandatoryDocumentReminderNotification: '.$e->getMessage());
                 }
             }
         }
@@ -207,12 +218,12 @@ class ReminderHub extends Page
 
         // 1. Dokumen pending kabid
         $pendingKabidDocs = Document::where('status', Document::STATUS_PENDING_KABID)
-            ->when(!$currentUser->hasRole('super_admin') && $currentUser->company_id, fn($q) => $q->where('company_id', $currentUser->company_id))
+            ->when(! $currentUser->hasRole('super_admin') && $currentUser->company_id, fn ($q) => $q->where('company_id', $currentUser->company_id))
             ->get();
 
         // 2. Dokumen pending direktur
         $pendingDirekturDocs = Document::where('status', Document::STATUS_PENDING_DIREKTUR)
-            ->when(!$currentUser->hasRole('super_admin') && $currentUser->company_id, fn($q) => $q->where('company_id', $currentUser->company_id))
+            ->when(! $currentUser->hasRole('super_admin') && $currentUser->company_id, fn ($q) => $q->where('company_id', $currentUser->company_id))
             ->get();
 
         $sentCount = 0;
@@ -228,7 +239,7 @@ class ReminderHub extends Page
                     Notification::send($kabids, new DocumentSubmittedNotification($doc));
                     $sentCount += $kabids->count();
                 } catch (\Throwable $e) {
-                    Log::error('Failed sending DocumentSubmittedNotification reminder: ' . $e->getMessage());
+                    Log::error('Failed sending DocumentSubmittedNotification reminder: '.$e->getMessage());
                 }
             }
         }
@@ -236,7 +247,7 @@ class ReminderHub extends Page
         // Kirim pengingat ke Direktur
         foreach ($pendingDirekturDocs as $doc) {
             $direkturs = User::role('direktur')
-                ->when($doc->company_id, fn($q) => $q->where('company_id', $doc->company_id))
+                ->when($doc->company_id, fn ($q) => $q->where('company_id', $doc->company_id))
                 ->get();
 
             if ($direkturs->isNotEmpty()) {
@@ -244,7 +255,7 @@ class ReminderHub extends Page
                     Notification::send($direkturs, new DocumentApprovedByKabidNotification($doc));
                     $sentCount += $direkturs->count();
                 } catch (\Throwable $e) {
-                    Log::error('Failed sending DocumentApprovedByKabidNotification reminder: ' . $e->getMessage());
+                    Log::error('Failed sending DocumentApprovedByKabidNotification reminder: '.$e->getMessage());
                 }
             }
         }
@@ -261,12 +272,13 @@ class ReminderHub extends Page
         /** @var User $currentUser */
         $currentUser = Auth::user();
 
-        if (!$currentUser->can('send_meeting_reminder') && !$currentUser->hasRole(['super_admin', 'direktur', 'kabid', 'manager'])) {
+        if (! $currentUser->can('send_meeting_reminder') && ! $currentUser->hasRole(['super_admin', 'direktur', 'kabid', 'manager'])) {
             FilamentNotification::make()
                 ->title('Akses Ditolak')
                 ->danger()
                 ->body('Anda tidak memiliki izin (send_meeting_reminder) untuk mengirim pengingat rapat.')
                 ->send();
+
             return;
         }
 
@@ -274,7 +286,7 @@ class ReminderHub extends Page
             ->where('status', 'scheduled')
             ->where('date_time', '>=', now())
             ->where('date_time', '<=', now()->addDays(7))
-            ->when(!$currentUser->hasRole('super_admin') && $currentUser->company_id, fn($q) => $q->where('company_id', $currentUser->company_id))
+            ->when(! $currentUser->hasRole('super_admin') && $currentUser->company_id, fn ($q) => $q->where('company_id', $currentUser->company_id))
             ->with(['participants', 'creator'])
             ->get();
 
@@ -284,6 +296,7 @@ class ReminderHub extends Page
                 ->warning()
                 ->body('Tidak ada jadwal rapat mendatang dalam 7 hari ke depan.')
                 ->send();
+
             return;
         }
 
@@ -291,7 +304,7 @@ class ReminderHub extends Page
 
         foreach ($upcomingMeetings as $meeting) {
             $participants = $meeting->participants;
-            if ($meeting->creator && !$participants->contains('id', $meeting->created_by)) {
+            if ($meeting->creator && ! $participants->contains('id', $meeting->created_by)) {
                 $participants->push($meeting->creator);
             }
 
@@ -301,7 +314,7 @@ class ReminderHub extends Page
                     $meeting->update(['reminder_sent_at' => now()]);
                     $sentCount += $participants->count();
                 } catch (\Throwable $e) {
-                    Log::error('Failed sending MeetingReminderNotification: ' . $e->getMessage());
+                    Log::error('Failed sending MeetingReminderNotification: '.$e->getMessage());
                 }
             }
         }
@@ -318,12 +331,13 @@ class ReminderHub extends Page
         /** @var User $currentUser */
         $currentUser = Auth::user();
 
-        if (!$currentUser->can('send_expiry_reminder') && !$currentUser->hasRole(['super_admin', 'direktur', 'kabid', 'manager'])) {
+        if (! $currentUser->can('send_expiry_reminder') && ! $currentUser->hasRole(['super_admin', 'direktur', 'kabid', 'manager'])) {
             FilamentNotification::make()
                 ->title('Akses Ditolak')
                 ->danger()
                 ->body('Anda tidak memiliki izin (send_expiry_reminder) untuk mengirim pengingat kedaluwarsa.')
                 ->send();
+
             return;
         }
 
@@ -331,7 +345,7 @@ class ReminderHub extends Page
             ->where('status', Document::STATUS_APPROVED)
             ->whereNotNull('expires_at')
             ->where('expires_at', '<=', now()->addDays(30))
-            ->when(!$currentUser->hasRole('super_admin') && $currentUser->company_id, fn($q) => $q->where('company_id', $currentUser->company_id))
+            ->when(! $currentUser->hasRole('super_admin') && $currentUser->company_id, fn ($q) => $q->where('company_id', $currentUser->company_id))
             ->get();
 
         if ($expiringDocs->isEmpty()) {
@@ -340,6 +354,7 @@ class ReminderHub extends Page
                 ->info()
                 ->body('Tidak ada dokumen yang mendekati masa kedaluwarsa saat ini.')
                 ->send();
+
             return;
         }
 
@@ -351,11 +366,11 @@ class ReminderHub extends Page
             // Tentukan penerima berdasarkan visibilitas dokumen
             // (sama dengan aturan siapa yang bisa melihat dokumen ini)
             $recipients = User::query()
-                ->when($doc->company_id, fn($q) => $q->where('company_id', $doc->company_id))
+                ->when($doc->company_id, fn ($q) => $q->where('company_id', $doc->company_id))
                 ->when(
                     // Dokumen non-publik dan terikat ke departemen → hanya user departemen itu
-                    !$doc->is_public && $doc->department_id,
-                    fn($q) => $q->where('department_id', $doc->department_id)
+                    ! $doc->is_public && $doc->department_id,
+                    fn ($q) => $q->where('department_id', $doc->department_id)
                 )
                 // Selalu sertakan pembuat dokumen meskipun beda departemen
                 ->orWhere('id', $doc->user_id)
@@ -368,7 +383,7 @@ class ReminderHub extends Page
                     $doc->update(['review_reminder_sent_at' => today()]);
                     $sentCount += $recipients->count();
                 } catch (\Throwable $e) {
-                    Log::error('Failed sending DocumentExpiryReminderNotification: ' . $e->getMessage());
+                    Log::error('Failed sending DocumentExpiryReminderNotification: '.$e->getMessage());
                 }
             }
         }

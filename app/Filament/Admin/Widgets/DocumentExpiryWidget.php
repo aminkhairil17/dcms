@@ -38,13 +38,13 @@ class DocumentExpiryWidget extends Widget
         $criticalCount = (clone $baseQuery)->expiringSoon(7)->count();
 
         return [
-            'expiredDocs'        => $expiredDocs,
-            'expiredCount'       => $expiredCount,
-            'expiringSoonDocs'   => $expiringSoonDocs,
-            'expiringSoonCount'  => $expiringSoonCount,
-            'criticalDocs'       => $criticalDocs,
-            'criticalCount'      => $criticalCount,
-            'hasAlerts'          => $expiredCount > 0 || $expiringSoonCount > 0,
+            'expiredDocs' => $expiredDocs,
+            'expiredCount' => $expiredCount,
+            'expiringSoonDocs' => $expiringSoonDocs,
+            'expiringSoonCount' => $expiringSoonCount,
+            'criticalDocs' => $criticalDocs,
+            'criticalCount' => $criticalCount,
+            'hasAlerts' => $expiredCount > 0 || $expiringSoonCount > 0,
         ];
     }
 }

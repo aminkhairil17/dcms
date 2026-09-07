@@ -3,33 +3,33 @@
 namespace App\Filament\Admin\Resources\Documents\Tables;
 
 use App\Models\Document;
-use Filament\Forms\Components\Radio;
-use Filament\Tables\Table;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Columns\IconColumn;
-use Filament\Tables\Filters\SelectFilter;
-use Filament\Tables\Filters\TrashedFilter;
-use Filament\Tables\Filters\Filter;
-use Filament\Actions\ViewAction;
-use Filament\Actions\EditAction;
+use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
 use Filament\Actions\ForceDeleteBulkAction;
 use Filament\Actions\RestoreBulkAction;
-use Filament\Actions\Action;
+use Filament\Actions\ViewAction;
+use Filament\Forms\Components\Radio;
+use Filament\Notifications\Notification;
+use Filament\Tables\Columns\IconColumn;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Filters\TrashedFilter;
+use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Filesystem\FilesystemAdapter;
-use Illuminate\Database\Eloquent\Builder;
-use Filament\Notifications\Notification;
 
 class DocumentsTable
 {
     public static function configure(Table $table): Table
     {
         return $table
-            ->modifyQueryUsing(fn(Builder $query): Builder => $query->withCount([
-                'bookmarks as is_bookmarked' => fn(Builder $bookmarkQuery): Builder => $bookmarkQuery
+            ->modifyQueryUsing(fn (Builder $query): Builder => $query->withCount([
+                'bookmarks as is_bookmarked' => fn (Builder $bookmarkQuery): Builder => $bookmarkQuery
                     ->where('user_id', Auth::id() ?? 0),
             ]))
             ->columns([
@@ -41,7 +41,7 @@ class DocumentsTable
                     ->falseIcon('heroicon-o-bookmark')
                     ->trueColor('warning')
                     ->falseColor('gray')
-                    ->tooltip(fn(Document $record): string => (int) ($record->is_bookmarked ?? 0) > 0
+                    ->tooltip(fn (Document $record): string => (int) ($record->is_bookmarked ?? 0) > 0
                         ? 'Dokumen ini ada di daftar tersimpan Anda'
                         : 'Simpan dokumen ini untuk akses cepat')
                     ->width('56px')
@@ -66,23 +66,23 @@ class DocumentsTable
                 TextColumn::make('document_type')
                     ->label('Tipe')
                     ->badge()
-                    ->icon(fn(string $state): string => match ($state) {
-                        'file'   => 'heroicon-o-paper-clip',
-                        'form'   => 'heroicon-o-pencil-square',
+                    ->icon(fn (string $state): string => match ($state) {
+                        'file' => 'heroicon-o-paper-clip',
+                        'form' => 'heroicon-o-pencil-square',
                         'hybrid' => 'heroicon-o-squares-plus',
-                        default  => 'heroicon-o-document',
+                        default => 'heroicon-o-document',
                     })
-                    ->color(fn(string $state): string => match ($state) {
-                        'file'   => 'success',
-                        'form'   => 'info',
+                    ->color(fn (string $state): string => match ($state) {
+                        'file' => 'success',
+                        'form' => 'info',
                         'hybrid' => 'warning',
-                        default  => 'gray',
+                        default => 'gray',
                     })
-                    ->formatStateUsing(fn(string $state): string => match ($state) {
-                        'file'   => 'Berkas',
-                        'form'   => 'Formulir',
+                    ->formatStateUsing(fn (string $state): string => match ($state) {
+                        'file' => 'Berkas',
+                        'form' => 'Formulir',
                         'hybrid' => 'Gabungan',
-                        default  => $state,
+                        default => $state,
                     })
                     ->visibleFrom('md'),
 
@@ -120,37 +120,37 @@ class DocumentsTable
                 TextColumn::make('status')
                     ->label('Status')
                     ->badge()
-                    ->icon(fn(string $state): string => match ($state) {
-                        'draft'            => 'heroicon-o-pencil',
-                        'pending_kabid'    => 'heroicon-o-clock',
+                    ->icon(fn (string $state): string => match ($state) {
+                        'draft' => 'heroicon-o-pencil',
+                        'pending_kabid' => 'heroicon-o-clock',
                         'pending_direktur' => 'heroicon-o-clock',
-                        'approved'         => 'heroicon-o-check-circle',
-                        'rejected'         => 'heroicon-o-x-circle',
-                        'archived'         => 'heroicon-o-archive-box',
-                        default            => 'heroicon-o-question-mark-circle',
+                        'approved' => 'heroicon-o-check-circle',
+                        'rejected' => 'heroicon-o-x-circle',
+                        'archived' => 'heroicon-o-archive-box',
+                        default => 'heroicon-o-question-mark-circle',
                     })
-                    ->color(fn(string $state): string => match ($state) {
-                        'pending_kabid'    => 'warning',
+                    ->color(fn (string $state): string => match ($state) {
+                        'pending_kabid' => 'warning',
                         'pending_direktur' => 'info',
-                        'approved'         => 'success',
-                        'rejected'         => 'danger',
-                        'archived'         => 'gray',
-                        default            => 'gray',
+                        'approved' => 'success',
+                        'rejected' => 'danger',
+                        'archived' => 'gray',
+                        default => 'gray',
                     })
-                    ->formatStateUsing(fn(string $state): string => match ($state) {
-                        'draft'            => 'Pending',
-                        'pending_kabid'    => 'Menunggu Kabid',
+                    ->formatStateUsing(fn (string $state): string => match ($state) {
+                        'draft' => 'Pending',
+                        'pending_kabid' => 'Menunggu Kabid',
                         'pending_direktur' => 'Menunggu Direktur',
-                        'approved'         => 'Disetujui',
-                        'rejected'         => 'Ditolak',
-                        'archived'         => 'Diarsipkan',
-                        default            => $state,
+                        'approved' => 'Disetujui',
+                        'rejected' => 'Ditolak',
+                        'archived' => 'Diarsipkan',
+                        default => $state,
                     })
-                    ->description(fn(Document $record): string => match ($record->document_type) {
-                        'file'   => 'Berkas',
-                        'form'   => 'Formulir',
+                    ->description(fn (Document $record): string => match ($record->document_type) {
+                        'file' => 'Berkas',
+                        'form' => 'Formulir',
                         'hybrid' => 'Gabungan',
-                        default  => '',
+                        default => '',
                     })
                     ->visibleFrom('md'),
 
@@ -161,19 +161,19 @@ class DocumentsTable
                     ->wrap()
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->placeholder('Tidak dibatasi')
-                    ->icon(fn(Document $record): string => match (true) {
+                    ->icon(fn (Document $record): string => match (true) {
                         blank($record->expires_at) => 'heroicon-o-infinity',
                         $record->is_expired => 'heroicon-o-exclamation-triangle',
                         $record->is_expiring_soon => 'heroicon-o-clock',
                         default => 'heroicon-o-shield-check',
                     })
-                    ->color(fn(Document $record): string => match (true) {
+                    ->color(fn (Document $record): string => match (true) {
                         blank($record->expires_at) => 'gray',
                         $record->is_expired => 'danger',
                         $record->is_expiring_soon => 'warning',
                         default => 'success',
                     })
-                    ->formatStateUsing(fn($state, Document $record): string => match (true) {
+                    ->formatStateUsing(fn ($state, Document $record): string => match (true) {
                         blank($state) => 'Tidak dibatasi',
                         $record->is_expired => 'Kedaluwarsa',
                         $record->is_expiring_soon => 'Segera berakhir',
@@ -185,13 +185,13 @@ class DocumentsTable
                         }
 
                         if ($record->is_expired) {
-                            return 'Berakhir ' . $record->expires_at->format('d M Y');
+                            return 'Berakhir '.$record->expires_at->format('d M Y');
                         }
 
                         $daysLeft = today()->diffInDays($record->expires_at, false);
 
                         return $daysLeft <= 30
-                            ? "{$daysLeft} hari lagi · " . $record->expires_at->format('d M Y')
+                            ? "{$daysLeft} hari lagi · ".$record->expires_at->format('d M Y')
                             : $record->expires_at->format('d M Y');
                     }),
 
@@ -203,8 +203,8 @@ class DocumentsTable
                     ->limit(20)
                     ->wrap()
                     ->description(
-                        fn(Document $record): ?string => $record->updated_by && $record->updated_by !== $record->user_id
-                            ? 'Diedit: ' . ($record->updatedByUser?->name ?? '—')
+                        fn (Document $record): ?string => $record->updated_by && $record->updated_by !== $record->user_id
+                            ? 'Diedit: '.($record->updatedByUser?->name ?? '—')
                             : null
                     )
                     ->toggleable(isToggledHiddenByDefault: true)
@@ -214,7 +214,7 @@ class DocumentsTable
                 TextColumn::make('version')
                     ->label('Versi')
                     ->badge()
-                    ->color(fn(Document $record): string => $record->rejections()->exists() ? 'warning' : 'gray')
+                    ->color(fn (Document $record): string => $record->rejections()->exists() ? 'warning' : 'gray')
                     ->icon('heroicon-o-document-duplicate')
                     ->placeholder('—')
                     ->toggleable(isToggledHiddenByDefault: true)
@@ -225,7 +225,7 @@ class DocumentsTable
                     ->icon('heroicon-o-calendar')
                     ->iconColor('gray')
                     ->dateTime('d M Y')
-                    ->description(fn(Document $record): string => $record->created_at->diffForHumans())
+                    ->description(fn (Document $record): string => $record->created_at->diffForHumans())
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: false)
                     ->visibleFrom('md'),
@@ -239,8 +239,8 @@ class DocumentsTable
                 SelectFilter::make('document_type')
                     ->label('Tipe Dokumen')
                     ->options([
-                        'file'   => 'Berkas',
-                        'form'   => 'Formulir',
+                        'file' => 'Berkas',
+                        'form' => 'Formulir',
                         'hybrid' => 'Gabungan',
                     ])
                     ->native(false),
@@ -275,22 +275,22 @@ class DocumentsTable
 
                 Filter::make('bookmarked')
                     ->label('Tersimpan Saya')
-                    ->query(fn(Builder $query): Builder => $query->whereHas(
+                    ->query(fn (Builder $query): Builder => $query->whereHas(
                         'bookmarks',
-                        fn(Builder $bookmarkQuery): Builder => $bookmarkQuery->where('user_id', Auth::id() ?? 0),
+                        fn (Builder $bookmarkQuery): Builder => $bookmarkQuery->where('user_id', Auth::id() ?? 0),
                     )),
 
                 Filter::make('critical_expiry')
                     ->label('Kritis 7 Hari')
-                    ->query(fn(Builder $query): Builder => $query->expiringSoon(7)),
+                    ->query(fn (Builder $query): Builder => $query->expiringSoon(7)),
 
                 Filter::make('expiring_soon')
                     ->label('Segera Kedaluwarsa')
-                    ->query(fn(Builder $query): Builder => $query->expiringSoon(30)),
+                    ->query(fn (Builder $query): Builder => $query->expiringSoon(30)),
 
                 Filter::make('expired')
                     ->label('Sudah Kedaluwarsa')
-                    ->query(fn(Builder $query): Builder => $query->expired()),
+                    ->query(fn (Builder $query): Builder => $query->expired()),
 
                 TrashedFilter::make(),
             ])
@@ -305,16 +305,16 @@ class DocumentsTable
                     ->extraAttributes(['class' => 'hidden md:inline-flex']),
 
                 Action::make('toggle_bookmark')
-                    ->icon(fn(Document $record): string => (int) ($record->is_bookmarked ?? 0) > 0
+                    ->icon(fn (Document $record): string => (int) ($record->is_bookmarked ?? 0) > 0
                         ? 'heroicon-s-bookmark'
                         : 'heroicon-o-bookmark')
-                    ->label(fn(Document $record): string => (int) ($record->is_bookmarked ?? 0) > 0
+                    ->label(fn (Document $record): string => (int) ($record->is_bookmarked ?? 0) > 0
                         ? 'Tersimpan'
                         : 'Simpan')
                     ->button()
                     ->outlined()
                     ->size('xs')
-                    ->color(fn(Document $record): string => (int) ($record->is_bookmarked ?? 0) > 0 ? 'warning' : 'gray')
+                    ->color(fn (Document $record): string => (int) ($record->is_bookmarked ?? 0) > 0 ? 'warning' : 'gray')
                     ->action(function (Document $record): void {
                         $isSaved = $record->toggleBookmark();
 
@@ -340,7 +340,7 @@ class DocumentsTable
                     ->modalIconColor('info')
                     ->modalHeading('Konversi & Unduh Dokumen')
                     ->modalDescription('Pilih format berkas yang ingin Anda unduh.')
-                    ->modalSubmitAction(fn($action) => $action->color('info'))
+                    ->modalSubmitAction(fn ($action) => $action->color('info'))
                     ->modalSubmitActionLabel('Unduh Dokumen')
                     ->modalCancelActionLabel('Batal')
                     ->form(function (Document $record): array {
@@ -367,6 +367,7 @@ class DocumentsTable
                         if (($data['format'] ?? 'pdf') === 'word') {
                             return \App\Services\DocumentConversionService::downloadAsWord($record);
                         }
+
                         return \App\Services\DocumentConversionService::downloadAsPdf($record);
                     })
                     ->extraAttributes(['class' => 'hidden md:inline-flex']),
@@ -390,10 +391,11 @@ class DocumentsTable
                     ->url(function (Document $record): string {
                         /** @var FilesystemAdapter $disk */
                         $disk = Storage::disk('documents');
+
                         return $disk->url((string) $record->file_path);
                     })
                     ->openUrlInNewTab()
-                    ->visible(fn(Document $record) => !empty($record->file_path))
+                    ->visible(fn (Document $record) => ! empty($record->file_path))
                     ->extraAttributes(['class' => 'hidden md:inline-flex']),
 
                 Action::make('process')
@@ -408,7 +410,7 @@ class DocumentsTable
                     ->modalDescription('Pilih tindakan yang ingin dijalankan untuk dokumen ini.')
                     ->modalSubmitActionLabel('Jalankan')
                     ->modalCancelActionLabel('Batal')
-                    ->form(fn(Document $record): array => [
+                    ->form(fn (Document $record): array => [
                         Radio::make('process_action')
                             ->label('Tindakan')
                             ->options(self::getProcessOptions($record))
@@ -418,11 +420,9 @@ class DocumentsTable
                     ->action(function (array $data, Document $record): void {
                         self::handleProcessAction($record, $data['process_action']);
                     })
-                    ->visible(fn(Document $record): bool => self::hasProcessActions($record))
+                    ->visible(fn (Document $record): bool => self::hasProcessActions($record))
                     ->extraAttributes(['class' => 'hidden md:inline-flex', 'data-process-action' => 'true']),
             ])
-
-
 
             ->toolbarActions([
                 BulkActionGroup::make([
@@ -449,7 +449,9 @@ class DocumentsTable
         /** @var \App\Models\User|null $user */
         $user = Auth::user();
 
-        if (!$user) return $options;
+        if (! $user) {
+            return $options;
+        }
 
         // Dokumen rejected/draft bisa diajukan untuk review oleh pemiliknya
         if ($record->status === 'draft' && $record->user_id === $user->id) {

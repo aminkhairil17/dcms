@@ -2,8 +2,8 @@
 
 namespace App\Filament\Admin\Resources\Documents\Widgets;
 
-use Filament\Widgets\Widget;
 use App\Models\Document;
+use Filament\Widgets\Widget;
 use Illuminate\Database\Eloquent\Builder;
 
 class MyWidget extends Widget
@@ -30,10 +30,14 @@ class MyWidget extends Widget
     protected function buildSparklinePath(array $data): string
     {
         $count = count($data);
-        if ($count < 2) return 'M 0,25';
+        if ($count < 2) {
+            return 'M 0,25';
+        }
 
         $max = max($data);
-        if ($max === 0) $max = 1;
+        if ($max === 0) {
+            $max = 1;
+        }
 
         $points = [];
         foreach ($data as $i => $value) {
@@ -50,22 +54,26 @@ class MyWidget extends Widget
             $cpx = round(($prev[0] + $curr[0]) / 2, 2);
             $d .= " C {$cpx},{$prev[1]} {$cpx},{$curr[1]} {$curr[0]},{$curr[1]}";
         }
+
         return $d;
     }
 
     protected function getSparklineData(Builder $query, string $dateColumn = 'created_at'): array
     {
         $data = [];
-        $now  = now();
+        $now = now();
 
         for ($i = 6; $i >= 0; $i--) {
             $targetDate = (clone $now)->subDays($i)->endOfDay();
-            $data[]     = (clone $query)->where($dateColumn, '<=', $targetDate)->count();
+            $data[] = (clone $query)->where($dateColumn, '<=', $targetDate)->count();
         }
 
         if (count(array_unique($data)) <= 1) {
             $last = end($data);
-            if ($last === 0) return [0, 1, 0, 2, 1, 0, 0];
+            if ($last === 0) {
+                return [0, 1, 0, 2, 1, 0, 0];
+            }
+
             return [
                 max(0, (int) round($last * 0.3)),
                 max(0, (int) round($last * 0.6)),
@@ -84,31 +92,31 @@ class MyWidget extends Widget
     {
         $baseQuery = Document::query()->access();
 
-        $total        = (clone $baseQuery)->count();
-        $approved     = (clone $baseQuery)->where('status', 'approved')->count();
+        $total = (clone $baseQuery)->count();
+        $approved = (clone $baseQuery)->where('status', 'approved')->count();
         $pendingKabid = (clone $baseQuery)->where('status', 'pending_kabid')->count();
-        $pendingDir   = (clone $baseQuery)->where('status', 'pending_direktur')->count();
+        $pendingDir = (clone $baseQuery)->where('status', 'pending_direktur')->count();
         $pendingTotal = $pendingKabid + $pendingDir;
-        $rejected     = (clone $baseQuery)->where('status', 'rejected')->count();
-        $draft        = (clone $baseQuery)->where('status', 'draft')->count();
+        $rejected = (clone $baseQuery)->where('status', 'rejected')->count();
+        $draft = (clone $baseQuery)->where('status', 'draft')->count();
 
-        $totalData    = $this->getSparklineData(Document::query()->access());
+        $totalData = $this->getSparklineData(Document::query()->access());
         $approvedData = $this->getSparklineData(Document::query()->access()->where('status', 'approved'), 'updated_at');
-        $pendingData  = $this->getSparklineData(Document::query()->access()->whereIn('status', ['pending_kabid', 'pending_direktur']));
-        $draftData    = $this->getSparklineData(Document::query()->access()->where('status', 'draft'));
+        $pendingData = $this->getSparklineData(Document::query()->access()->whereIn('status', ['pending_kabid', 'pending_direktur']));
+        $draftData = $this->getSparklineData(Document::query()->access()->where('status', 'draft'));
 
         return [
-            'total'        => $total,
-            'approved'     => $approved,
+            'total' => $total,
+            'approved' => $approved,
             'pendingTotal' => $pendingTotal,
             'pendingKabid' => $pendingKabid,
-            'pendingDir'   => $pendingDir,
-            'rejected'     => $rejected,
-            'draft'        => $draft,
-            'totalPath'    => $this->buildSparklinePath($totalData),
+            'pendingDir' => $pendingDir,
+            'rejected' => $rejected,
+            'draft' => $draft,
+            'totalPath' => $this->buildSparklinePath($totalData),
             'approvedPath' => $this->buildSparklinePath($approvedData),
-            'pendingPath'  => $this->buildSparklinePath($pendingData),
-            'draftPath'    => $this->buildSparklinePath($draftData),
+            'pendingPath' => $this->buildSparklinePath($pendingData),
+            'draftPath' => $this->buildSparklinePath($draftData),
         ];
     }
 }

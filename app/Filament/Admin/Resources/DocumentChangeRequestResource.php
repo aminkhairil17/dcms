@@ -7,31 +7,22 @@ use App\Filament\Admin\Resources\DocumentChangeRequestResource\Pages\ListDocumen
 use App\Filament\Admin\Resources\DocumentChangeRequestResource\Pages\ViewDocumentChangeRequest;
 use App\Models\Document;
 use App\Models\DocumentChangeRequest;
-use App\Models\User;
 use App\Notifications\ChangeRequestStatusUpdatedNotification;
-use App\Notifications\ChangeRequestSubmittedNotification;
 use BackedEnum;
-use Filament\Actions\Action;
+use Filament\Actions\ViewAction;
+use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\ViewAction;
-use Filament\Tables\Columns\BadgeColumn;
+use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Notification;
-use Illuminate\Support\Facades\Storage;
-use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Textarea;
-use Filament\Forms\Components\TextInput;
-use Filament\Support\Icons\Heroicon;
 use UnitEnum;
 
 class DocumentChangeRequestResource extends Resource
@@ -57,6 +48,7 @@ class DocumentChangeRequestResource extends Resource
             30,
             fn () => \App\Models\DocumentChangeRequest::where('status', 'pending')->count()
         );
+
         return $pending > 0 ? (string) $pending : null;
     }
 
@@ -143,23 +135,23 @@ class DocumentChangeRequestResource extends Resource
                 TextColumn::make('status')
                     ->label('Status')
                     ->badge()
-                    ->icon(fn(string $state): string => match($state) {
-                        'pending'  => 'heroicon-o-clock',
+                    ->icon(fn (string $state): string => match ($state) {
+                        'pending' => 'heroicon-o-clock',
                         'approved' => 'heroicon-o-check-circle',
                         'rejected' => 'heroicon-o-x-circle',
-                        default    => 'heroicon-o-question-mark-circle',
+                        default => 'heroicon-o-question-mark-circle',
                     })
-                    ->color(fn(string $state): string => match($state) {
-                        'pending'  => 'warning',
+                    ->color(fn (string $state): string => match ($state) {
+                        'pending' => 'warning',
                         'approved' => 'success',
                         'rejected' => 'danger',
-                        default    => 'gray',
+                        default => 'gray',
                     })
-                    ->formatStateUsing(fn(string $state): string => match($state) {
-                        'pending'  => 'Menunggu',
+                    ->formatStateUsing(fn (string $state): string => match ($state) {
+                        'pending' => 'Menunggu',
                         'approved' => 'Disetujui',
                         'rejected' => 'Ditolak',
-                        default    => $state,
+                        default => $state,
                     })
                     ->visibleFrom('md'),
 
@@ -175,7 +167,7 @@ class DocumentChangeRequestResource extends Resource
                 SelectFilter::make('status')
                     ->label('Status')
                     ->options([
-                        'pending'  => 'Menunggu',
+                        'pending' => 'Menunggu',
                         'approved' => 'Disetujui',
                         'rejected' => 'Ditolak',
                     ])
@@ -192,13 +184,13 @@ class DocumentChangeRequestResource extends Resource
                     ->outlined()
                     ->size('xs')
                     ->color('danger'),
-                
+
                 \Filament\Actions\RestoreAction::make()
                     ->button()
                     ->outlined()
                     ->size('xs')
                     ->color('success'),
-                
+
                 \Filament\Actions\ForceDeleteAction::make()
                     ->button()
                     ->outlined()
@@ -223,7 +215,7 @@ class DocumentChangeRequestResource extends Resource
                     ->modalDescription('Dokumen terkait akan dikembalikan ke alur persetujuan (menunggu review Kabid).')
                     ->action(function (DocumentChangeRequest $record) {
                         $record->update([
-                            'status'      => 'approved',
+                            'status' => 'approved',
                             'reviewed_by' => Auth::id(),
                             'reviewed_at' => now(),
                         ]);
@@ -237,7 +229,7 @@ class DocumentChangeRequestResource extends Resource
                         try {
                             $record->user->notify(new ChangeRequestStatusUpdatedNotification($record));
                         } catch (\Throwable $e) {
-                            logger()->error('Failed to send ChangeRequestStatusUpdatedNotification: ' . $e->getMessage());
+                            logger()->error('Failed to send ChangeRequestStatusUpdatedNotification: '.$e->getMessage());
                         }
                         \Filament\Notifications\Notification::make()->title('Usulan disetujui — dokumen dikembalikan ke alur review')->success()->send();
                     }),
@@ -260,14 +252,14 @@ class DocumentChangeRequestResource extends Resource
                     ->modalDescription('Apakah Anda yakin ingin menolak usulan revisi ini?')
                     ->action(function (DocumentChangeRequest $record) {
                         $record->update([
-                            'status'      => 'rejected',
+                            'status' => 'rejected',
                             'reviewed_by' => Auth::id(),
                             'reviewed_at' => now(),
                         ]);
                         try {
                             $record->user->notify(new ChangeRequestStatusUpdatedNotification($record));
                         } catch (\Throwable $e) {
-                            logger()->error('Failed to send ChangeRequestStatusUpdatedNotification: ' . $e->getMessage());
+                            logger()->error('Failed to send ChangeRequestStatusUpdatedNotification: '.$e->getMessage());
                         }
                         \Filament\Notifications\Notification::make()->title('Usulan ditolak')->danger()->send();
                     }),
@@ -297,7 +289,7 @@ class DocumentChangeRequestResource extends Resource
                     TextEntry::make('attachment_path')
                         ->label('Lampiran')
                         ->icon('heroicon-o-paper-clip')
-                        ->formatStateUsing(fn($state) => $state ? basename($state) : 'Tidak ada lampiran')
+                        ->formatStateUsing(fn ($state) => $state ? basename($state) : 'Tidak ada lampiran')
                         ->placeholder('Tidak ada lampiran'),
                 ]),
             Section::make('Status & Peninjau')
@@ -306,17 +298,17 @@ class DocumentChangeRequestResource extends Resource
                     TextEntry::make('status')
                         ->label('Status')
                         ->badge()
-                        ->color(fn(string $state): string => match($state) {
-                            'pending'  => 'warning',
+                        ->color(fn (string $state): string => match ($state) {
+                            'pending' => 'warning',
                             'approved' => 'success',
                             'rejected' => 'danger',
-                            default    => 'gray',
+                            default => 'gray',
                         })
-                        ->formatStateUsing(fn(string $state): string => match($state) {
-                            'pending'  => 'Menunggu',
+                        ->formatStateUsing(fn (string $state): string => match ($state) {
+                            'pending' => 'Menunggu',
                             'approved' => 'Disetujui',
                             'rejected' => 'Ditolak',
-                            default    => $state,
+                            default => $state,
                         }),
                     TextEntry::make('user.name')->label('Diajukan Oleh')->icon('heroicon-o-user-circle'),
                     TextEntry::make('reviewer.name')->label('Ditinjau Oleh')->icon('heroicon-o-user-circle')->placeholder('Belum ditinjau'),
@@ -329,9 +321,9 @@ class DocumentChangeRequestResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index'  => ListDocumentChangeRequests::route('/'),
+            'index' => ListDocumentChangeRequests::route('/'),
             'create' => CreateDocumentChangeRequest::route('/create'),
-            'view'   => ViewDocumentChangeRequest::route('/{record}'),
+            'view' => ViewDocumentChangeRequest::route('/{record}'),
         ];
     }
 }

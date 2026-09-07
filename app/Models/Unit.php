@@ -1,5 +1,7 @@
 <?php
+
 // app/Models/Unit.php
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
@@ -8,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Unit extends Model
 {
-    protected $fillable = ['name','prefix', 'department_id', 'is_active'];
+    protected $fillable = ['name', 'prefix', 'department_id', 'is_active'];
 
     public function department(): BelongsTo
     {

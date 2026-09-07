@@ -31,7 +31,7 @@ class SendMeetingReminders extends Command
 
         foreach ($upcomingMeetings as $meeting) {
             $participants = $meeting->participants;
-            if ($meeting->creator && !$participants->contains('id', $meeting->created_by)) {
+            if ($meeting->creator && ! $participants->contains('id', $meeting->created_by)) {
                 $participants->push($meeting->creator);
             }
 
@@ -41,7 +41,7 @@ class SendMeetingReminders extends Command
                     $meeting->update(['reminder_sent_at' => now()]);
                     $totalSent += $participants->count();
                 } catch (\Throwable $e) {
-                    Log::error("Failed sending meeting reminder for meeting {$meeting->id}: " . $e->getMessage());
+                    Log::error("Failed sending meeting reminder for meeting {$meeting->id}: ".$e->getMessage());
                 }
             }
         }

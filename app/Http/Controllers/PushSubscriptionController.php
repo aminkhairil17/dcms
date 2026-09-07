@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Http\JsonResponse;
 
 class PushSubscriptionController extends Controller
 {
@@ -14,7 +14,7 @@ class PushSubscriptionController extends Controller
     public function vapidPublicKey(): JsonResponse
     {
         return response()->json([
-            'publicKey' => config('webpush.vapid.public_key')
+            'publicKey' => config('webpush.vapid.public_key'),
         ]);
     }
 
@@ -30,7 +30,7 @@ class PushSubscriptionController extends Controller
         ]);
 
         $user = Auth::user();
-        if (!$user) {
+        if (! $user) {
             return response()->json(['error' => 'Unauthenticated.'], 401);
         }
 
@@ -50,13 +50,13 @@ class PushSubscriptionController extends Controller
                     url('/admin')
                 ));
             } catch (\Throwable $e) {
-                \Illuminate\Support\Facades\Log::error('[WebPush] Gagal mengirim notifikasi test: ' . $e->getMessage());
+                \Illuminate\Support\Facades\Log::error('[WebPush] Gagal mengirim notifikasi test: '.$e->getMessage());
             }
         }
 
         return response()->json([
             'message' => 'Push subscription saved successfully.',
-            'user_id' => $user->id
+            'user_id' => $user->id,
         ], 201);
     }
 
@@ -66,23 +66,23 @@ class PushSubscriptionController extends Controller
     public function sendTestNotification(): JsonResponse
     {
         $user = Auth::user();
-        if (!$user) {
+        if (! $user) {
             return response()->json(['error' => 'Unauthenticated.'], 401);
         }
 
         try {
             $user->notify(new \App\Notifications\WebPushGenericNotification(
                 '🔔 Uji Coba Web Push Notification',
-                'Pesan uji coba ini menandakan notifikasi Web Push berjalan sempurna pada jam ' . now()->format('H:i:s') . ' WIB.',
+                'Pesan uji coba ini menandakan notifikasi Web Push berjalan sempurna pada jam '.now()->format('H:i:s').' WIB.',
                 url('/admin')
             ));
 
             return response()->json([
-                'message' => 'Notifikasi uji coba telah berhasil dikirim ke perangkat Anda.'
+                'message' => 'Notifikasi uji coba telah berhasil dikirim ke perangkat Anda.',
             ]);
         } catch (\Throwable $e) {
             return response()->json([
-                'error' => 'Gagal mengirim notifikasi uji coba: ' . $e->getMessage()
+                'error' => 'Gagal mengirim notifikasi uji coba: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -102,7 +102,7 @@ class PushSubscriptionController extends Controller
         }
 
         return response()->json([
-            'message' => 'Push subscription deleted successfully.'
+            'message' => 'Push subscription deleted successfully.',
         ]);
     }
 }

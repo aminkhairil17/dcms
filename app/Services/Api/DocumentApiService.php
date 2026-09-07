@@ -63,7 +63,7 @@ class DocumentApiService
 
         // --- Sorting (whitelist enforced by FormRequest) ---
         $sortBy = $filters['sortBy'] ?? 'created_at';
-        $order  = $filters['order']  ?? 'desc';
+        $order = $filters['order'] ?? 'desc';
         $query->orderBy($sortBy, $order);
 
         return $query->paginate(

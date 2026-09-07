@@ -9,24 +9,19 @@ use App\Filament\Admin\Resources\Meetings\Pages\ViewMeeting;
 use App\Filament\Admin\Resources\Meetings\Schemas\MeetingForm;
 use App\Filament\Admin\Resources\Meetings\Schemas\MeetingInfolist;
 use App\Filament\Admin\Resources\Meetings\Tables\MeetingsTable;
-use App\Filament\Admin\Resources\Meetings\isHtmlEmpty;
 use App\Models\Meeting;
 use BackedEnum;
-use UnitEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
-use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-
-
+use UnitEnum;
 
 class MeetingResource extends Resource
 {
     protected static ?string $model = Meeting::class;
 
-    protected static string|BackedEnum|null $navigationIcon = "heroicon-o-calendar";
-
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-calendar';
 
     protected static ?string $navigationLabel = 'Rapat';
 
@@ -77,5 +72,4 @@ class MeetingResource extends Resource
 
         return parent::getEloquentQuery()->access();
     }
-   
 }

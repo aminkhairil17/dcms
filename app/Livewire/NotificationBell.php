@@ -2,9 +2,9 @@
 
 namespace App\Livewire;
 
-use Livewire\Component;
 use Illuminate\Notifications\DatabaseNotification;
 use Illuminate\Support\Facades\Auth;
+use Livewire\Component;
 
 class NotificationBell extends Component
 {
@@ -61,7 +61,7 @@ class NotificationBell extends Component
 
         return view('livewire.notification-bell', [
             'notifications' => $notifications,
-            'unreadCount'   => $unreadCount,
+            'unreadCount' => $unreadCount,
         ]);
     }
 }

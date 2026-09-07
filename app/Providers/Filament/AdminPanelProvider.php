@@ -2,12 +2,9 @@
 
 namespace App\Providers\Filament;
 
-use App\Filament\Admin\Widgets\MyCalendarWidget;
-use App\Filament\Admin\Widgets\MeetingStatsWidget;
-use App\Filament\Admin\Widgets\MeetingTodayWidget;
-use App\Filament\Admin\Widgets\MeetingInvitedWidget;
 use App\Filament\Pages\Auth\Login;
 use App\Filament\Pages\Auth\Register;
+use App\Filament\Plugins\ActivityLogPlugin;
 use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
@@ -24,7 +21,6 @@ use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Support\HtmlString;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
-use App\Filament\Plugins\ActivityLogPlugin;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -1532,6 +1528,19 @@ class AdminPanelProvider extends PanelProvider
                             }
                         }
 
+                        /* Fix Notification Dropdown Overflow on Mobile */
+                        @media (max-width: 767.98px) {
+                            .fi-topbar .fi-dropdown-panel {
+                                max-width: calc(100vw - 32px) !important;
+                                width: calc(100vw - 32px) !important;
+                                right: 16px !important;
+                                left: 16px !important;
+                                position: fixed !important;
+                                top: 70px !important; /* below topbar */
+                                transform: none !important;
+                                margin: 0 !important;
+                            }
+                        }
                     </style>
 
 

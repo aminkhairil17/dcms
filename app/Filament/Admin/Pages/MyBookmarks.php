@@ -40,10 +40,12 @@ class MyBookmarks extends Page implements HasTable
     public static function getNavigationBadge(): ?string
     {
         $userId = Auth::id();
-        if (! $userId) return null;
+        if (! $userId) {
+            return null;
+        }
 
         $count = \Illuminate\Support\Facades\Cache::remember(
-            'nav_badge_bookmarks_' . $userId,
+            'nav_badge_bookmarks_'.$userId,
             30,
             fn () => DB::table('document_bookmarks')->where('user_id', $userId)->count()
         );

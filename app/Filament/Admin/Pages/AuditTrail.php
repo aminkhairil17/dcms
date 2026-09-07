@@ -2,14 +2,14 @@
 
 namespace App\Filament\Admin\Pages;
 
+use Filament\Forms\Components\DatePicker;
 use Filament\Pages\Page;
-use Filament\Tables\Table;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\Filter;
-use Filament\Forms\Components\DatePicker;
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Spatie\Activitylog\Models\Activity;
 
@@ -18,9 +18,13 @@ class AuditTrail extends Page implements HasTable
     use InteractsWithTable;
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-clipboard-document-list';
+
     protected static string|\UnitEnum|null $navigationGroup = 'Manajemen Dokumen';
+
     protected static ?int $navigationSort = 10;
+
     protected static ?string $title = 'Audit Trail';
+
     protected string $view = 'filament.admin.pages.audit-trail';
 
     public static function canAccess(): bool
@@ -45,14 +49,14 @@ class AuditTrail extends Page implements HasTable
                 TextColumn::make('event')
                     ->label('Tindakan')
                     ->badge()
-                    ->formatStateUsing(fn(string $state): string => match ($state) {
+                    ->formatStateUsing(fn (string $state): string => match ($state) {
                         'created' => 'Dibuat',
                         'updated' => 'Diperbarui',
                         'deleted' => 'Dihapus',
                         'restored' => 'Dipulihkan',
                         default => ucfirst($state),
                     })
-                    ->color(fn(string $state): string => match ($state) {
+                    ->color(fn (string $state): string => match ($state) {
                         'created' => 'success',
                         'updated' => 'warning',
                         'deleted' => 'danger',
@@ -103,7 +107,7 @@ class AuditTrail extends Page implements HasTable
                                 $data['created_until'],
                                 fn (Builder $query, $date): Builder => $query->whereDate('created_at', '<=', $date),
                             );
-                    })
+                    }),
             ])
             ->defaultSort('created_at', 'desc');
     }

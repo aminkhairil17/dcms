@@ -50,9 +50,9 @@ class ScheduleController extends Controller
     public function index(ScheduleIndexRequest $request): JsonResponse
     {
         $paginator = $this->service->getPaginated([
-            'startDate'      => $request->getStartDate(),
-            'endDate'        => $request->getEndDate(),
-            'status'         => $request->getStatus(),
+            'startDate' => $request->getStartDate(),
+            'endDate' => $request->getEndDate(),
+            'status' => $request->getStatus(),
             'participant_id' => $request->getParticipantId(),
         ]);
 

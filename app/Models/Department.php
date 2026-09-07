@@ -1,12 +1,13 @@
 <?php
+
 // app/Models/Department.php
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use OwenIt\Auditing\Contracts\Auditable;
-use OwenIt\Auditing\Contracts\Audit;
 
 class Department extends Model implements Auditable
 {

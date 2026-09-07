@@ -2,48 +2,47 @@
 
 namespace App\Filament\Admin\Resources\Documents\Schemas;
 
-use Filament\Schemas\Schema;
-use Filament\Schemas\Components\Utilities\Get;
-use Filament\Schemas\Components\Utilities\Set;
-use Filament\Schemas\Components\Section;
-use Filament\Schemas\Components\View;
-use Filament\Forms\Components\Hidden;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Textarea;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\ToggleButtons;
-use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\RichEditor;
-use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\Toggle;
-use Filament\Notifications\Notification;
 use App\Models\Company;
 use App\Models\Department;
 use App\Models\Document;
 use App\Models\DocumentCategory;
 use App\Models\DocumentNumbering;
 use App\Models\Unit;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Auth;
 use App\Models\User;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\RichEditor;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
+use Filament\Forms\Components\ToggleButtons;
+use Filament\Notifications\Notification;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
+use Filament\Schemas\Components\View;
+use Filament\Schemas\Schema;
+use Illuminate\Support\Facades\Auth;
 
 class DocumentForm
 {
     public static function configure(Schema $schema): Schema
     {
         return $schema->columns(1)->components([
-            
+
             \Filament\Forms\Components\Placeholder::make('rejection_history')
                 ->hiddenLabel()
                 ->content(function ($record) {
-                    if (!$record || $record->status !== \App\Models\Document::STATUS_REJECTED) {
+                    if (! $record || $record->status !== \App\Models\Document::STATUS_REJECTED) {
                         return null;
                     }
                     $rejections = $record->rejections()->with('user')->get();
                     if ($rejections->isEmpty()) {
                         return null;
                     }
-                    
+
                     $html = '<div class="p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400" role="alert">';
                     $html .= '<h3 class="font-bold text-lg mb-2 flex items-center"><svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clip-rule="evenodd"></path></svg> Riwayat Penolakan Dokumen</h3>';
                     $html .= '<ul class="list-disc pl-5 space-y-2">';
@@ -55,7 +54,7 @@ class DocumentForm
                     $html .= '</ul>';
                     $html .= '<p class="mt-3 font-semibold">Silakan perbaiki dokumen dan perbarui Versi Dokumen di bawah, lalu simpan.</p>';
                     $html .= '</div>';
-                    
+
                     return new \Illuminate\Support\HtmlString($html);
                 })
                 ->visible(fn ($record) => $record && $record->status === \App\Models\Document::STATUS_REJECTED)
@@ -100,7 +99,7 @@ class DocumentForm
                 ]),
 
             View::make('filament.admin.resources.documents.partials.document-readiness-assistant')
-                ->viewData(fn(Get $get): array => self::buildReadinessAssistantData($get))
+                ->viewData(fn (Get $get): array => self::buildReadinessAssistantData($get))
                 ->columnSpanFull(),
 
             /* ─── IDENTITAS DOKUMEN ─── */
@@ -152,7 +151,7 @@ class DocumentForm
                 ->icon('heroicon-o-paper-clip')
                 ->iconColor('success')
                 ->columnSpanFull()
-                ->hidden(fn($get) => $get('document_type') === 'form')
+                ->hidden(fn ($get) => $get('document_type') === 'form')
                 ->schema([
                     Hidden::make('file_name'),
                     FileUpload::make('file_path')
@@ -174,7 +173,7 @@ class DocumentForm
                                     );
                                     if ($existingDoc) {
                                         $title = $existingDoc->title ?? 'Tidak diketahui';
-                                        $code  = $existingDoc->code_number ?? '-';
+                                        $code = $existingDoc->code_number ?? '-';
                                         $deletedInfo = $existingDoc->trashed()
                                             ? ' (di Recycle Bin)'
                                             : '';
@@ -189,6 +188,7 @@ class DocumentForm
                                         // Reset file upload
                                         $set('file_path', null);
                                         $set('file_name', null);
+
                                         return;
                                     }
                                     // Store hash in hidden field for saving
@@ -209,7 +209,7 @@ class DocumentForm
                             'image/jpeg',
                             'image/png',
                         ])
-                        ->required(fn($get) => in_array($get('document_type'), ['file', 'hybrid']))
+                        ->required(fn ($get) => in_array($get('document_type'), ['file', 'hybrid']))
                         ->helperText('Maksimal 10 MB. Format: PDF, DOC, DOCX, XLS, XLSX, JPG, PNG'),
 
                     // Hidden field to carry computed hash to CreateDocument/EditDocument
@@ -222,13 +222,13 @@ class DocumentForm
                 ->icon('heroicon-o-pencil-square')
                 ->iconColor('info')
                 ->columnSpanFull()
-                ->hidden(fn($get) => $get('document_type') === 'file')
+                ->hidden(fn ($get) => $get('document_type') === 'file')
                 ->schema([
                     RichEditor::make('content')
                         ->label('')
                         ->live(debounce: 900)
                         ->maxLength(65535)
-                        ->required(fn($get) => in_array($get('document_type'), ['form', 'hybrid']))
+                        ->required(fn ($get) => in_array($get('document_type'), ['form', 'hybrid']))
                         ->helperText('Gunakan toolbar di atas untuk memformat teks'),
                 ]),
 
@@ -242,7 +242,7 @@ class DocumentForm
                 ->schema([
                     Select::make('company_id')
                         ->label('Perusahaan')
-                        ->options(fn() => Company::where('is_active', true)->pluck('name', 'id'))
+                        ->options(fn () => Company::where('is_active', true)->pluck('name', 'id'))
                         ->searchable()
                         ->preload()
                         ->native(false)
@@ -252,12 +252,14 @@ class DocumentForm
                         ->default(function () {
                             /** @var User $user */
                             $user = Auth::user();
+
                             return optional($user)->company_id ?? null;
                         })
                         ->disabled(function () {
                             /** @var User $user */
                             $user = Auth::user();
-                            return !$user->hasRole(['super_admin', 'direktur']);
+
+                            return ! $user->hasRole(['super_admin', 'direktur']);
                         })
                         ->dehydrated()
                         ->afterStateUpdated(function (Set $set, Get $get, ?string $operation): void {
@@ -273,7 +275,8 @@ class DocumentForm
                             /** @var User $user */
                             $user = Auth::user();
                             $companyId = $get('company_id') ?? optional($user)->company_id;
-                            return Department::when($companyId, fn($q) => $q->where('company_id', $companyId))
+
+                            return Department::when($companyId, fn ($q) => $q->where('company_id', $companyId))
                                 ->where('is_active', true)
                                 ->pluck('name', 'id');
                         })
@@ -286,12 +289,14 @@ class DocumentForm
                         ->default(function () {
                             /** @var User $user */
                             $user = Auth::user();
+
                             return optional($user)->department_id ?? null;
                         })
                         ->disabled(function () {
                             /** @var User $user */
                             $user = Auth::user();
-                            return !$user->hasRole(['super_admin', 'direktur']);
+
+                            return ! $user->hasRole(['super_admin', 'direktur']);
                         })
                         ->dehydrated()
                         ->afterStateUpdated(function (Set $set, Get $get, ?string $operation): void {
@@ -306,7 +311,8 @@ class DocumentForm
                             /** @var User $user */
                             $user = Auth::user();
                             $departmentId = $get('department_id') ?? optional($user)->department_id;
-                            return Unit::when($departmentId, fn($q) => $q->where('department_id', $departmentId))
+
+                            return Unit::when($departmentId, fn ($q) => $q->where('department_id', $departmentId))
                                 ->where('is_active', true)
                                 ->pluck('name', 'id');
                         })
@@ -319,12 +325,14 @@ class DocumentForm
                         ->default(function () {
                             /** @var User $user */
                             $user = Auth::user();
+
                             return optional($user)->unit_id ?? null;
                         })
                         ->disabled(function () {
                             /** @var User $user */
                             $user = Auth::user();
-                            return !$user->hasRole(['super_admin', 'direktur', 'kabid']);
+
+                            return ! $user->hasRole(['super_admin', 'direktur', 'kabid']);
                         })
                         ->dehydrated()
                         ->afterStateUpdated(function (Set $set, Get $get, ?string $operation): void {
@@ -334,7 +342,7 @@ class DocumentForm
 
                     Select::make('category_id')
                         ->label('Kategori Dokumen')
-                        ->options(fn() => DocumentCategory::where('is_active', true)->pluck('name', 'id'))
+                        ->options(fn () => DocumentCategory::where('is_active', true)->pluck('name', 'id'))
                         ->searchable()
                         ->preload()
                         ->native(false)
@@ -468,8 +476,8 @@ class DocumentForm
                         ->placeholder('Pilih tanggal berakhirnya dokumen')
                         ->minDate(today()->addDay())
                         ->helperText('Sistem akan mengingatkan 30 hari sebelum kedaluwarsa.')
-                        ->hidden(fn(Get $get): bool => (bool) $get('is_permanent'))
-                        ->required(fn(Get $get): bool => ! (bool) $get('is_permanent')),
+                        ->hidden(fn (Get $get): bool => (bool) $get('is_permanent'))
+                        ->required(fn (Get $get): bool => ! (bool) $get('is_permanent')),
 
                     Toggle::make('is_mandatory_read')
                         ->label('Wajib Dibaca (Compliance Hub)')
@@ -616,7 +624,7 @@ class DocumentForm
             'summary' => $summary,
             'checklist' => $checklist,
             'missingItems' => collect($checklist)
-                ->reject(fn(array $item): bool => $item['completed'])
+                ->reject(fn (array $item): bool => $item['completed'])
                 ->pluck('label')
                 ->values()
                 ->all(),
@@ -706,7 +714,7 @@ class DocumentForm
                 $words = preg_split('/\s+/', trim((string) $value)) ?: [];
                 $initials = collect($words)
                     ->filter()
-                    ->map(fn(string $word): string => strtoupper(substr($word, 0, 1)))
+                    ->map(fn (string $word): string => strtoupper(substr($word, 0, 1)))
                     ->implode('');
 
                 return substr($initials !== '' ? $initials : strtoupper((string) $value), 0, 6);

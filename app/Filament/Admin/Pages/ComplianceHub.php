@@ -46,14 +46,17 @@ class ComplianceHub extends Page
     {
         /** @var \App\Models\User|null $user */
         $user = Auth::user();
-        if (! $user) return null;
+        if (! $user) {
+            return null;
+        }
 
         $unread = \Illuminate\Support\Facades\Cache::remember(
-            'nav_badge_compliance_unread_' . $user->id,
+            'nav_badge_compliance_unread_'.$user->id,
             30,
-            function () use ($user) {
-                $docs    = self::getMandatoryDocuments();
+            function () {
+                $docs = self::getMandatoryDocuments();
                 $readIds = self::getReadDocumentIds()->toArray();
+
                 return $docs->whereNotIn('id', $readIds)->count();
             }
         );
@@ -112,23 +115,24 @@ class ComplianceHub extends Page
                 ->body('Dokumen ini tidak ditemukan atau tidak wajib dibaca untuk Anda.')
                 ->danger()
                 ->send();
+
             return;
         }
 
         DocumentReadAcknowledgment::firstOrCreate([
             'document_id' => $documentId,
-            'user_id'     => $user->id,
+            'user_id' => $user->id,
         ], [
             'read_at' => now(),
         ]);
 
         // Hapus cache badge & widget
-        \Illuminate\Support\Facades\Cache::forget('nav_badge_compliance_unread_' . $user->id);
-        \Illuminate\Support\Facades\Cache::forget('widget_unread_compliance_' . $user->id);
+        \Illuminate\Support\Facades\Cache::forget('nav_badge_compliance_unread_'.$user->id);
+        \Illuminate\Support\Facades\Cache::forget('widget_unread_compliance_'.$user->id);
 
         \Filament\Notifications\Notification::make()
             ->title('Konfirmasi Kepatuhan Berhasil')
-            ->body('Terima kasih. Pernyataan bahwa Anda telah membaca dokumen "' . $doc->title . '" telah berhasil dicatat.')
+            ->body('Terima kasih. Pernyataan bahwa Anda telah membaca dokumen "'.$doc->title.'" telah berhasil dicatat.')
             ->success()
             ->send();
 
@@ -138,20 +142,20 @@ class ComplianceHub extends Page
     public function getViewData(): array
     {
         $mandatoryDocs = self::getMandatoryDocuments();
-        $readIds       = self::getReadDocumentIds()->toArray();
-        $totalCount    = $mandatoryDocs->count();
-        $readCount     = $mandatoryDocs->whereIn('id', $readIds)->count();
-        $percentage    = $totalCount > 0 ? round(($readCount / $totalCount) * 100) : 100;
+        $readIds = self::getReadDocumentIds()->toArray();
+        $totalCount = $mandatoryDocs->count();
+        $readCount = $mandatoryDocs->whereIn('id', $readIds)->count();
+        $percentage = $totalCount > 0 ? round(($readCount / $totalCount) * 100) : 100;
 
         $unreadDocs = $mandatoryDocs->whereNotIn('id', $readIds);
-        $readDocs   = $mandatoryDocs->whereIn('id', $readIds);
+        $readDocs = $mandatoryDocs->whereIn('id', $readIds);
 
         return [
-            'totalCount'      => $totalCount,
-            'readCount'       => $readCount,
-            'percentage'      => $percentage,
-            'unreadDocs'      => $unreadDocs,
-            'readDocs'        => $readDocs,
+            'totalCount' => $totalCount,
+            'readCount' => $readCount,
+            'percentage' => $percentage,
+            'unreadDocs' => $unreadDocs,
+            'readDocs' => $readDocs,
             'openedDocuments' => $this->openedDocuments,
         ];
     }

@@ -9,12 +9,11 @@ use Filament\Resources\Pages\ViewRecord;
 class ViewMeeting extends ViewRecord
 {
     protected static string $resource = MeetingResource::class;
-    
+
     public function getTitle(): string
     {
         return 'Detail Rapat';
     }
-
 
     protected function getHeaderActions(): array
     {

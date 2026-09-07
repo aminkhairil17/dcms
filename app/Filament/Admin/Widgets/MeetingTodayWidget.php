@@ -14,7 +14,9 @@ class MeetingTodayWidget extends BaseTableWidget
     use HasWidgetShield;
 
     protected static ?int $sort = 2;
+
     protected int|string|array $columnSpan = 'full';
+
     protected static ?string $heading = 'Jadwal Rapat Hari Ini';
 
     public function table(Table $table): Table
@@ -37,7 +39,7 @@ class MeetingTodayWidget extends BaseTableWidget
                     ->label('Lokasi'),
                 Tables\Columns\TextColumn::make('status')
                     ->badge()
-                    ->color(fn(string $state): string => match ($state) {
+                    ->color(fn (string $state): string => match ($state) {
                         'pending' => 'warning',
                         'ongoing' => 'primary',
                         'completed' => 'gray',

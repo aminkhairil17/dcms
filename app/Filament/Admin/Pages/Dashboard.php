@@ -2,15 +2,13 @@
 
 namespace App\Filament\Admin\Pages;
 
-use Filament\Pages\Dashboard as BaseDashboard;
 use App\Filament\Admin\Widgets\EmployeeActivityHubWidget;
-use App\Filament\Admin\Widgets\DocumentExpiryWidget;
-use App\Filament\Admin\Widgets\MyCalendarWidget;
+use App\Filament\Admin\Widgets\MeetingInvitedWidget;
 use App\Filament\Admin\Widgets\MeetingStatsWidget;
 use App\Filament\Admin\Widgets\MeetingTodayWidget;
-use App\Filament\Admin\Widgets\MeetingInvitedWidget;
+use App\Filament\Admin\Widgets\MyCalendarWidget;
 use App\Filament\Admin\Widgets\PriorityActionsWidget;
-
+use Filament\Pages\Dashboard as BaseDashboard;
 
 class Dashboard extends BaseDashboard
 {
@@ -22,7 +20,7 @@ class Dashboard extends BaseDashboard
     {
         return [
             EmployeeActivityHubWidget::class,
-            MeetingStatsWidget::class, 
+            MeetingStatsWidget::class,
             MeetingTodayWidget::class,
             MeetingInvitedWidget::class,
             MyCalendarWidget::class,

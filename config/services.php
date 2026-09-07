@@ -50,7 +50,7 @@ return [
     */
     'n8n' => [
         'webhook_url' => env('N8N_WEBHOOK_URL'),
-        'secret'      => env('N8N_WEBHOOK_SECRET'),
+        'secret' => env('N8N_WEBHOOK_SECRET'),
     ],
 
 ];

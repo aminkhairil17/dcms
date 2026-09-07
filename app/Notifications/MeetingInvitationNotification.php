@@ -27,25 +27,25 @@ class MeetingInvitationNotification extends Notification implements ShouldQueue
     public function toN8n(object $notifiable): array
     {
         return [
-            'type'    => 'meeting_invitation',
-            'title'   => 'Undangan Rapat',
+            'type' => 'meeting_invitation',
+            'title' => 'Undangan Rapat',
             'message' => "Halo {$notifiable->name}, Anda diundang ke rapat \"{$this->meeting->title}\""
-                . ' pada ' . ($this->meeting->meeting_date ? $this->meeting->meeting_date->format('d M Y, H:i') : '-')
-                . '. Lokasi: ' . ($this->meeting->location ?? 'Online') . '.',
-            'url'     => url('/admin/meetings/' . $this->meeting->id),
+                .' pada '.($this->meeting->meeting_date ? $this->meeting->meeting_date->format('d M Y, H:i') : '-')
+                .'. Lokasi: '.($this->meeting->location ?? 'Online').'.',
+            'url' => url('/admin/meetings/'.$this->meeting->id),
         ];
     }
 
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-            ->subject('Undangan Rapat: ' . $this->meeting->title)
-            ->greeting('Halo ' . $notifiable->name . '!')
+            ->subject('Undangan Rapat: '.$this->meeting->title)
+            ->greeting('Halo '.$notifiable->name.'!')
             ->line('Anda diundang untuk menghadiri rapat:')
-            ->line('**' . $this->meeting->title . '**')
-            ->line('**Tanggal:** ' . ($this->meeting->meeting_date ? $this->meeting->meeting_date->format('d F Y, H:i') : '-'))
-            ->line('**Lokasi:** ' . ($this->meeting->location ?? 'Online'))
-            ->action('Lihat Detail Rapat', url('/admin/meetings/' . $this->meeting->id))
+            ->line('**'.$this->meeting->title.'**')
+            ->line('**Tanggal:** '.($this->meeting->meeting_date ? $this->meeting->meeting_date->format('d F Y, H:i') : '-'))
+            ->line('**Lokasi:** '.($this->meeting->location ?? 'Online'))
+            ->action('Lihat Detail Rapat', url('/admin/meetings/'.$this->meeting->id))
             ->line('Silakan konfirmasi kehadiran Anda melalui sistem.')
             ->salutation('Terima kasih');
     }
@@ -55,8 +55,8 @@ class MeetingInvitationNotification extends Notification implements ShouldQueue
         return [
             'type' => 'meeting_invitation',
             'meeting_id' => $this->meeting->id,
-            'title' => 'Undangan Rapat: ' . $this->meeting->title,
-            'message' => 'Anda diundang ke rapat "' . $this->meeting->title . '" pada ' . ($this->meeting->meeting_date ? $this->meeting->meeting_date->format('d M Y, H:i') : '-'),
+            'title' => 'Undangan Rapat: '.$this->meeting->title,
+            'message' => 'Anda diundang ke rapat "'.$this->meeting->title.'" pada '.($this->meeting->meeting_date ? $this->meeting->meeting_date->format('d M Y, H:i') : '-'),
             'location' => $this->meeting->location ?? 'Online',
         ];
     }

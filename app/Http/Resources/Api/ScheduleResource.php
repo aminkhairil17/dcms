@@ -18,57 +18,56 @@ class ScheduleResource extends JsonResource
     {
         return [
             // Core identity
-            'id'         => $this->id,
-            'title'      => $this->title,
+            'id' => $this->id,
+            'title' => $this->title,
             'doc_number' => $this->doc_number,
-            'agenda'     => $this->agenda,
-            'content'    => $this->content,
+            'agenda' => $this->agenda,
+            'content' => $this->content,
 
             // Time & location
-            'date_time'  => $this->date_time?->toISOString(),
-            'date'       => $this->date_time?->toDateString(),
-            'time'       => $this->date_time?->format('H:i'),
-            'location'   => $this->location,
+            'date_time' => $this->date_time?->toISOString(),
+            'date' => $this->date_time?->toDateString(),
+            'time' => $this->date_time?->format('H:i'),
+            'location' => $this->location,
 
             // Status
-            'status'       => $this->status,
+            'status' => $this->status,
             'status_label' => $this->resolveStatusLabel(),
 
             // Organiser info
             'creator' => $this->whenLoaded('creator', fn () => [
-                'id'    => $this->creator?->id,
-                'name'  => $this->creator?->name,
+                'id' => $this->creator?->id,
+                'name' => $this->creator?->name,
                 'email' => $this->creator?->email,
             ]),
             'notulis' => $this->whenLoaded('notulis', fn () => [
-                'id'   => $this->notulis?->id,
+                'id' => $this->notulis?->id,
                 'name' => $this->notulis?->name,
             ]),
 
             // Participants list with attendance status
-            'participants' => $this->whenLoaded('participants', fn () =>
-                $this->participants->map(fn ($user) => [
-                    'id'         => $user->id,
-                    'name'       => $user->name,
-                    'email'      => $user->email,
-                    'attendance' => $user->pivot->attendance,
-                ])->values()->all()
+            'participants' => $this->whenLoaded('participants', fn () => $this->participants->map(fn ($user) => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'attendance' => $user->pivot->attendance,
+            ])->values()->all()
             ),
 
             // Attachments — array of file paths stored in JSON column
             'attachments' => $this->resolveAttachments(),
 
             // Organisational hierarchy
-            'company'    => $this->whenLoaded('company', fn () => [
-                'id'   => $this->company?->id,
+            'company' => $this->whenLoaded('company', fn () => [
+                'id' => $this->company?->id,
                 'name' => $this->company?->name,
             ]),
             'department' => $this->whenLoaded('department', fn () => [
-                'id'   => $this->department?->id,
+                'id' => $this->department?->id,
                 'name' => $this->department?->name,
             ]),
             'unit' => $this->whenLoaded('unit', fn () => [
-                'id'   => $this->unit?->id,
+                'id' => $this->unit?->id,
                 'name' => $this->unit?->name,
             ]),
 
@@ -84,11 +83,11 @@ class ScheduleResource extends JsonResource
     private function resolveStatusLabel(): string
     {
         return match ($this->status) {
-            'draft'     => 'Dijadwalkan',
-            'ongoing'   => 'Sedang Berlangsung',
+            'draft' => 'Dijadwalkan',
+            'ongoing' => 'Sedang Berlangsung',
             'completed' => 'Selesai',
             'cancelled' => 'Dibatalkan',
-            default     => ucfirst((string) $this->status),
+            default => ucfirst((string) $this->status),
         };
     }
 
@@ -111,16 +110,17 @@ class ScheduleResource extends JsonResource
                     return [
                         'file_name' => basename($item),
                         'file_path' => $item,
-                        'file_url'  => $this->resolveAttachmentUrl($item),
+                        'file_url' => $this->resolveAttachmentUrl($item),
                     ];
                 }
 
                 if (is_array($item)) {
                     $path = $item['path'] ?? $item['file_path'] ?? null;
+
                     return [
                         'file_name' => $item['name'] ?? $item['file_name'] ?? ($path ? basename($path) : null),
                         'file_path' => $path,
-                        'file_url'  => $path ? $this->resolveAttachmentUrl($path) : null,
+                        'file_url' => $path ? $this->resolveAttachmentUrl($path) : null,
                     ];
                 }
 

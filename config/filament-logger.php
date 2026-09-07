@@ -28,7 +28,6 @@ return [
         'log_name' => 'Access',
         'authorize' => true,
 
-
     ],
 
     'notifications' => [

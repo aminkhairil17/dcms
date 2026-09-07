@@ -3,7 +3,6 @@
 namespace App\Console\Commands;
 
 use App\Models\Meeting;
-use Carbon\Carbon;
 use Illuminate\Console\Command;
 
 class CompleteOverdueMeetings extends Command
@@ -27,10 +26,10 @@ class CompleteOverdueMeetings extends Command
             ->where(function ($query) {
                 $query->where(function ($q) {
                     $q->whereNotNull('end_time')
-                      ->where('end_time', '<=', now());
+                        ->where('end_time', '<=', now());
                 })->orWhere(function ($q) {
                     $q->whereNull('end_time')
-                      ->where('date_time', '<=', now());
+                        ->where('date_time', '<=', now());
                 });
             })
             ->update(['status' => 'completed']);

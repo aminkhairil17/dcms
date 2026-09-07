@@ -12,8 +12,11 @@ use Livewire\Component;
 class DocumentDiscussionThread extends Component
 {
     public int $documentId;
+
     public string $newComment = '';
+
     public ?int $replyingTo = null;
+
     public string $replyingToName = '';
 
     protected $rules = [
@@ -28,10 +31,10 @@ class DocumentDiscussionThread extends Component
 
         $discussion = DocumentDiscussion::create([
             'document_id' => $this->documentId,
-            'user_id'     => Auth::id(),
-            'parent_id'   => $this->replyingTo,
-            'content'     => $this->newComment,
-            'is_pinned'   => false,
+            'user_id' => Auth::id(),
+            'parent_id' => $this->replyingTo,
+            'content' => $this->newComment,
+            'is_pinned' => false,
         ]);
 
         // If this is a reply, notify the parent comment's author
@@ -48,8 +51,8 @@ class DocumentDiscussionThread extends Component
             $document->user?->notify(new DiscussionRepliedNotification($discussion));
         }
 
-        $this->newComment    = '';
-        $this->replyingTo    = null;
+        $this->newComment = '';
+        $this->replyingTo = null;
         $this->replyingToName = '';
 
         $this->dispatch('$refresh');
@@ -57,14 +60,14 @@ class DocumentDiscussionThread extends Component
 
     public function startReply(int $discussionId, string $authorName): void
     {
-        $this->replyingTo     = $discussionId;
+        $this->replyingTo = $discussionId;
         $this->replyingToName = $authorName;
         $this->dispatch('focus-comment-input');
     }
 
     public function cancelReply(): void
     {
-        $this->replyingTo     = null;
+        $this->replyingTo = null;
         $this->replyingToName = '';
     }
 
@@ -77,7 +80,9 @@ class DocumentDiscussionThread extends Component
         }
 
         $discussion = DocumentDiscussion::find($discussionId);
-        if (! $discussion) return;
+        if (! $discussion) {
+            return;
+        }
 
         // If we are pinning, first unpin all others for this doc
         if (! $discussion->is_pinned) {
@@ -98,7 +103,9 @@ class DocumentDiscussionThread extends Component
     public function deleteComment(int $discussionId): void
     {
         $discussion = DocumentDiscussion::find($discussionId);
-        if (! $discussion) return;
+        if (! $discussion) {
+            return;
+        }
 
         /** @var \App\Models\User|null $user */
         $user = Auth::user();
@@ -133,8 +140,8 @@ class DocumentDiscussionThread extends Component
 
         return view('livewire.document-discussion-thread', [
             'pinnedComments' => $pinnedComments,
-            'comments'       => $comments,
-            'totalCount'     => $totalCount,
+            'comments' => $comments,
+            'totalCount' => $totalCount,
         ]);
     }
 }

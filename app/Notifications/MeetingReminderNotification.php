@@ -27,12 +27,12 @@ class MeetingReminderNotification extends Notification implements ShouldQueue
     public function toN8n(object $notifiable): array
     {
         return [
-            'type'    => 'meeting_reminder',
-            'title'   => 'Pengingat Rapat',
+            'type' => 'meeting_reminder',
+            'title' => 'Pengingat Rapat',
             'message' => "Halo {$notifiable->name}, pengingat rapat \"{$this->meeting->title}\""
-                . ' dijadwalkan pada ' . optional($this->meeting->meeting_date)->format('d M Y, H:i')
-                . '. Lokasi: ' . ($this->meeting->location ?? 'Online') . '.',
-            'url'     => route('filament.admin.resources.meetings.index'),
+                .' dijadwalkan pada '.optional($this->meeting->meeting_date)->format('d M Y, H:i')
+                .'. Lokasi: '.($this->meeting->location ?? 'Online').'.',
+            'url' => route('filament.admin.resources.meetings.index'),
         ];
     }
 
@@ -44,23 +44,23 @@ class MeetingReminderNotification extends Notification implements ShouldQueue
     public function toArray(object $notifiable): array
     {
         return [
-            'type'       => 'meeting_reminder',
-            'title'      => 'Pengingat Rapat: ' . $this->meeting->title,
-            'message'    => 'Rapat "' . $this->meeting->title . '" dijadwalkan pada ' . optional($this->meeting->meeting_date)->format('d M Y, H:i') . '.',
+            'type' => 'meeting_reminder',
+            'title' => 'Pengingat Rapat: '.$this->meeting->title,
+            'message' => 'Rapat "'.$this->meeting->title.'" dijadwalkan pada '.optional($this->meeting->meeting_date)->format('d M Y, H:i').'.',
             'meeting_id' => $this->meeting->id,
-            'url'        => route('filament.admin.resources.meetings.index'),
+            'url' => route('filament.admin.resources.meetings.index'),
         ];
     }
 
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-            ->subject('Pengingat Meeting: ' . $this->meeting->title)
-            ->greeting('Halo ' . $notifiable->name . '!')
+            ->subject('Pengingat Meeting: '.$this->meeting->title)
+            ->greeting('Halo '.$notifiable->name.'!')
             ->line('Ini adalah pengingat untuk meeting:')
-            ->line('**' . $this->meeting->title . '**')
-            ->line('**Tanggal:** ' . optional($this->meeting->meeting_date)->format('d F Y H:i'))
-            ->line('**Lokasi:** ' . ($this->meeting->location ?? 'Online'))
+            ->line('**'.$this->meeting->title.'**')
+            ->line('**Tanggal:** '.optional($this->meeting->meeting_date)->format('d F Y H:i'))
+            ->line('**Lokasi:** '.($this->meeting->location ?? 'Online'))
             ->action('Lihat Detail Meeting', route('filament.admin.resources.meetings.index'))
             ->line('Meeting akan segera dimulai!')
             ->salutation('Terima kasih');

@@ -48,13 +48,13 @@ class DocumentController extends Controller
     public function index(DocumentIndexRequest $request): JsonResponse
     {
         $paginator = $this->service->getPaginated([
-            'page'     => $request->getPage(),
-            'limit'    => $request->getLimit(),
-            'q'        => $request->getSearch(),
+            'page' => $request->getPage(),
+            'limit' => $request->getLimit(),
+            'q' => $request->getSearch(),
             'category' => $request->getCategory(),
-            'status'   => $request->getStatus(),
-            'sortBy'   => $request->getSortBy(),
-            'order'    => $request->getOrder(),
+            'status' => $request->getStatus(),
+            'sortBy' => $request->getSortBy(),
+            'order' => $request->getOrder(),
         ]);
 
         $collection = DocumentResource::collection($paginator);

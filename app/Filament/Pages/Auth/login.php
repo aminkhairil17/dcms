@@ -56,7 +56,7 @@ class Login extends BaseLogin
 
         return [
             $loginType => $data['login'],
-            'password'  => $data['password'],
+            'password' => $data['password'],
         ];
     }
 

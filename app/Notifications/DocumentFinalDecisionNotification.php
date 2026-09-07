@@ -30,12 +30,12 @@ class DocumentFinalDecisionNotification extends Notification implements ShouldQu
         $isApproved = $this->decision === 'approved';
 
         return [
-            'type'    => 'document_final_decision',
-            'title'   => $isApproved ? 'Dokumen Disetujui' : 'Dokumen Ditolak',
+            'type' => 'document_final_decision',
+            'title' => $isApproved ? 'Dokumen Disetujui' : 'Dokumen Ditolak',
             'message' => "Halo {$notifiable->name}, dokumen \"{$this->document->title}\" telah "
-                . ($isApproved ? 'DISETUJUI' : 'DITOLAK') . ' oleh Direktur.'
-                . ($isApproved ? '' : ' Silakan perbaiki sesuai catatan dan ajukan kembali.'),
-            'url'     => url('/admin/documents/' . $this->document->id),
+                .($isApproved ? 'DISETUJUI' : 'DITOLAK').' oleh Direktur.'
+                .($isApproved ? '' : ' Silakan perbaiki sesuai catatan dan ajukan kembali.'),
+            'url' => url('/admin/documents/'.$this->document->id),
         ];
     }
 
@@ -45,24 +45,24 @@ class DocumentFinalDecisionNotification extends Notification implements ShouldQu
         $isApproved = $this->decision === 'approved';
 
         $mail = (new MailMessage)
-            ->subject(($isApproved ? 'Dokumen Disetujui' : 'Dokumen Ditolak') . ': ' . $this->document->title)
-            ->greeting('Halo ' . $notifiable->name . '!')
+            ->subject(($isApproved ? 'Dokumen Disetujui' : 'Dokumen Ditolak').': '.$this->document->title)
+            ->greeting('Halo '.$notifiable->name.'!')
             ->line('Dokumen yang Anda ajukan telah mendapatkan keputusan final dari Direktur.')
             ->line('---')
-            ->line('**Judul Dokumen:** ' . $this->document->title)
-            ->line('**Nomor Dokumen:** ' . ($this->document->doc_number ?? '—'))
-            ->line('**Jenis Dokumen:** ' . ($this->document->documentType->name ?? '—'))
-            ->line('**Keputusan:** ' . ($isApproved ? 'DISETUJUI' : 'DITOLAK'))
-            ->line('**Diputuskan oleh:** ' . ($direktur?->name ?? 'Direktur'))
-            ->line('**Catatan Direktur:** ' . ($this->document->direktur_notes ?: 'Tidak ada catatan'));
+            ->line('**Judul Dokumen:** '.$this->document->title)
+            ->line('**Nomor Dokumen:** '.($this->document->doc_number ?? '—'))
+            ->line('**Jenis Dokumen:** '.($this->document->documentType->name ?? '—'))
+            ->line('**Keputusan:** '.($isApproved ? 'DISETUJUI' : 'DITOLAK'))
+            ->line('**Diputuskan oleh:** '.($direktur?->name ?? 'Direktur'))
+            ->line('**Catatan Direktur:** '.($this->document->direktur_notes ?: 'Tidak ada catatan'));
 
-        if (!$isApproved) {
+        if (! $isApproved) {
             $mail->line('')
                 ->line('Silakan perbaiki dokumen Anda sesuai catatan di atas dan ajukan kembali.');
         }
 
         $mail->line('---')
-            ->action('Lihat Dokumen', url('/admin/documents/' . $this->document->id))
+            ->action('Lihat Dokumen', url('/admin/documents/'.$this->document->id))
             ->salutation('Salam, Sistem DCMS');
 
         return $mail;
@@ -77,8 +77,8 @@ class DocumentFinalDecisionNotification extends Notification implements ShouldQu
             'code_number' => $this->document->code_number,
             'decision' => $this->decision,
             'decided_by' => $this->document->direkturReviewer?->name,
-            'message' => 'Dokumen "' . $this->document->title . '" telah ' .
-                ($this->decision === 'approved' ? 'disetujui' : 'ditolak') . ' oleh Direktur.',
+            'message' => 'Dokumen "'.$this->document->title.'" telah '.
+                ($this->decision === 'approved' ? 'disetujui' : 'ditolak').' oleh Direktur.',
         ];
     }
 }

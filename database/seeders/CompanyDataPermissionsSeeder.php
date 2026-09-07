@@ -40,7 +40,7 @@ class CompanyDataPermissionsSeeder extends Seeder
 
         foreach ($permissions as $permissionName) {
             Permission::firstOrCreate([
-                'name'       => $permissionName,
+                'name' => $permissionName,
                 'guard_name' => $guardName,
             ]);
         }

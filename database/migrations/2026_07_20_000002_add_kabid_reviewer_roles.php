@@ -23,7 +23,7 @@ return new class extends Migration
                 ->where('guard_name', $guardName)
                 ->exists();
 
-            if (!$exists) {
+            if (! $exists) {
                 DB::table('permissions')->insert([
                     'name' => $name,
                     'guard_name' => $guardName,
@@ -39,7 +39,7 @@ return new class extends Migration
             ->where('guard_name', $guardName)
             ->first();
 
-        if (!$kabidRole) {
+        if (! $kabidRole) {
             $kabidRoleId = DB::table('roles')->insertGetId([
                 'name' => 'kabid',
                 'guard_name' => $guardName,
@@ -64,7 +64,7 @@ return new class extends Migration
                     ->where('role_id', $kabidRoleId)
                     ->exists();
 
-                if (!$alreadyAssigned) {
+                if (! $alreadyAssigned) {
                     DB::table('role_has_permissions')->insert([
                         'permission_id' => $permission->id,
                         'role_id' => $kabidRoleId,
@@ -93,7 +93,7 @@ return new class extends Migration
                         ->where('role_id', $direkturRole->id)
                         ->exists();
 
-                    if (!$alreadyAssigned) {
+                    if (! $alreadyAssigned) {
                         DB::table('role_has_permissions')->insert([
                             'permission_id' => $permission->id,
                             'role_id' => $direkturRole->id,
@@ -122,7 +122,7 @@ return new class extends Migration
                         ->where('role_id', $superAdminRole->id)
                         ->exists();
 
-                    if (!$alreadyAssigned) {
+                    if (! $alreadyAssigned) {
                         DB::table('role_has_permissions')->insert([
                             'permission_id' => $permission->id,
                             'role_id' => $superAdminRole->id,

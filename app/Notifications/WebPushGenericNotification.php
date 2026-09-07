@@ -12,8 +12,11 @@ class WebPushGenericNotification extends Notification
     use Queueable;
 
     public string $title;
+
     public string $body;
+
     public string $url;
+
     public string $icon;
 
     /**
@@ -54,7 +57,7 @@ class WebPushGenericNotification extends Notification
             ->options(['vibrate' => [100, 50, 100]])
             ->data([
                 'url' => $this->url,
-                'timestamp' => now()->timestamp
+                'timestamp' => now()->timestamp,
             ]);
     }
 }

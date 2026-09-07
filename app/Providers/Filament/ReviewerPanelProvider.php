@@ -41,19 +41,19 @@ class ReviewerPanelProvider extends PanelProvider
             ->brandName('DCMS Reviewer')
             ->renderHook(
                 'panels::body.start',
-                fn(): string => \Illuminate\Support\Facades\Blade::render('filament.loading-screen')
+                fn (): string => \Illuminate\Support\Facades\Blade::render('filament.loading-screen')
             )
             ->renderHook(
                 'panels::body.end',
-                fn(): string => view('filament.web-push-scripts')->render()
+                fn (): string => view('filament.web-push-scripts')->render()
             )
             ->renderHook(
                 'panels::body.end',
-                fn(): string => view('filament.mobile-bottom-bar')->render()
+                fn (): string => view('filament.mobile-bottom-bar')->render()
             )
             ->renderHook(
                 'panels::styles.after',
-                fn(): string => new HtmlString('
+                fn (): string => new HtmlString('
                     <style>
                         @import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300..800&display=swap");
 
@@ -892,11 +892,11 @@ class ReviewerPanelProvider extends PanelProvider
             )
             ->renderHook(
                 'panels::user-menu.before',
-                fn(): string => \Illuminate\Support\Facades\Auth::check() ? \Illuminate\Support\Facades\Blade::render('@livewire(\'notification-bell\')') : ''
+                fn (): string => \Illuminate\Support\Facades\Auth::check() ? \Illuminate\Support\Facades\Blade::render('@livewire(\'notification-bell\')') : ''
             )
             ->renderHook(
                 'panels::scripts.after',
-                fn(): string => new \Illuminate\Support\HtmlString("<script>(function(){function adjustPanelForButton(btn){try{const id=btn.getAttribute(\"aria-controls\")||btn.getAttribute(\"data-dropdown-id\");let panel=id?document.getElementById(id):null;if(!panel){const panels=Array.from(document.querySelectorAll('.fi-dropdown-panel'));panel=panels.find(p=>{return p&&p.offsetParent!==null})||panels[0];}if(!panel)return;if(panel.dataset.__fixed)return;const rect=btn.getBoundingClientRect();panel.style.position=\"fixed\";panel.style.zIndex=\"2147483647\";panel.style.transform=\"none\";const placement=(panel.getAttribute(\"data-placement\")||panel.getAttribute(\"x-placement\")||\"bottom\").toString();const panelWidth=panel.offsetWidth||200;let left=rect.right-panelWidth;if(left<8)left=8;let top;if(placement.startsWith(\"top\")){top=rect.top-panel.offsetHeight-8;}else{top=rect.bottom+8;}panel.style.left=left+\"px\";panel.style.top=top+\"px\";panel.style.maxHeight=\"320px\";panel.style.overflowY=\"auto\";panel.dataset.__fixed=\"1\";}catch(e){console.error(e)}}function tryAdjustFromActive(){const activeBtn=document.querySelector('button[aria-expanded=\"true\"]');if(activeBtn)adjustPanelForButton(activeBtn);}document.addEventListener('click',function(e){const btn=e.target.closest('button[aria-controls],button[aria-haspopup]');if(btn) setTimeout(()=>adjustPanelForButton(btn),20);},true);const mo=new MutationObserver((mutations)=>{for(const m of mutations){for(const node of m.addedNodes){if(!(node instanceof HTMLElement))continue;if(node.classList&&node.classList.contains('fi-dropdown-panel')){setTimeout(tryAdjustFromActive,20);}}}});mo.observe(document.body,{childList:true,subtree:true});window.addEventListener('resize',tryAdjustFromActive);window.addEventListener('scroll',tryAdjustFromActive,true);})();</script>")
+                fn (): string => new \Illuminate\Support\HtmlString("<script>(function(){function adjustPanelForButton(btn){try{const id=btn.getAttribute(\"aria-controls\")||btn.getAttribute(\"data-dropdown-id\");let panel=id?document.getElementById(id):null;if(!panel){const panels=Array.from(document.querySelectorAll('.fi-dropdown-panel'));panel=panels.find(p=>{return p&&p.offsetParent!==null})||panels[0];}if(!panel)return;if(panel.dataset.__fixed)return;const rect=btn.getBoundingClientRect();panel.style.position=\"fixed\";panel.style.zIndex=\"2147483647\";panel.style.transform=\"none\";const placement=(panel.getAttribute(\"data-placement\")||panel.getAttribute(\"x-placement\")||\"bottom\").toString();const panelWidth=panel.offsetWidth||200;let left=rect.right-panelWidth;if(left<8)left=8;let top;if(placement.startsWith(\"top\")){top=rect.top-panel.offsetHeight-8;}else{top=rect.bottom+8;}panel.style.left=left+\"px\";panel.style.top=top+\"px\";panel.style.maxHeight=\"320px\";panel.style.overflowY=\"auto\";panel.dataset.__fixed=\"1\";}catch(e){console.error(e)}}function tryAdjustFromActive(){const activeBtn=document.querySelector('button[aria-expanded=\"true\"]');if(activeBtn)adjustPanelForButton(activeBtn);}document.addEventListener('click',function(e){const btn=e.target.closest('button[aria-controls],button[aria-haspopup]');if(btn) setTimeout(()=>adjustPanelForButton(btn),20);},true);const mo=new MutationObserver((mutations)=>{for(const m of mutations){for(const node of m.addedNodes){if(!(node instanceof HTMLElement))continue;if(node.classList&&node.classList.contains('fi-dropdown-panel')){setTimeout(tryAdjustFromActive,20);}}}});mo.observe(document.body,{childList:true,subtree:true});window.addEventListener('resize',tryAdjustFromActive);window.addEventListener('scroll',tryAdjustFromActive,true);})();</script>")
             )
             ->spa()
             ->discoverResources(in: app_path('Filament/Reviewer/Resources'), for: 'App\\Filament\\Reviewer\\Resources')

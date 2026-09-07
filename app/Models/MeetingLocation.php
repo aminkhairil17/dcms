@@ -40,15 +40,15 @@ class MeetingLocation extends Model
                 // Belum selesai: end_time di masa depan, atau end_time null dan baru mulai
                 $q->where(function ($q2) {
                     $q2->whereNotNull('end_time')
-                       ->where('end_time', '>', now());
+                        ->where('end_time', '>', now());
                 })->orWhere(function ($q2) {
                     $q2->whereNull('end_time')
-                       ->where('date_time', '>=', now()->subHours(4));
+                        ->where('date_time', '>=', now()->subHours(4));
                 });
             })
             ->where(function ($q) {
                 $q->where('meeting_location_id', $this->id)
-                  ->orWhere('location', $this->name);
+                    ->orWhere('location', $this->name);
             })
             ->exists();
     }
@@ -64,15 +64,15 @@ class MeetingLocation extends Model
             ->where(function ($q) {
                 $q->where(function ($q2) {
                     $q2->whereNotNull('end_time')
-                       ->where('end_time', '>', now());
+                        ->where('end_time', '>', now());
                 })->orWhere(function ($q2) {
                     $q2->whereNull('end_time')
-                       ->where('date_time', '>=', now()->subHours(4));
+                        ->where('date_time', '>=', now()->subHours(4));
                 });
             })
             ->where(function ($q) {
                 $q->where('meeting_location_id', $this->id)
-                  ->orWhere('location', $this->name);
+                    ->orWhere('location', $this->name);
             })
             ->with('creator')
             ->latest('date_time')
@@ -87,8 +87,8 @@ class MeetingLocation extends Model
         return $query->where(function ($q) {
             $q->whereDoesntHave('meetings', function (Builder $m) {
                 $m->where('status', 'scheduled')
-                  ->where('date_time', '<=', now()->addMinutes(30))
-                  ->where('date_time', '>=', now()->subHours(4));
+                    ->where('date_time', '<=', now()->addMinutes(30))
+                    ->where('date_time', '>=', now()->subHours(4));
             })->whereNotIn('name', function ($sub) {
                 $sub->select('location')
                     ->from('meetings')
@@ -108,8 +108,8 @@ class MeetingLocation extends Model
         return $query->where(function ($q) {
             $q->whereHas('meetings', function (Builder $m) {
                 $m->where('status', 'scheduled')
-                  ->where('date_time', '<=', now()->addMinutes(30))
-                  ->where('date_time', '>=', now()->subHours(4));
+                    ->where('date_time', '<=', now()->addMinutes(30))
+                    ->where('date_time', '>=', now()->subHours(4));
             })->orWhereIn('name', function ($sub) {
                 $sub->select('location')
                     ->from('meetings')

@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace App\Policies;
 
-use Illuminate\Foundation\Auth\User as AuthUser;
 use App\Models\Document;
 use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
+use Illuminate\Foundation\Auth\User as AuthUser;
 
 class DocumentPolicy
 {
     use HandlesAuthorization;
-    
+
     public function viewAny(AuthUser $authUser): bool
     {
         return $authUser->can('ViewAny:Document');
@@ -76,6 +76,7 @@ class DocumentPolicy
             if ($authUser->department_id) {
                 return $document->department_id === $authUser->department_id;
             }
+
             return $document->company_id === $authUser->company_id;
         }
 

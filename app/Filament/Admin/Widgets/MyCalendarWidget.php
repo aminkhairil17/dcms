@@ -3,26 +3,30 @@
 namespace App\Filament\Admin\Widgets;
 
 use App\Models\Meeting;
+use Filament\Notifications\Notification;
+use Guava\Calendar\Enums\CalendarViewType;
 use Guava\Calendar\Filament\CalendarWidget;
 use Guava\Calendar\ValueObjects\CalendarEvent;
-use Guava\Calendar\ValueObjects\FetchInfo;
-use Illuminate\Support\Collection;
-use Guava\Calendar\Enums\CalendarViewType;
 use Guava\Calendar\ValueObjects\DateClickInfo;
-use Guava\Calendar\ValueObjects\EventDropInfo;
 use Guava\Calendar\ValueObjects\EventClickInfo;
+use Guava\Calendar\ValueObjects\EventDropInfo;
+use Guava\Calendar\ValueObjects\FetchInfo;
 use Illuminate\Database\Eloquent\Model;
-use Filament\Notifications\Notification;
+use Illuminate\Support\Collection;
 
 class MyCalendarWidget extends CalendarWidget
 {
     protected \Illuminate\Support\HtmlString|string|bool|null $heading = 'Kalender Rapat';
+
     protected static ?int $sort = 4;
+
     protected int|string|array $columnSpan = 'full';
 
     protected CalendarViewType $calendarView = CalendarViewType::DayGridMonth;
+
     protected bool $eventClickEnabled = true;
-    //protected bool $eventDragEnabled = true;
+
+    // protected bool $eventDragEnabled = true;
     protected bool $dateClickEnabled = true;
 
     public function getOptions(): array
@@ -33,6 +37,7 @@ class MyCalendarWidget extends CalendarWidget
             ],
         ]);
     }
+
     protected function getEvents(FetchInfo $info): Collection|array
     {
         return Meeting::query()
@@ -59,14 +64,14 @@ class MyCalendarWidget extends CalendarWidget
     {
         $meeting = Meeting::find($event->getKey());
 
-        if (!$meeting) {
+        if (! $meeting) {
             return;
         }
 
         $user = auth()->user();
 
         // Check if user has permission to view the meeting (Participant, Creator, or Super Admin)
-        if (!$user->can('view', $meeting)) {
+        if (! $user->can('view', $meeting)) {
             Notification::make()
                 ->title('Anda bukan partisipan rapat ini')
                 ->danger()
@@ -82,6 +87,7 @@ class MyCalendarWidget extends CalendarWidget
             $this->redirect(route('filament.admin.resources.meetings.view', $meeting));
         }
     }
+
     protected function onDateClick(DateClickInfo $info): void
     {
         // Handle date click event - redirect to create meeting form
@@ -89,6 +95,7 @@ class MyCalendarWidget extends CalendarWidget
             'date_time' => $info->date->toDateTimeString(),
         ]));
     }
+
     protected function onEventDrop(EventDropInfo $info, Model $event): bool
     {
         // Ambil model aslinya dari key
@@ -99,8 +106,7 @@ class MyCalendarWidget extends CalendarWidget
         }
         // Guava sudah menyediakan date baru di $info->start
         $newDate = $info->event->getStart();
-        //dd($newDate);
-
+        // dd($newDate);
 
         // Update model
         $meeting->update([

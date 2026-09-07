@@ -3,19 +3,14 @@
 namespace App\Filament\Admin\Resources\Documents\Pages;
 
 use App\Filament\Admin\Resources\Documents\DocumentResource;
-use App\Filament\Admin\Resources\DocumentChangeRequestResource;
-use App\Models\Document;
 use App\Models\DocumentChangeRequest;
 use Filament\Actions\Action;
 use Filament\Actions\EditAction;
+use Filament\Forms\Components\Textarea;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ViewRecord;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
-use Filament\Forms\Components\Radio;
-use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\Textarea;
-use Filament\Forms\Components\TextInput;
 
 class ViewDocument extends ViewRecord
 {
@@ -30,7 +25,7 @@ class ViewDocument extends ViewRecord
                 ->label('Unduh Berkas')
                 ->icon('heroicon-o-arrow-down-tray')
                 ->color('primary')
-                ->visible(fn(): bool => filled($this->record->file_path))
+                ->visible(fn (): bool => filled($this->record->file_path))
                 ->action(function () {
                     $path = $this->record->file_path;
                     if (Storage::disk('documents')->exists($path)) {
@@ -45,18 +40,18 @@ class ViewDocument extends ViewRecord
 
             /* ── Submit / Re-submit for Review ── */
             Action::make('submit_review')
-                ->label(fn(): string => $this->record->rejections()->exists() ? 'Ajukan Ulang Review' : 'Kirim untuk Review')
+                ->label(fn (): string => $this->record->rejections()->exists() ? 'Ajukan Ulang Review' : 'Kirim untuk Review')
                 ->icon('heroicon-o-paper-airplane')
                 ->color('primary')
                 ->requiresConfirmation()
-                ->modalHeading(fn(): string => $this->record->rejections()->exists()
+                ->modalHeading(fn (): string => $this->record->rejections()->exists()
                     ? 'Ajukan Ulang Dokumen yang Diperbaiki?'
                     : 'Kirim Dokumen untuk Review?')
-                ->modalDescription(fn(): string => $this->record->rejections()->exists()
+                ->modalDescription(fn (): string => $this->record->rejections()->exists()
                     ? 'Dokumen versi terbaru Anda akan dikirim ulang ke Kepala Bidang untuk direview. Pastikan semua perbaikan sudah dilakukan.'
                     : 'Dokumen akan dikirim ke Kepala Bidang untuk direview. Pastikan dokumen sudah lengkap.')
                 ->modalIcon('heroicon-o-paper-airplane')
-                ->visible(fn(): bool => $this->record->status === 'draft')
+                ->visible(fn (): bool => $this->record->status === 'draft')
                 ->action(function () {
                     $this->record->submitForReview();
                     $wasRejected = $this->record->rejections()->exists();
@@ -95,13 +90,13 @@ class ViewDocument extends ViewRecord
                 ])
                 ->action(function (array $data) {
                     $cr = DocumentChangeRequest::create([
-                        'document_id'        => $this->record->id,
-                        'user_id'            => Auth::id(),
-                        'chapter_clause'     => '-',
+                        'document_id' => $this->record->id,
+                        'user_id' => Auth::id(),
+                        'chapter_clause' => '-',
                         'existing_condition' => '',
-                        'proposed_change'    => $data['proposed_change'],
-                        'attachment_path'    => $data['attachment_path'] ?? null,
-                        'status'             => 'pending',
+                        'proposed_change' => $data['proposed_change'],
+                        'attachment_path' => $data['attachment_path'] ?? null,
+                        'status' => 'pending',
                     ]);
 
                     // Notify admins
@@ -109,7 +104,7 @@ class ViewDocument extends ViewRecord
                         try {
                             $admin->notify(new \App\Notifications\ChangeRequestSubmittedNotification($cr));
                         } catch (\Throwable $e) {
-                            logger()->error('Failed to send ChangeRequestSubmittedNotification: ' . $e->getMessage());
+                            logger()->error('Failed to send ChangeRequestSubmittedNotification: '.$e->getMessage());
                         }
                     });
 
@@ -132,11 +127,11 @@ class ViewDocument extends ViewRecord
     public function getViewData(): array
     {
         return [
-            'documentId'       => $this->record->id,
+            'documentId' => $this->record->id,
             'rejectionHistory' => $this->record->rejections()->with('user')->get(),
-            'kabidNotes'       => $this->record->kabid_notes,
-            'direkturNotes'    => $this->record->direktur_notes,
-            'version'          => $this->record->version,
+            'kabidNotes' => $this->record->kabid_notes,
+            'direkturNotes' => $this->record->direktur_notes,
+            'version' => $this->record->version,
         ];
     }
 }

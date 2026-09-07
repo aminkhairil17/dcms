@@ -16,6 +16,7 @@ class EditDocument extends EditRecord
     protected function mutateFormDataBeforeFill(array $data): array
     {
         $data['is_permanent'] = empty($data['expires_at']);
+
         return $data;
     }
 

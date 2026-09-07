@@ -8,9 +8,13 @@ use Filament\Pages\Dashboard as BaseDashboard;
 class DocumentManagementDashboard extends BaseDashboard
 {
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-chart-bar-square';
+
     protected static string|\UnitEnum|null $navigationGroup = 'Manajemen Dokumen';
+
     protected static ?int $navigationSort = 2;
+
     protected static string $routePath = '/dasbor-manajemen-dokumen';
+
     protected static ?string $title = 'Dasbor Manajemen Dokumen';
 
     public function getWidgets(): array

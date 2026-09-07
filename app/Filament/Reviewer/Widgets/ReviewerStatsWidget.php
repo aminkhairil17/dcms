@@ -11,7 +11,7 @@ class ReviewerStatsWidget extends StatsOverviewWidget
 {
     protected static ?int $sort = 1;
 
-    protected function getColumns(): int | array | null
+    protected function getColumns(): int|array|null
     {
         return [
             'default' => 2,
@@ -35,6 +35,7 @@ class ReviewerStatsWidget extends StatsOverviewWidget
             if ($last === 0) {
                 return [0, 1, 0, 2, 1, 0, 0];
             }
+
             return [
                 max(0, (int) round($last * 0.3)),
                 max(0, (int) round($last * 0.6)),
@@ -53,7 +54,9 @@ class ReviewerStatsWidget extends StatsOverviewWidget
     {
         /** @var \App\Models\User|null $user */
         $user = \Illuminate\Support\Facades\Auth::user();
-        if (! $user) return [];
+        if (! $user) {
+            return [];
+        }
 
         $stats = [];
 

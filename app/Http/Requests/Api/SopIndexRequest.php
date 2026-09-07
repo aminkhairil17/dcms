@@ -17,9 +17,9 @@ class SopIndexRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'page'       => ['sometimes', 'integer', 'min:1'],
-            'limit'      => ['sometimes', 'integer', 'min:1', 'max:100'],
-            'q'          => ['sometimes', 'string', 'max:255'],
+            'page' => ['sometimes', 'integer', 'min:1'],
+            'limit' => ['sometimes', 'integer', 'min:1', 'max:100'],
+            'q' => ['sometimes', 'string', 'max:255'],
             'department' => ['sometimes', 'string', 'max:100'],
         ];
     }
@@ -31,8 +31,23 @@ class SopIndexRequest extends FormRequest
         ];
     }
 
-    public function getPage(): int        { return (int) ($this->validated('page', 1)); }
-    public function getLimit(): int       { return (int) ($this->validated('limit', 10)); }
-    public function getSearch(): string   { return trim((string) ($this->validated('q', ''))); }
-    public function getDepartment(): string { return trim((string) ($this->validated('department', ''))); }
+    public function getPage(): int
+    {
+        return (int) ($this->validated('page', 1));
+    }
+
+    public function getLimit(): int
+    {
+        return (int) ($this->validated('limit', 10));
+    }
+
+    public function getSearch(): string
+    {
+        return trim((string) ($this->validated('q', '')));
+    }
+
+    public function getDepartment(): string
+    {
+        return trim((string) ($this->validated('department', '')));
+    }
 }

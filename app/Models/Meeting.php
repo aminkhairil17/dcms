@@ -2,11 +2,11 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Builder;
 
 class Meeting extends Model
 {
@@ -15,10 +15,10 @@ class Meeting extends Model
     protected $fillable = ['title', 'doc_number', 'agenda', 'content', 'file_path', 'attachments', 'date_time', 'end_time', 'location', 'meeting_location_id', 'status', 'company_id', 'department_id', 'unit_id', 'created_by', 'notulis_id', 'reminder_sent_at'];
 
     protected $casts = [
-        'date_time'    => 'datetime',
-        'end_time'     => 'datetime',
+        'date_time' => 'datetime',
+        'end_time' => 'datetime',
         'reminder_sent_at' => 'datetime',
-        'attachments'  => 'array',
+        'attachments' => 'array',
     ];
 
     public function getMeetingDateAttribute()
@@ -40,6 +40,7 @@ class Meeting extends Model
     {
         return $this->belongsToMany(User::class, 'meeting_participants')->withPivot('attendance')->withTimestamps();
     }
+
     public function company()
     {
         return $this->belongsTo(Company::class);
@@ -64,6 +65,7 @@ class Meeting extends Model
     {
         return $this->participants->pluck('name')->implode(', ');
     }
+
     /**
      * Scope a query to only include meetings the user has access to.
      */
@@ -71,8 +73,9 @@ class Meeting extends Model
     {
         $user = auth()->user();
 
-        if (!$user)
+        if (! $user) {
             return $query;
+        }
 
         // 1. All Companies Bypass (Super Admin OR Global Permission)
         if ($user->hasRole('super_admin') || $user->can('view_all_companies_data')) {
@@ -101,6 +104,7 @@ class Meeting extends Model
                         if ($user->unit_id) {
                             return $q2->where('unit_id', $user->unit_id);
                         }
+
                         // If no unit/not a participant/not a creator, no access
                         return $q2->whereRaw('1=0');
                     }

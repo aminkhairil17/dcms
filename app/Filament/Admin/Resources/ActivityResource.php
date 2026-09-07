@@ -3,20 +3,18 @@
 namespace App\Filament\Admin\Resources;
 
 use Filament\Facades\Filament;
+use Filament\Forms\Components\DatePicker;
 use Filament\Resources\Resource;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
-use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\TextInput;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 use Jacobtims\FilamentLogger\Resources\ActivityResource as BaseActivityResource;
 use Spatie\Activitylog\Contracts\Activity;
 use Spatie\Activitylog\Models\Activity as ActivityModel;
-use Spatie\Activitylog\ActivitylogServiceProvider;
 
 class ActivityResource extends BaseActivityResource
 {
@@ -54,10 +52,11 @@ class ActivityResource extends BaseActivityResource
                     ->label(__('filament-logger::filament-logger.resource.label.subject'))
                     ->formatStateUsing(function ($state, Model $record) {
                         /** @var Activity&ActivityModel $record */
-                        if (!$state) {
+                        if (! $state) {
                             return '-';
                         }
-                        return Str::of($state)->afterLast('\\')->headline() . ' # ' . $record->subject_id;
+
+                        return Str::of($state)->afterLast('\\')->headline().' # '.$record->subject_id;
                     })
                     ->visibleFrom('md'),
 
@@ -103,14 +102,16 @@ class ActivityResource extends BaseActivityResource
             $subjects = [];
             $exceptResources = [...config('filament-logger.resources.exclude'), config('filament-logger.activity_resource')];
             $removedExcludedResources = collect(Filament::getResources())->filter(function ($resource) use ($exceptResources) {
-                return !in_array($resource, $exceptResources);
+                return ! in_array($resource, $exceptResources);
             });
             foreach ($removedExcludedResources as $resource) {
                 $model = $resource::getModel();
                 $subjects[$model] = Str::of(class_basename($model))->headline();
             }
+
             return $subjects;
         }
+
         return [];
     }
 
@@ -120,6 +121,7 @@ class ActivityResource extends BaseActivityResource
         foreach (config('filament-logger.custom') ?? [] as $custom) {
             $customs[$custom['log_name']] = $custom['log_name'];
         }
+
         return array_merge(
             config('filament-logger.resources.enabled') ? [config('filament-logger.resources.log_name') => config('filament-logger.resources.log_name')] : [],
             config('filament-logger.models.enabled') ? [config('filament-logger.models.log_name') => config('filament-logger.models.log_name')] : [],

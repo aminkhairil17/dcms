@@ -24,7 +24,7 @@ class MeetingStatsWidget extends Widget
 
     protected function getViewData(): array
     {
-        $user  = auth()->user();
+        $user = auth()->user();
         $today = Carbon::today();
 
         // Today's meetings
@@ -37,8 +37,8 @@ class MeetingStatsWidget extends Widget
         // Invited / participating meetings
         $invitedCount = Meeting::query()
             ->where(function ($q) use ($user) {
-                $q->whereHas('participants', fn($q2) => $q2->where('users.id', $user->id))
-                  ->orWhere('created_by', $user->id);
+                $q->whereHas('participants', fn ($q2) => $q2->where('users.id', $user->id))
+                    ->orWhere('created_by', $user->id);
             })
             ->whereNotIn('status', ['cancelled', 'completed'])
             ->where('date_time', '>=', now())
@@ -52,7 +52,7 @@ class MeetingStatsWidget extends Widget
             ->count();
 
         return [
-            'todayCount'   => $todayCount,
+            'todayCount' => $todayCount,
             'invitedCount' => $invitedCount,
             'upcomingCount' => $upcomingCount,
         ];

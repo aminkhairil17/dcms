@@ -1,11 +1,12 @@
 <?php
+
 // app/Models/Company.php
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use OwenIt\Auditing\Contracts\Auditable;
-use OwenIt\Auditing\Contracts\Audit;
 
 class Company extends Model implements Auditable
 {
@@ -32,6 +33,7 @@ class Company extends Model implements Auditable
     {
         return $this->hasMany(User::class);
     }
+
     // Get document counter untuk bulan ini
     public function getCurrentMonthDocumentCount($departmentId = null): int
     {

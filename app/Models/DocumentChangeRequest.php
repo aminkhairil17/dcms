@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class DocumentChangeRequest extends Model
 {
     use SoftDeletes;
+
     protected $fillable = [
         'document_id',
         'user_id',

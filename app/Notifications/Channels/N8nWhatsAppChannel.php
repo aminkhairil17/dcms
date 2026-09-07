@@ -33,6 +33,7 @@ class N8nWhatsAppChannel
 
         if (empty($webhookUrl)) {
             Log::warning('N8nWhatsAppChannel: services.n8n.webhook_url belum diset, notifikasi WhatsApp dilewati.');
+
             return;
         }
 
@@ -50,10 +51,10 @@ class N8nWhatsAppChannel
         $data = $notification->toN8n($notifiable);
 
         $payload = array_merge([
-            'to'        => $this->normalizePhone((string) $to),
-            'name'      => $notifiable->name ?? null,
-            'channel'   => 'whatsapp',
-            'source'    => 'dcms',
+            'to' => $this->normalizePhone((string) $to),
+            'name' => $notifiable->name ?? null,
+            'channel' => 'whatsapp',
+            'source' => 'dcms',
         ], $data);
 
         try {
@@ -70,11 +71,11 @@ class N8nWhatsAppChannel
             if ($response->failed()) {
                 Log::error('N8nWhatsAppChannel: webhook n8n mengembalikan error', [
                     'status' => $response->status(),
-                    'body'   => $response->body(),
+                    'body' => $response->body(),
                 ]);
             }
         } catch (\Throwable $e) {
-            Log::error('N8nWhatsAppChannel: gagal mengirim ke webhook n8n: ' . $e->getMessage());
+            Log::error('N8nWhatsAppChannel: gagal mengirim ke webhook n8n: '.$e->getMessage());
         }
     }
 
@@ -87,7 +88,7 @@ class N8nWhatsAppChannel
         $digits = preg_replace('/[^0-9]/', '', $phone) ?? '';
 
         if (str_starts_with($digits, '0')) {
-            $digits = '62' . substr($digits, 1);
+            $digits = '62'.substr($digits, 1);
         }
 
         return $digits;

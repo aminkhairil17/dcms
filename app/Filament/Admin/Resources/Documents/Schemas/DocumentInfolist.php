@@ -8,8 +8,6 @@ use Filament\Infolists\Components\ViewEntry;
 use Filament\Schemas\Components\Livewire;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\HtmlString;
 
 class DocumentInfolist
 {
@@ -28,64 +26,64 @@ class DocumentInfolist
                     ->schema([
                         TextEntry::make('status')
                             ->label('Status')
-                            ->icon(fn(Document $record): string => match ($record->status) {
-                                'draft'            => 'heroicon-o-pencil',
-                                'pending_kabid'    => 'heroicon-o-clock',
+                            ->icon(fn (Document $record): string => match ($record->status) {
+                                'draft' => 'heroicon-o-pencil',
+                                'pending_kabid' => 'heroicon-o-clock',
                                 'pending_direktur' => 'heroicon-o-clock',
-                                'approved'         => 'heroicon-o-check-circle',
-                                'rejected'         => 'heroicon-o-x-circle',
-                                'archived'         => 'heroicon-o-archive-box',
-                                default            => 'heroicon-o-question-mark-circle',
+                                'approved' => 'heroicon-o-check-circle',
+                                'rejected' => 'heroicon-o-x-circle',
+                                'archived' => 'heroicon-o-archive-box',
+                                default => 'heroicon-o-question-mark-circle',
                             })
                             ->badge()
-                            ->color(fn(string $state): string => match ($state) {
-                                'pending_kabid'    => 'warning',
+                            ->color(fn (string $state): string => match ($state) {
+                                'pending_kabid' => 'warning',
                                 'pending_direktur' => 'info',
-                                'approved'         => 'success',
-                                'rejected'         => 'danger',
-                                'archived'         => 'gray',
-                                default            => 'gray',
+                                'approved' => 'success',
+                                'rejected' => 'danger',
+                                'archived' => 'gray',
+                                default => 'gray',
                             })
-                            ->formatStateUsing(fn(string $state): string => match ($state) {
-                                'draft'            => 'Pending',
-                                'pending_kabid'    => 'Menunggu Kabid',
+                            ->formatStateUsing(fn (string $state): string => match ($state) {
+                                'draft' => 'Pending',
+                                'pending_kabid' => 'Menunggu Kabid',
                                 'pending_direktur' => 'Menunggu Direktur',
-                                'approved'         => 'Disetujui',
-                                'rejected'         => 'Ditolak',
-                                'archived'         => 'Diarsipkan',
-                                default            => $state,
+                                'approved' => 'Disetujui',
+                                'rejected' => 'Ditolak',
+                                'archived' => 'Diarsipkan',
+                                default => $state,
                             }),
 
                         TextEntry::make('document_type')
                             ->label('Tipe Dokumen')
-                            ->icon(fn(Document $record): string => match ($record->document_type) {
-                                'file'   => 'heroicon-o-paper-clip',
-                                'form'   => 'heroicon-o-pencil-square',
+                            ->icon(fn (Document $record): string => match ($record->document_type) {
+                                'file' => 'heroicon-o-paper-clip',
+                                'form' => 'heroicon-o-pencil-square',
                                 'hybrid' => 'heroicon-o-squares-plus',
-                                default  => 'heroicon-o-document',
+                                default => 'heroicon-o-document',
                             })
                             ->badge()
-                            ->color(fn(string $state): string => match ($state) {
-                                'file'   => 'success',
-                                'form'   => 'info',
+                            ->color(fn (string $state): string => match ($state) {
+                                'file' => 'success',
+                                'form' => 'info',
                                 'hybrid' => 'warning',
-                                default  => 'gray',
+                                default => 'gray',
                             })
-                            ->formatStateUsing(fn(string $state): string => match ($state) {
-                                'file'   => 'Berkas',
-                                'form'   => 'Formulir',
+                            ->formatStateUsing(fn (string $state): string => match ($state) {
+                                'file' => 'Berkas',
+                                'form' => 'Formulir',
                                 'hybrid' => 'Gabungan',
-                                default  => $state,
+                                default => $state,
                             }),
 
                         TextEntry::make('is_mandatory_read')
                             ->label('Wajib Dibaca')
                             ->badge()
-                            ->icon(fn(Document $record): string => $record->is_mandatory_read
+                            ->icon(fn (Document $record): string => $record->is_mandatory_read
                                 ? 'heroicon-o-shield-check'
                                 : 'heroicon-o-shield-exclamation')
-                            ->formatStateUsing(fn(bool $state): string => $state ? 'Wajib Dibaca' : 'Tidak Diwajibkan')
-                            ->color(fn(bool $state): string => $state ? 'success' : 'gray'),
+                            ->formatStateUsing(fn (bool $state): string => $state ? 'Wajib Dibaca' : 'Tidak Diwajibkan')
+                            ->color(fn (bool $state): string => $state ? 'success' : 'gray'),
                     ]),
 
                 /* ─── IDENTITAS ─── */
@@ -127,7 +125,7 @@ class DocumentInfolist
 
                         TextEntry::make('expires_at')
                             ->label('Berlaku Hingga')
-                            ->icon(fn(Document $record): ?string => match (true) {
+                            ->icon(fn (Document $record): ?string => match (true) {
                                 $record->is_expired => 'heroicon-o-exclamation-triangle',
                                 $record->is_expiring_soon => 'heroicon-o-clock',
                                 filled($record->expires_at) => 'heroicon-o-check-circle',
@@ -135,19 +133,25 @@ class DocumentInfolist
                             })
                             ->badge()
                             ->date('d M Y')
-                            ->color(fn(Document $record): string => match (true) {
+                            ->color(fn (Document $record): string => match (true) {
                                 $record->is_expired => 'danger',
                                 $record->is_expiring_soon => 'warning',
                                 filled($record->expires_at) => 'success',
                                 default => 'gray',
                             })
                             ->formatStateUsing(function (Document $record): string {
-                                if (! $record->expires_at) return 'Tidak ada batas waktu';
-                                if ($record->is_expired) return 'Kedaluwarsa: ' . $record->expires_at->format('d M Y');
+                                if (! $record->expires_at) {
+                                    return 'Tidak ada batas waktu';
+                                }
+                                if ($record->is_expired) {
+                                    return 'Kedaluwarsa: '.$record->expires_at->format('d M Y');
+                                }
                                 if ($record->is_expiring_soon) {
                                     $days = today()->diffInDays($record->expires_at);
-                                    return "{$days} hari lagi · " . $record->expires_at->format('d M Y');
+
+                                    return "{$days} hari lagi · ".$record->expires_at->format('d M Y');
                                 }
+
                                 return $record->expires_at->format('d M Y');
                             })
                             ->placeholder('Tidak ada batas waktu'),
@@ -160,7 +164,7 @@ class DocumentInfolist
                     ->description('File yang diunggah bersama dokumen ini')
                     ->columnSpan(1)
                     ->extraAttributes(['style' => 'height: 100%; display: flex; flex-direction: column;'])
-                    ->visible(fn(Document $record): bool => filled($record->file_path))
+                    ->visible(fn (Document $record): bool => filled($record->file_path))
                     ->schema([
                         ViewEntry::make('file_path')
                             ->hiddenLabel()
@@ -212,7 +216,7 @@ class DocumentInfolist
                             ->icon('heroicon-o-pencil-square')
                             ->iconColor('warning')
                             ->placeholder('Belum pernah diedit')
-                            ->visible(fn(Document $record): bool => filled($record->updated_by)),
+                            ->visible(fn (Document $record): bool => filled($record->updated_by)),
 
                         TextEntry::make('allowedUnits.name')
                             ->label('Akses Granular Unit')
@@ -282,7 +286,7 @@ class DocumentInfolist
                     ->collapsible()
                     ->collapsed()
                     ->columnSpanFull()
-                    ->visible(fn(Document $record): bool => filled($record->content))
+                    ->visible(fn (Document $record): bool => filled($record->content))
                     ->schema([
                         TextEntry::make('content')
                             ->label('')
@@ -297,7 +301,7 @@ class DocumentInfolist
                     ->description('Log seluruh penolakan yang pernah terjadi pada dokumen ini')
                     ->columnSpanFull()
                     ->collapsible()
-                    ->visible(fn(Document $record): bool => $record->rejections()->exists())
+                    ->visible(fn (Document $record): bool => $record->rejections()->exists())
                     ->schema([
                         \Filament\Infolists\Components\RepeatableEntry::make('rejections')
                             ->label('')
@@ -311,10 +315,10 @@ class DocumentInfolist
                                     ->label('Jabatan')
                                     ->badge()
                                     ->color('danger')
-                                    ->formatStateUsing(fn(string $state): string => match ($state) {
-                                        'kabid'    => 'Kepala Bidang',
+                                    ->formatStateUsing(fn (string $state): string => match ($state) {
+                                        'kabid' => 'Kepala Bidang',
                                         'direktur' => 'Direktur',
-                                        default    => ucfirst($state),
+                                        default => ucfirst($state),
                                     }),
 
                                 TextEntry::make('created_at')
@@ -358,7 +362,7 @@ class DocumentInfolist
                             ->iconColor('danger')
                             ->dateTime('d M Y, H:i')
                             ->placeholder('—')
-                            ->visible(fn(Document $record): bool => $record->trashed()),
+                            ->visible(fn (Document $record): bool => $record->trashed()),
                     ]),
 
                 /* ─── DISKUSI & Q&A ─── */
@@ -370,8 +374,8 @@ class DocumentInfolist
                     ->hidden()
                     ->schema([
                         Livewire::make(\App\Livewire\DocumentDiscussionThread::class)
-                            ->key(fn(Document $record) => 'discussion-' . $record->id)
-                            ->data(fn(Document $record) => ['documentId' => $record->id])
+                            ->key(fn (Document $record) => 'discussion-'.$record->id)
+                            ->data(fn (Document $record) => ['documentId' => $record->id])
                             ->lazy()
                             ->columnSpanFull(),
                     ]),

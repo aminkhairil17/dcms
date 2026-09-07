@@ -17,71 +17,71 @@ class DocumentResource extends JsonResource
     {
         return [
             // Core identity
-            'id'            => $this->id,
-            'title'         => $this->title,
-            'code_number'   => $this->code_number,
-            'description'   => $this->description,
-            'version'       => $this->version,
-            'status'        => $this->status,
-            'status_label'  => \App\Models\Document::getStatuses()[$this->status] ?? $this->status,
+            'id' => $this->id,
+            'title' => $this->title,
+            'code_number' => $this->code_number,
+            'description' => $this->description,
+            'version' => $this->version,
+            'status' => $this->status,
+            'status_label' => \App\Models\Document::getStatuses()[$this->status] ?? $this->status,
             'document_type' => $this->document_type,
 
             // File metadata
-            'file_name'     => $this->file_name,
-            'file_url'      => $this->resolveFileUrl(),
-            'file_hash'     => $this->file_hash,
+            'file_name' => $this->file_name,
+            'file_url' => $this->resolveFileUrl(),
+            'file_hash' => $this->file_hash,
 
             // Flags
             'is_mandatory_read' => (bool) $this->is_mandatory_read,
-            'is_public'         => (bool) $this->is_public,
-            'is_expired'        => $this->is_expired,
-            'is_expiring_soon'  => $this->is_expiring_soon,
-            'expires_at'        => $this->expires_at?->toDateString(),
+            'is_public' => (bool) $this->is_public,
+            'is_expired' => $this->is_expired,
+            'is_expiring_soon' => $this->is_expiring_soon,
+            'expires_at' => $this->expires_at?->toDateString(),
 
             // Author / editor
             'author' => $this->whenLoaded('user', fn () => [
-                'id'    => $this->user?->id,
-                'name'  => $this->user?->name,
+                'id' => $this->user?->id,
+                'name' => $this->user?->name,
                 'email' => $this->user?->email,
             ]),
             'updated_by_user' => $this->whenLoaded('updatedByUser', fn () => [
-                'id'   => $this->updatedByUser?->id,
+                'id' => $this->updatedByUser?->id,
                 'name' => $this->updatedByUser?->name,
             ]),
 
             // Review workflow
             'kabid_reviewer' => $this->whenLoaded('kabidReviewer', fn () => [
-                'id'          => $this->kabidReviewer?->id,
-                'name'        => $this->kabidReviewer?->name,
+                'id' => $this->kabidReviewer?->id,
+                'name' => $this->kabidReviewer?->name,
                 'reviewed_at' => $this->kabid_reviewed_at?->toISOString(),
-                'notes'       => $this->kabid_notes,
+                'notes' => $this->kabid_notes,
             ]),
             'direktur_reviewer' => $this->whenLoaded('direkturReviewer', fn () => [
-                'id'          => $this->direkturReviewer?->id,
-                'name'        => $this->direkturReviewer?->name,
+                'id' => $this->direkturReviewer?->id,
+                'name' => $this->direkturReviewer?->name,
                 'reviewed_at' => $this->direktur_reviewed_at?->toISOString(),
-                'notes'       => $this->direktur_notes,
+                'notes' => $this->direktur_notes,
             ]),
 
             // Organisational hierarchy
-            'company'    => $this->whenLoaded('company', fn () => [
-                'id'   => $this->company?->id,
+            'company' => $this->whenLoaded('company', fn () => [
+                'id' => $this->company?->id,
                 'name' => $this->company?->name,
                 'code' => $this->company?->code,
             ]),
             'department' => $this->whenLoaded('department', fn () => [
-                'id'   => $this->department?->id,
+                'id' => $this->department?->id,
                 'name' => $this->department?->name,
                 'code' => $this->department?->code,
             ]),
             'unit' => $this->whenLoaded('unit', fn () => [
-                'id'   => $this->unit?->id,
+                'id' => $this->unit?->id,
                 'name' => $this->unit?->name,
                 'code' => $this->unit?->code ?? $this->unit?->prefix,
             ]),
             'category' => $this->whenLoaded('category', fn () => [
-                'id'     => $this->category?->id,
-                'name'   => $this->category?->name,
+                'id' => $this->category?->id,
+                'name' => $this->category?->name,
                 'prefix' => $this->category?->prefix,
             ]),
 
@@ -105,6 +105,7 @@ class DocumentResource extends JsonResource
 
         try {
             $disk = Storage::disk('documents');
+
             return $disk->exists($path) ? $disk->url($path) : null;
         } catch (\Exception) {
             return null;

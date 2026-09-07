@@ -37,7 +37,7 @@ class EmployeeActivityHubWidget extends Widget
         $todayMeetings = (clone $todayMeetingsQuery)
             ->limit(4)
             ->get()
-            ->map(fn(Meeting $meeting) => $this->transformMeeting($meeting))
+            ->map(fn (Meeting $meeting) => $this->transformMeeting($meeting))
             ->all();
 
         $upcomingMeetingsQuery = Meeting::query()
@@ -55,7 +55,7 @@ class EmployeeActivityHubWidget extends Widget
         $documentsNeedAction = (clone $documentsNeedActionQuery)
             ->limit(4)
             ->get()
-            ->map(fn(Document $document) => $this->transformDocument($document))
+            ->map(fn (Document $document) => $this->transformDocument($document))
             ->all();
 
         $unreadNotificationsCount = (int) $user->unreadNotifications()->count();
@@ -63,7 +63,7 @@ class EmployeeActivityHubWidget extends Widget
         $todayLoad = $todayMeetingsCount + $documentsNeedActionCount;
         $subtitle = $todayLoad > 0
             ? "Ada {$todayLoad} dokumen & agenda yang menunggu tindakan Anda hari ini. Mari kita selesaikan!"
-            : "Semua pekerjaan Anda hari ini sudah terkendali dengan baik. Selamat melanjutkan aktivitas!";
+            : 'Semua pekerjaan Anda hari ini sudah terkendali dengan baik. Selamat melanjutkan aktivitas!';
 
         return [
             'greeting' => $this->getGreeting(),
@@ -134,7 +134,7 @@ class EmployeeActivityHubWidget extends Widget
 
         return [
             'title' => $meeting->title,
-            'url' => '/admin/meetings/' . $meeting->id,
+            'url' => '/admin/meetings/'.$meeting->id,
             'when' => $this->formatMeetingWhen($dateTime),
             'time' => $dateTime->format('H:i'),
             'location' => $meeting->location ?: 'Lokasi belum diisi',
@@ -158,7 +158,7 @@ class EmployeeActivityHubWidget extends Widget
         return [
             'title' => $document->title,
             'code' => $document->code_number ?: 'Tanpa nomor',
-            'url' => '/admin/documents/' . $document->id,
+            'url' => '/admin/documents/'.$document->id,
             'meta' => $document->category?->name ?: 'Dokumen internal',
             'badge' => match ($document->status) {
                 Document::STATUS_DRAFT => 'Perlu dilengkapi',
@@ -201,11 +201,11 @@ class EmployeeActivityHubWidget extends Widget
     private function formatMeetingWhen(Carbon $dateTime): string
     {
         if ($dateTime->isToday()) {
-            return 'Hari ini, ' . $dateTime->format('H:i');
+            return 'Hari ini, '.$dateTime->format('H:i');
         }
 
         if ($dateTime->isTomorrow()) {
-            return 'Besok, ' . $dateTime->format('H:i');
+            return 'Besok, '.$dateTime->format('H:i');
         }
 
         return $dateTime->format('d M Y, H:i');

@@ -45,9 +45,8 @@ class SopApiService
             ])
             ->withoutTrashed()
             // Core SOP filter: only documents from SOP categories
-            ->whereHas('category', fn ($q) =>
-                $q->where('name', 'LIKE', '%' . self::SOP_IDENTIFIER . '%')
-                    ->orWhere('prefix', 'LIKE', '%' . self::SOP_IDENTIFIER . '%')
+            ->whereHas('category', fn ($q) => $q->where('name', 'LIKE', '%'.self::SOP_IDENTIFIER.'%')
+                ->orWhere('prefix', 'LIKE', '%'.self::SOP_IDENTIFIER.'%')
             );
 
         // --- Full-text search ---

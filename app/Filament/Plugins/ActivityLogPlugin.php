@@ -2,9 +2,9 @@
 
 namespace App\Filament\Plugins;
 
+use App\Filament\Admin\Resources\ActivityResource;
 use Filament\Contracts\Plugin;
 use Filament\Panel;
-use App\Filament\Admin\Resources\ActivityResource;
 
 class ActivityLogPlugin implements Plugin
 {

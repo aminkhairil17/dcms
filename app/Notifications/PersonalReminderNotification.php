@@ -27,10 +27,10 @@ class PersonalReminderNotification extends Notification
     public function toArray(object $notifiable): array
     {
         return [
-            'type'    => 'personal_reminder',
-            'title'   => 'Pengingat Pribadi: ' . $this->reminderTitle,
+            'type' => 'personal_reminder',
+            'title' => 'Pengingat Pribadi: '.$this->reminderTitle,
             'message' => $this->reminderNotes,
-            'url'     => route('filament.admin.pages.reminders'),
+            'url' => route('filament.admin.pages.reminders'),
         ];
     }
 }

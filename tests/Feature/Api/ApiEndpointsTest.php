@@ -10,6 +10,7 @@ use App\Models\Meeting;
 use App\Models\Unit;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
 class ApiEndpointsTest extends TestCase
@@ -17,15 +18,22 @@ class ApiEndpointsTest extends TestCase
     use RefreshDatabase;
 
     protected User $user;
+
     protected Company $company;
+
     protected Department $department;
+
     protected Unit $unit;
+
     protected DocumentCategory $docCategory;
+
     protected DocumentCategory $sopCategory;
 
     protected function setUp(): void
     {
         parent::setUp();
+
+        Role::firstOrCreate(['name' => 'super_admin']);
 
         $this->company = Company::create(['name' => 'Syifa Global', 'code' => 'SGI']);
         $this->department = Department::create(['name' => 'IT & Software', 'code' => 'ITS', 'company_id' => $this->company->id]);
@@ -88,9 +96,9 @@ class ApiEndpointsTest extends TestCase
                         'code_number',
                         'version',
                         'status',
-                    ]
+                    ],
                 ],
-                'meta' => ['page', 'limit', 'totalItems', 'totalPages']
+                'meta' => ['page', 'limit', 'totalItems', 'totalPages'],
             ])
             ->assertJsonPath('success', true)
             ->assertJsonPath('meta.totalItems', 1);
@@ -114,7 +122,7 @@ class ApiEndpointsTest extends TestCase
             'status' => Document::STATUS_APPROVED,
         ]);
 
-        $response = $this->getJson('/api/v1/documents/' . $doc->id);
+        $response = $this->getJson('/api/v1/documents/'.$doc->id);
 
         $response->assertStatus(200)
             ->assertJsonPath('success', true)
@@ -165,7 +173,7 @@ class ApiEndpointsTest extends TestCase
             'status' => Document::STATUS_APPROVED,
         ]);
 
-        $response = $this->getJson('/api/v1/sops/' . $sop->id);
+        $response = $this->getJson('/api/v1/sops/'.$sop->id);
 
         $response->assertStatus(200)
             ->assertJsonPath('success', true)
@@ -210,7 +218,7 @@ class ApiEndpointsTest extends TestCase
             'created_by' => $this->user->id,
         ]);
 
-        $response = $this->getJson('/api/v1/schedules/' . $meeting->id);
+        $response = $this->getJson('/api/v1/schedules/'.$meeting->id);
 
         $response->assertStatus(200)
             ->assertJsonPath('success', true)

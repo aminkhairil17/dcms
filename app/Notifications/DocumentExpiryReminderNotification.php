@@ -30,8 +30,8 @@ class DocumentExpiryReminderNotification extends Notification
             'expires_at' => $this->document->expires_at?->format('Y-m-d'),
             'days_left' => $this->daysLeft,
             'message' => $this->daysLeft <= 0
-                ? 'Dokumen "' . $this->document->title . '" telah melewati masa berlaku.'
-                : 'Dokumen "' . $this->document->title . '" akan kedaluwarsa dalam ' . $this->daysLeft . ' hari.',
+                ? 'Dokumen "'.$this->document->title.'" telah melewati masa berlaku.'
+                : 'Dokumen "'.$this->document->title.'" akan kedaluwarsa dalam '.$this->daysLeft.' hari.',
         ];
     }
 }

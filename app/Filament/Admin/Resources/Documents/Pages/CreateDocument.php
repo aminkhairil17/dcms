@@ -3,8 +3,8 @@
 namespace App\Filament\Admin\Resources\Documents\Pages;
 
 use App\Filament\Admin\Resources\Documents\DocumentResource;
-use Filament\Resources\Pages\CreateRecord;
 use App\Models\Document;
+use Filament\Resources\Pages\CreateRecord;
 
 class CreateDocument extends CreateRecord
 {
@@ -48,7 +48,7 @@ class CreateDocument extends CreateRecord
             $data['file_hash'] = $data['_computed_file_hash'];
             unset($data['_computed_file_hash']);
         }
-        
+
         // Handle 'is_permanent' logic
         if (isset($data['is_permanent'])) {
             if ($data['is_permanent']) {

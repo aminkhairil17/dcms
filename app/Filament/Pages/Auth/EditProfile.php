@@ -6,13 +6,12 @@ use App\Models\Company;
 use App\Models\Department;
 use App\Models\Unit;
 use Filament\Auth\Pages\EditProfile as BaseEditProfile;
-use Filament\Schemas\Components\Section;
-use Filament\Schemas\Components\Grid;
+use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Placeholder;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
-
 use Filament\Support\Enums\Width;
 
 class EditProfile extends BaseEditProfile
@@ -24,7 +23,7 @@ class EditProfile extends BaseEditProfile
         return false;
     }
 
-    public function getMaxContentWidth(): Width | string | null
+    public function getMaxContentWidth(): Width|string|null
     {
         return Width::Full;
     }
@@ -91,6 +90,7 @@ class EditProfile extends BaseEditProfile
                                     if (! $companyId) {
                                         return [];
                                     }
+
                                     return Department::where('company_id', $companyId)
                                         ->where('is_active', true)
                                         ->pluck('name', 'id');
@@ -108,6 +108,7 @@ class EditProfile extends BaseEditProfile
                                     if (! $departmentId) {
                                         return [];
                                     }
+
                                     return Unit::where('department_id', $departmentId)
                                         ->where('is_active', true)
                                         ->pluck('name', 'id');
@@ -147,9 +148,10 @@ class EditProfile extends BaseEditProfile
                                     if ($roles->isEmpty()) {
                                         return 'Belum memiliki peran';
                                     }
+
                                     return new \Illuminate\Support\HtmlString(
                                         $roles->map(function ($role) {
-                                            return '<span style="display:inline-block;padding:4px 12px;background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;border-radius:6px;font-size:12px;font-weight:700;letter-spacing:0.3px;margin-right:6px;margin-bottom:4px;">' . e(ucwords(str_replace('_', ' ', $role))) . '</span>';
+                                            return '<span style="display:inline-block;padding:4px 12px;background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;border-radius:6px;font-size:12px;font-weight:700;letter-spacing:0.3px;margin-right:6px;margin-bottom:4px;">'.e(ucwords(str_replace('_', ' ', $role))).'</span>';
                                         })->implode(' ')
                                     );
                                 })
@@ -163,6 +165,7 @@ class EditProfile extends BaseEditProfile
                                     if ($isActive) {
                                         return new \Illuminate\Support\HtmlString('<span style="display:inline-flex;align-items:center;gap:6px;padding:4px 12px;background:#dcfce7;color:#15803d;border-radius:6px;font-size:12px;font-weight:700;"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg>Aktif</span>');
                                     }
+
                                     return new \Illuminate\Support\HtmlString('<span style="display:inline-flex;align-items:center;gap:6px;padding:4px 12px;background:#fee2e2;color:#dc2626;border-radius:6px;font-size:12px;font-weight:700;"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg>Nonaktif</span>');
                                 })
                                 ->dehydrated(false),

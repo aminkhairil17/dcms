@@ -17,7 +17,7 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->timestamp('read_at');
             $table->timestamps();
-            
+
             // Ensure a user can only acknowledge a document once
             $table->unique(['document_id', 'user_id']);
         });

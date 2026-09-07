@@ -24,6 +24,7 @@ class ViewReviewDocument extends ViewRecord
                 ->visible(function (Document $record) {
                     /** @var User $user */
                     $user = Auth::user();
+
                     return $record->status === Document::STATUS_PENDING_KABID && $user->hasRole('kabid');
                 })
                 ->modalDescription('Dokumen ini akan diteruskan ke Direktur untuk keputusan akhir.')
@@ -39,12 +40,12 @@ class ViewReviewDocument extends ViewRecord
                     /** @var User $user */
                     $user = Auth::user();
                     $record->approveByKabid($user, $data['kabid_notes'] ?? null);
-                    
+
                     \Filament\Notifications\Notification::make()
                         ->title('Dokumen disetujui')
                         ->success()
                         ->send();
-                    
+
                     $this->redirect($this->getResource()::getUrl('index'));
                 }),
 
@@ -56,6 +57,7 @@ class ViewReviewDocument extends ViewRecord
                 ->visible(function (Document $record) {
                     /** @var User $user */
                     $user = Auth::user();
+
                     return $record->status === Document::STATUS_PENDING_KABID && $user->hasRole('kabid');
                 })
                 ->requiresConfirmation()
@@ -74,12 +76,12 @@ class ViewReviewDocument extends ViewRecord
                     /** @var User $user */
                     $user = Auth::user();
                     $record->rejectByKabid($user, $data['kabid_notes']);
-                    
+
                     \Filament\Notifications\Notification::make()
                         ->title('Dokumen ditolak')
                         ->danger()
                         ->send();
-                    
+
                     $this->redirect($this->getResource()::getUrl('index'));
                 }),
 
@@ -91,6 +93,7 @@ class ViewReviewDocument extends ViewRecord
                 ->visible(function (Document $record) {
                     /** @var User $user */
                     $user = Auth::user();
+
                     return $record->status === Document::STATUS_PENDING_DIREKTUR && $user->hasRole('direktur');
                 })
                 ->requiresConfirmation()
@@ -108,12 +111,12 @@ class ViewReviewDocument extends ViewRecord
                     /** @var User $user */
                     $user = Auth::user();
                     $record->approveByDirektur($user, $data['direktur_notes'] ?? null);
-                    
+
                     \Filament\Notifications\Notification::make()
                         ->title('Dokumen disetujui final')
                         ->success()
                         ->send();
-                    
+
                     $this->redirect($this->getResource()::getUrl('index'));
                 }),
 
@@ -125,6 +128,7 @@ class ViewReviewDocument extends ViewRecord
                 ->visible(function (Document $record) {
                     /** @var User $user */
                     $user = Auth::user();
+
                     return $record->status === Document::STATUS_PENDING_DIREKTUR && $user->hasRole('direktur');
                 })
                 ->requiresConfirmation()
@@ -143,12 +147,12 @@ class ViewReviewDocument extends ViewRecord
                     /** @var User $user */
                     $user = Auth::user();
                     $record->rejectByDirektur($user, $data['direktur_notes']);
-                    
+
                     \Filament\Notifications\Notification::make()
                         ->title('Dokumen ditolak final')
                         ->danger()
                         ->send();
-                    
+
                     $this->redirect($this->getResource()::getUrl('index'));
                 }),
         ];

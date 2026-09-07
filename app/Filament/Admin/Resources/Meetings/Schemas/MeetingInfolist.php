@@ -2,9 +2,9 @@
 
 namespace App\Filament\Admin\Resources\Meetings\Schemas;
 
-use Filament\Schemas\Components\Section;
-use Filament\Infolists\Components\TextEntry;
 use Filament\Infolists\Components\ImageEntry;
+use Filament\Infolists\Components\TextEntry;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 
 class MeetingInfolist
@@ -41,7 +41,7 @@ class MeetingInfolist
                                         'cancelled' => 'Batal',
                                         default => ucfirst($state),
                                     })
-                                    ->color(fn($state) => match ($state) {
+                                    ->color(fn ($state) => match ($state) {
                                         'draft' => 'gray',
                                         'scheduled' => 'blue',
                                         'ongoing' => 'warning',
@@ -84,7 +84,7 @@ class MeetingInfolist
 
                         // 3. Konteks Rapat
                         Section::make('Konteks Rapat')
-                            ->icon('heroicon-o-clipboard') 
+                            ->icon('heroicon-o-clipboard')
                             ->schema([
                                 TextEntry::make('agenda')
                                     ->label('Agenda Pembahasan')
@@ -126,9 +126,9 @@ class MeetingInfolist
                 Section::make('Hasil & Dokumentasi Rapat')
                     ->icon('heroicon-o-document-check')
                     ->schema([
-                        
+
                         Section::make('Notulensi Rapat')
-                            ->icon('heroicon-o-pencil') 
+                            ->icon('heroicon-o-pencil')
                             ->description('Catatan hasil rapat dan poin-poin keputusan.')
                             ->schema([
                                 TextEntry::make('content')
@@ -151,7 +151,7 @@ class MeetingInfolist
                                     ->disk('public')
                                     ->columnSpanFull(),
                             ])
-                            ->visible(fn($record) => !empty($record->attachments))
+                            ->visible(fn ($record) => ! empty($record->attachments))
                             ->extraAttributes([
                                 'class' => 'bg-blue-50 border-dashed border-2 p-5 rounded-xl mt-4',
                             ]),

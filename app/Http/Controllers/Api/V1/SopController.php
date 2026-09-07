@@ -46,9 +46,9 @@ class SopController extends Controller
     public function index(SopIndexRequest $request): JsonResponse
     {
         $paginator = $this->service->getPaginated([
-            'page'       => $request->getPage(),
-            'limit'      => $request->getLimit(),
-            'q'          => $request->getSearch(),
+            'page' => $request->getPage(),
+            'limit' => $request->getLimit(),
+            'q' => $request->getSearch(),
             'department' => $request->getDepartment(),
         ]);
 

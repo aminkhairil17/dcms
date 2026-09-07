@@ -2,10 +2,10 @@
 
 namespace App\Livewire;
 
-use Livewire\Component;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Livewire\Component;
 
 class BookmarkTopbarIcon extends Component
 {
@@ -16,7 +16,7 @@ class BookmarkTopbarIcon extends Component
         if (Auth::check()) {
             $userId = Auth::id();
             $this->count = Cache::remember(
-                'nav_badge_bookmarks_' . $userId,
+                'nav_badge_bookmarks_'.$userId,
                 30,
                 fn () => DB::table('document_bookmarks')->where('user_id', $userId)->count()
             );

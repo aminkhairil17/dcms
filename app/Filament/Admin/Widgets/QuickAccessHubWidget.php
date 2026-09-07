@@ -31,21 +31,24 @@ class QuickAccessHubWidget extends Widget
     {
         /** @var \App\Models\User|null $user */
         $user = Auth::user();
-        if (! $user) return [];
+        if (! $user) {
+            return [];
+        }
 
         // Bookmarks Count
         $bookmarkCount = Cache::remember(
-            'widget_user_bookmarks_' . $user->id,
+            'widget_user_bookmarks_'.$user->id,
             30,
             fn () => DB::table('document_bookmarks')->where('user_id', $user->id)->count()
         );
 
         // Unread Mandatory Docs Count
         $unreadComplianceCount = Cache::remember(
-            'widget_unread_compliance_' . $user->id,
+            'widget_unread_compliance_'.$user->id,
             30,
             function () use ($user) {
                 $readIds = DocumentReadAcknowledgment::where('user_id', $user->id)->pluck('document_id');
+
                 return Document::query()
                     ->mandatoryForUser($user)
                     ->whereNotIn('id', $readIds)
@@ -67,13 +70,13 @@ class QuickAccessHubWidget extends Widget
         $expiringSoonDocs = (clone $baseQuery)->expiringSoon(30)->orderBy('expires_at')->limit(3)->get();
 
         return [
-            'bookmarkCount'         => $bookmarkCount,
+            'bookmarkCount' => $bookmarkCount,
             'unreadComplianceCount' => $unreadComplianceCount,
-            'myRecentDocs'          => $myRecentDocs,
-            'expiredCount'          => $expiredCount,
-            'expiringSoonCount'     => $expiringSoonCount,
-            'expiringSoonDocs'      => $expiringSoonDocs,
-            'hasExpiryAlerts'       => $expiredCount > 0 || $expiringSoonCount > 0,
+            'myRecentDocs' => $myRecentDocs,
+            'expiredCount' => $expiredCount,
+            'expiringSoonCount' => $expiringSoonCount,
+            'expiringSoonDocs' => $expiringSoonDocs,
+            'hasExpiryAlerts' => $expiredCount > 0 || $expiringSoonCount > 0,
         ];
     }
 }

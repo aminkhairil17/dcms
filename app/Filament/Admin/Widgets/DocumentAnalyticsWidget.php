@@ -2,8 +2,8 @@
 
 namespace App\Filament\Admin\Widgets;
 
-use App\Models\Document;
 use App\Models\Department;
+use App\Models\Document;
 use Filament\Widgets\Widget;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -53,8 +53,8 @@ class DocumentAnalyticsWidget extends Widget
             ->orderByDesc('total')
             ->limit(6)
             ->get()
-            ->map(fn($row) => [
-                'name'  => $row->department?->name ?? 'Tidak diketahui',
+            ->map(fn ($row) => [
+                'name' => $row->department?->name ?? 'Tidak diketahui',
                 'total' => $row->total,
             ])->all();
 
@@ -68,8 +68,8 @@ class DocumentAnalyticsWidget extends Widget
             ->orderByDesc('total')
             ->limit(5)
             ->get()
-            ->map(fn($row) => [
-                'name'  => $row->user?->name ?? 'Anonim',
+            ->map(fn ($row) => [
+                'name' => $row->user?->name ?? 'Anonim',
                 'total' => $row->total,
             ])->all();
 
@@ -101,16 +101,16 @@ class DocumentAnalyticsWidget extends Widget
         $maxMonthCount = count($monthlyTrend) > 0 ? max(array_column($monthlyTrend, 'count')) : 1;
 
         return [
-            'avgApprovalDays'   => $avgApprovalDays,
-            'approvalRate'      => $approvalRate,
-            'totalApproved'     => $totalApproved,
+            'avgApprovalDays' => $avgApprovalDays,
+            'approvalRate' => $approvalRate,
+            'totalApproved' => $totalApproved,
             'docsPerDepartment' => $docsPerDepartment,
-            'topCreators'       => $topCreators,
-            'monthlyTrend'      => $monthlyTrend,
-            'statusBreakdown'   => $statusBreakdown,
-            'maxDeptTotal'      => $maxDeptTotal,
-            'maxMonthCount'     => $maxMonthCount,
-            'currentMonth'      => now()->locale('id')->isoFormat('MMMM YYYY'),
+            'topCreators' => $topCreators,
+            'monthlyTrend' => $monthlyTrend,
+            'statusBreakdown' => $statusBreakdown,
+            'maxDeptTotal' => $maxDeptTotal,
+            'maxMonthCount' => $maxMonthCount,
+            'currentMonth' => now()->locale('id')->isoFormat('MMMM YYYY'),
         ];
     }
 }

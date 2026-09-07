@@ -39,7 +39,7 @@ trait ApiResponse
         $payload = [
             'success' => true,
             'message' => $message,
-            'data'    => $data,
+            'data' => $data,
         ];
 
         if ($meta !== null) {
@@ -63,8 +63,8 @@ trait ApiResponse
             data: $collection,
             message: $message,
             meta: [
-                'page'       => $paginator->currentPage(),
-                'limit'      => $paginator->perPage(),
+                'page' => $paginator->currentPage(),
+                'limit' => $paginator->perPage(),
                 'totalItems' => $paginator->total(),
                 'totalPages' => $paginator->lastPage(),
             ],

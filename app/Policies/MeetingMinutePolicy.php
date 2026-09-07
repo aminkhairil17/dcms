@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace App\Policies;
 
-use Illuminate\Foundation\Auth\User as AuthUser;
 use App\Models\MeetingMinute;
 use Illuminate\Auth\Access\HandlesAuthorization;
+use Illuminate\Foundation\Auth\User as AuthUser;
 
 class MeetingMinutePolicy
 {
     use HandlesAuthorization;
-    
+
     public function viewAny(AuthUser $authUser): bool
     {
         return $authUser->can('ViewAny:MeetingMinute');
@@ -67,12 +67,10 @@ class MeetingMinutePolicy
         return $authUser->can('Reorder:MeetingMinute');
     }
 
-
     public function viewOwnCompany(AuthUser $authUser): bool
     {
         return $authUser->can('view_own_company_data');
     }
-
 
     public function viewAllCompanies(AuthUser $authUser): bool
     {

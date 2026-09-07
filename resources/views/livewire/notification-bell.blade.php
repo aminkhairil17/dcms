@@ -964,6 +964,23 @@
 
 /* ── Alpine x-cloak ──────────────────────────────── */
 [x-cloak] { display: none !important; }
+
+/* ── Mobile Responsiveness ───────────────────────── */
+@media (max-width: 767.98px) {
+    /* Hapus posisi relative dari wrapper di mobile agar panel memposisikan dirinya terhadap topbar (yang lebarnya 100% layar) */
+    .nb-wrap {
+        position: static !important;
+    }
+    .nb-panel {
+        position: absolute !important;
+        top: 70px !important; /* 70px dari atas topbar */
+        left: 16px !important;
+        right: 16px !important;
+        width: auto !important; /* width auto akan merentangkan panel ke left dan right */
+        max-width: none !important;
+        transform-origin: top center !important;
+    }
+}
 </style>
     @endonce
 </div>

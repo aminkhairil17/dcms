@@ -3,10 +3,10 @@
 namespace App\Filament\Admin\Resources\Meetings\Pages;
 
 use App\Filament\Admin\Resources\Meetings\MeetingResource;
-use Filament\Resources\Pages\CreateRecord;
 use App\Mail\MeetingInvitationMail;
-use Illuminate\Support\Facades\Mail;
+use Filament\Resources\Pages\CreateRecord;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Mail;
 
 class CreateMeeting extends CreateRecord
 {
@@ -38,7 +38,7 @@ class CreateMeeting extends CreateRecord
             }
         }
     }
-    
+
     public function getTitle(): string
     {
         return 'Tambah Rapat';
@@ -65,13 +65,11 @@ class CreateMeeting extends CreateRecord
             ->label('Buat');
     }
 
-
     protected function getCancelFormAction(): \Filament\Actions\Action
     {
         return parent::getCancelFormAction()
             ->label('Batal');
     }
-
 
     protected function afterCreate(): void
     {
@@ -85,7 +83,7 @@ class CreateMeeting extends CreateRecord
                 try {
                     $creator->notify(new \App\Notifications\MeetingInvitationNotification($meeting));
                 } catch (\Throwable $e) {
-                    logger()->error('Failed sending notification to creator: ' . $e->getMessage());
+                    logger()->error('Failed sending notification to creator: '.$e->getMessage());
                 }
             }
         }
@@ -99,13 +97,13 @@ class CreateMeeting extends CreateRecord
             try {
                 Mail::to($user->email)->send(new MeetingInvitationMail($meeting));
             } catch (\Throwable $e) {
-                logger()->error('Failed sending meeting email to ' . $user->email . ': ' . $e->getMessage());
+                logger()->error('Failed sending meeting email to '.$user->email.': '.$e->getMessage());
             }
 
             try {
                 $user->notify(new \App\Notifications\MeetingInvitationNotification($meeting));
             } catch (\Throwable $e) {
-                logger()->error('Failed sending meeting notification to ' . $user->email . ': ' . $e->getMessage());
+                logger()->error('Failed sending meeting notification to '.$user->email.': '.$e->getMessage());
             }
         }
     }

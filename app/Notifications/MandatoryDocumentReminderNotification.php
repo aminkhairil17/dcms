@@ -29,21 +29,21 @@ class MandatoryDocumentReminderNotification extends Notification implements Shou
     public function toArray(object $notifiable): array
     {
         return [
-            'type'        => 'mandatory_document_reminder',
-            'title'       => 'Pengingat Dokumen Wajib Baca',
-            'message'     => 'Anda memiliki dokumen wajib baca "' . $this->document->title . '" yang belum dibaca.',
+            'type' => 'mandatory_document_reminder',
+            'title' => 'Pengingat Dokumen Wajib Baca',
+            'message' => 'Anda memiliki dokumen wajib baca "'.$this->document->title.'" yang belum dibaca.',
             'document_id' => $this->document->id,
-            'url'         => route('filament.admin.pages.compliance-hub'),
+            'url' => route('filament.admin.pages.compliance-hub'),
         ];
     }
 
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-            ->subject('Pengingat Wajib Baca: ' . $this->document->title)
-            ->greeting('Halo ' . $notifiable->name . '!')
+            ->subject('Pengingat Wajib Baca: '.$this->document->title)
+            ->greeting('Halo '.$notifiable->name.'!')
             ->line('Anda belum membaca dan mengonfirmasi dokumen wajib berikut:')
-            ->line('**' . $this->document->title . '** (' . ($this->document->code_number ?? 'SOP') . ')')
+            ->line('**'.$this->document->title.'** ('.($this->document->code_number ?? 'SOP').')')
             ->action('Buka Compliance Hub', route('filament.admin.pages.compliance-hub'))
             ->line('Silakan buka Compliance Hub dan konfirmasi telah membaca dokumen tersebut.')
             ->salutation('Terima kasih');

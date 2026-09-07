@@ -98,7 +98,7 @@ class ScheduleApiService
             'completed' => $query->where('status', 'completed'),
 
             // "canceled" in the API maps to "cancelled" in the DB
-            'canceled'  => $query->where('status', 'cancelled'),
+            'canceled' => $query->where('status', 'cancelled'),
 
             default => $query,
         };

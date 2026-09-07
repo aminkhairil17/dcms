@@ -20,6 +20,6 @@ class MeetingInvitationMail extends Mailable
 
     public function build()
     {
-        return $this->subject('Undangan Rapat: ' . $this->meeting->title)->view('emails.meeting-invitation');
+        return $this->subject('Undangan Rapat: '.$this->meeting->title)->view('emails.meeting-invitation');
     }
 }

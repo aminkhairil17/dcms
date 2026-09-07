@@ -2,10 +2,10 @@
 
 namespace App\Filament\Admin\Widgets;
 
+use App\Models\Document;
 use BezhanSalleh\FilamentShield\Traits\HasWidgetShield;
 use Filament\Widgets\StatsOverviewWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
-use App\Models\Document;
 use Illuminate\Database\Eloquent\Builder;
 
 class StatsOverview extends StatsOverviewWidget
@@ -13,9 +13,10 @@ class StatsOverview extends StatsOverviewWidget
     use HasWidgetShield;
 
     protected static ?int $sort = -1;
+
     protected static bool $isDiscovered = false;
 
-    protected function getColumns(): int | array | null
+    protected function getColumns(): int|array|null
     {
         return [
             'default' => 2,
@@ -39,6 +40,7 @@ class StatsOverview extends StatsOverviewWidget
             if ($last === 0) {
                 return [0, 1, 0, 2, 1, 0, 0];
             }
+
             return [
                 max(0, (int) round($last * 0.3)),
                 max(0, (int) round($last * 0.6)),
@@ -55,9 +57,9 @@ class StatsOverview extends StatsOverviewWidget
 
     protected function getStats(): array
     {
-        $totalDocQuery    = Document::query()->access();
+        $totalDocQuery = Document::query()->access();
         $approvedDocQuery = Document::query()->access()->where('status', 'approved');
-        $pendingDocQuery  = Document::query()->access()->whereIn('status', ['pending_kabid', 'pending_direktur']);
+        $pendingDocQuery = Document::query()->access()->whereIn('status', ['pending_kabid', 'pending_direktur']);
         $rejectedDocQuery = Document::query()->access()->where('status', 'rejected');
 
         return [

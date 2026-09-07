@@ -1,11 +1,9 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\NotulenController;
-use Filament\Http\Middleware\Authenticate;
-use Livewire\Livewire;
-
 use App\Http\Controllers\PushSubscriptionController;
+use Filament\Http\Middleware\Authenticate;
+use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return redirect('/admin');
@@ -29,12 +27,14 @@ Route::middleware([Authenticate::class])->group(function () {
             abort(404);
         }
         $mimeType = $disk->mimeType($path) ?: 'application/octet-stream';
+
         return response($disk->get($path), 200)->header('Content-Type', $mimeType);
     })->where('path', '.*')->name('documents.serve');
 });
 
 Route::get('/test-session', function () {
     session(['test' => 'ok']);
+
     return session('test');
 });
 

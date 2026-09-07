@@ -2,25 +2,24 @@
 
 namespace App\Filament\Reviewer\Resources;
 
+use App\Filament\Admin\Resources\Documents\Schemas\DocumentInfolist;
 use App\Filament\Reviewer\Resources\ReviewDocumentResource\Pages;
 use App\Models\Document;
+use App\Models\User;
 use BackedEnum;
-use UnitEnum;
+use Filament\Actions\Action;
+use Filament\Actions\ActionGroup;
+use Filament\Actions\ViewAction;
+use Filament\Forms\Components\Textarea;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
-use Filament\Tables;
-use Filament\Tables\Table;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
-use Filament\Actions\ActionGroup;
-use Filament\Actions\ViewAction;
-use Filament\Actions\Action;
-use Filament\Forms\Components\Textarea;
-use App\Filament\Admin\Resources\Documents\Schemas\DocumentInfolist;
+use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
-use App\Models\User;
+use UnitEnum;
 
 class ReviewDocumentResource extends Resource
 {
@@ -63,21 +62,21 @@ class ReviewDocumentResource extends Resource
                 TextColumn::make('status')
                     ->label('Status')
                     ->badge()
-                    ->color(fn(string $state): string => match ($state) {
+                    ->color(fn (string $state): string => match ($state) {
                         'pending_kabid' => 'warning',
                         'pending_direktur' => 'info',
                         'approved' => 'success',
                         'rejected' => 'danger',
                         default => 'gray',
                     })
-                    ->icon(fn(string $state): ?string => match ($state) {
+                    ->icon(fn (string $state): ?string => match ($state) {
                         'pending_kabid', 'pending_direktur' => 'heroicon-m-clock',
                         'approved' => 'heroicon-m-check-circle',
                         'rejected' => 'heroicon-m-x-circle',
                         'archived' => 'heroicon-m-archive-box',
                         default => null,
                     })
-                    ->formatStateUsing(fn(string $state): string => match ($state) {
+                    ->formatStateUsing(fn (string $state): string => match ($state) {
                         'draft' => 'Pending',
                         'pending_kabid' => 'Menunggu Kabid',
                         'pending_direktur' => 'Menunggu Direktur',
@@ -109,13 +108,13 @@ class ReviewDocumentResource extends Resource
                 TextColumn::make('document_type')
                     ->label('Tipe')
                     ->badge()
-                    ->color(fn(string $state): string => match ($state) {
+                    ->color(fn (string $state): string => match ($state) {
                         'file' => 'success',
                         'form' => 'primary',
                         'hybrid' => 'warning',
                         default => 'gray',
                     })
-                    ->formatStateUsing(fn(string $state): string => match ($state) {
+                    ->formatStateUsing(fn (string $state): string => match ($state) {
                         'file' => 'Berkas',
                         'form' => 'Formulir',
                         'hybrid' => 'Keduanya',
@@ -185,6 +184,7 @@ class ReviewDocumentResource extends Resource
                         ->visible(function (Document $record) {
                             /** @var User $user */
                             $user = Auth::user();
+
                             return $record->status === Document::STATUS_PENDING_KABID && $user->hasRole('kabid');
                         })
                         ->modalDescription('Dokumen ini akan diteruskan ke Direktur untuk keputusan akhir.')
@@ -216,6 +216,7 @@ class ReviewDocumentResource extends Resource
                         ->visible(function (Document $record) {
                             /** @var User $user */
                             $user = Auth::user();
+
                             return $record->status === Document::STATUS_PENDING_KABID && $user->hasRole('kabid');
                         })
                         ->requiresConfirmation()
@@ -250,6 +251,7 @@ class ReviewDocumentResource extends Resource
                         ->visible(function (Document $record) {
                             /** @var User $user */
                             $user = Auth::user();
+
                             return $record->status === Document::STATUS_PENDING_DIREKTUR && $user->hasRole('direktur');
                         })
                         ->requiresConfirmation()
@@ -283,6 +285,7 @@ class ReviewDocumentResource extends Resource
                         ->visible(function (Document $record) {
                             /** @var User $user */
                             $user = Auth::user();
+
                             return $record->status === Document::STATUS_PENDING_DIREKTUR && $user->hasRole('direktur');
                         })
                         ->requiresConfirmation()
@@ -319,14 +322,12 @@ class ReviewDocumentResource extends Resource
                     ->visible(function (Document $record) {
                         /** @var User $user */
                         $user = Auth::user();
+
                         return ($record->status === Document::STATUS_PENDING_KABID && $user->hasRole('kabid')) ||
                             ($record->status === Document::STATUS_PENDING_DIREKTUR && $user->hasRole('direktur'));
                     }),
 
-
             ])
-
-
 
             ->defaultSort('created_at', 'desc');
     }

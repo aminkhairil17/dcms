@@ -15,20 +15,20 @@ return new class extends Migration
             // Hapus kolom yang tidak ada di list
             $table->dropColumn([
                 'file_size',        // Tidak ada di list
-                'sequence',         // Tidak ada di list  
-                'confidential_level' // Tidak ada di list
+                'sequence',         // Tidak ada di list
+                'confidential_level', // Tidak ada di list
             ]);
 
             // Tambahkan kolom yang ada di list tapi mungkin belum ada
-            if (!Schema::hasColumn('documents', 'document_type')) {
+            if (! Schema::hasColumn('documents', 'document_type')) {
                 $table->string('document_type')->nullable()->after('content');
             }
 
-            if (!Schema::hasColumn('documents', 'generated_file_path')) {
+            if (! Schema::hasColumn('documents', 'generated_file_path')) {
                 $table->string('generated_file_path')->nullable()->after('document_type');
             }
 
-            if (!Schema::hasColumn('documents', 'unit_id')) {
+            if (! Schema::hasColumn('documents', 'unit_id')) {
                 $table->foreignId('unit_id')->nullable()->after('department_id')->constrained()->nullOnDelete();
             }
         });

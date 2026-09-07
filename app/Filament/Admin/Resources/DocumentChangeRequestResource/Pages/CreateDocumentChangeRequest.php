@@ -3,11 +3,11 @@
 namespace App\Filament\Admin\Resources\DocumentChangeRequestResource\Pages;
 
 use App\Filament\Admin\Resources\DocumentChangeRequestResource;
+use App\Models\User;
 use App\Notifications\ChangeRequestSubmittedNotification;
 use Filament\Resources\Pages\CreateRecord;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Notification;
-use App\Models\User;
 
 class CreateDocumentChangeRequest extends CreateRecord
 {
@@ -36,10 +36,11 @@ class CreateDocumentChangeRequest extends CreateRecord
 
     protected function mutateFormDataBeforeCreate(array $data): array
     {
-        $data['user_id']            = Auth::id();
-        $data['chapter_clause']     = $data['chapter_clause'] ?? '-';
+        $data['user_id'] = Auth::id();
+        $data['chapter_clause'] = $data['chapter_clause'] ?? '-';
         $data['existing_condition'] = $data['existing_condition'] ?? '';
-        $data['status']             = 'pending';
+        $data['status'] = 'pending';
+
         return $data;
     }
 
@@ -53,7 +54,7 @@ class CreateDocumentChangeRequest extends CreateRecord
             try {
                 Notification::send($admins, new ChangeRequestSubmittedNotification($record));
             } catch (\Throwable $e) {
-                logger()->error('Failed to send ChangeRequestSubmittedNotification: ' . $e->getMessage());
+                logger()->error('Failed to send ChangeRequestSubmittedNotification: '.$e->getMessage());
             }
         }
     }

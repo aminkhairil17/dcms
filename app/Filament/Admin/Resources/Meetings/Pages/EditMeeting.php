@@ -3,11 +3,11 @@
 namespace App\Filament\Admin\Resources\Meetings\Pages;
 
 use App\Filament\Admin\Resources\Meetings\MeetingResource;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\ViewAction;
 use Filament\Resources\Pages\EditRecord;
 use Illuminate\Support\Facades\Storage;
-use Barryvdh\DomPDF\Facade\Pdf;
 
 class EditMeeting extends EditRecord
 {
@@ -30,11 +30,11 @@ class EditMeeting extends EditRecord
             ->label('Batal');
     }
 
-
     protected function getHeaderActions(): array
     {
         return [ViewAction::make(), DeleteAction::make()];
     }
+
     protected function mutateFormDataBeforeSave(array $data): array
     {
         $record = $this->record;
@@ -50,7 +50,7 @@ class EditMeeting extends EditRecord
         $logoBase64 = '';
         if (file_exists($logoPath)) {
             $logoData = file_get_contents($logoPath);
-            $logoBase64 = 'data:image/' . pathinfo($logoPath, PATHINFO_EXTENSION) . ';base64,' . base64_encode($logoData);
+            $logoBase64 = 'data:image/'.pathinfo($logoPath, PATHINFO_EXTENSION).';base64,'.base64_encode($logoData);
         }
 
         // Extract data that might have just been edited from the form instead of the old record
@@ -66,41 +66,41 @@ class EditMeeting extends EditRecord
 
         $dateTime = \Carbon\Carbon::parse($formDateTime);
         $dayName = $days[$dateTime->dayOfWeek];
-        $formattedDate = $dayName . ', ' . $dateTime->day . ' ' . $months[$dateTime->month] . ' ' . $dateTime->year . ' / ' . $dateTime->format('H.i') . ' WITA';
+        $formattedDate = $dayName.', '.$dateTime->day.' '.$months[$dateTime->month].' '.$dateTime->year.' / '.$dateTime->format('H.i').' WITA';
 
         // Lampiran (Foto/Dokumentasi)
         $attachmentsHtml = '';
-        if (!empty($data['attachments'])) {
+        if (! empty($data['attachments'])) {
             $attachmentsHtml .= "<div style='page-break-before: always;'></div>";
             $attachmentsHtml .= "<div style='margin-top: 20px;'>"; // Samakan dengan margin title-section di halaman 1
             $attachmentsHtml .= "<h4 style='text-transform: uppercase; font-size: 14px; text-align: center; margin-bottom: 40px; color: #000;'>LAMPIRAN / DOKUMENTASI</h4>";
             $attachmentsHtml .= "<div style='text-align: center;'>";
 
             foreach ($data['attachments'] as $attachment) {
-                $path = storage_path('app/public/' . $attachment);
+                $path = storage_path('app/public/'.$attachment);
 
                 if (file_exists($path)) {
                     $imgData = file_get_contents($path);
                     $extension = pathinfo($path, PATHINFO_EXTENSION);
-                    $base64 = 'data:image/' . $extension . ';base64,' . base64_encode($imgData);
+                    $base64 = 'data:image/'.$extension.';base64,'.base64_encode($imgData);
 
                     // Gunakan page-break-inside: avoid agar gambar tidak terpotong di tengah halaman
                     $attachmentsHtml .= "<div style='margin-bottom: 50px; page-break-inside: avoid; clear: both;'>";
                     $attachmentsHtml .= "<img src='{$base64}' style='max-width: 90%; max-height: 480px; border: 3px solid #f2f2f2; padding: 5px; background: #fff;'>";
-                    $attachmentsHtml .= "</div>";
+                    $attachmentsHtml .= '</div>';
                 }
             }
 
-            $attachmentsHtml .= "</div></div>";
+            $attachmentsHtml .= '</div></div>';
         }
 
         $notulisName = '-';
-        if (!empty($data['notulis_id'])) {
+        if (! empty($data['notulis_id'])) {
             $notulisUser = \App\Models\User::find($data['notulis_id']);
             if ($notulisUser) {
                 $notulisName = $notulisUser->name;
             }
-        } elseif (!empty($record->notulis_id)) {
+        } elseif (! empty($record->notulis_id)) {
             $notulisUser = \App\Models\User::find($record->notulis_id);
             if ($notulisUser) {
                 $notulisName = $notulisUser->name;
@@ -202,13 +202,13 @@ class EditMeeting extends EditRecord
     </table>
 
     <div class='content-main'>
-        " . $contentFromEditor . "
+        ".$contentFromEditor.'
     </div>
 
-    " . $attachmentsHtml . "
+    '.$attachmentsHtml.'
 </body>
 </html>
-";
+';
 
         // --- LOGIKA PEMBUATAN PDF ---
         if (
@@ -218,15 +218,15 @@ class EditMeeting extends EditRecord
         ) {
             // Generate PDF
             $pdf = PDF::loadHTML($htmlWithCss);
-            $filename = 'notulen_' . time() . '.pdf';
+            $filename = 'notulen_'.time().'.pdf';
 
-            Storage::disk('private')->put('meetings/' . $filename, $pdf->output());
+            Storage::disk('private')->put('meetings/'.$filename, $pdf->output());
 
-            $data['file_path'] = 'meetings/' . $filename;
+            $data['file_path'] = 'meetings/'.$filename;
         } else {
             // MODE UPLOAD atau STATUS bukan completed
 
-            if (!$record) {
+            if (! $record) {
                 // Jika CREATE → kosongkan file_path
                 $data['file_path'] = null;
             }

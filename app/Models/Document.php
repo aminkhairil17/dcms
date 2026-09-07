@@ -2,37 +2,40 @@
 
 namespace App\Models;
 
-use Spatie\Activitylog\Traits\LogsActivity;
-use Spatie\Activitylog\LogOptions;
+use App\Notifications\DocumentApprovedByKabidNotification;
+use App\Notifications\DocumentCreatedNotification;
+use App\Notifications\DocumentFinalDecisionNotification;
+use App\Notifications\DocumentSubmittedNotification;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Builder;
-use OwenIt\Auditing\Contracts\Auditable;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-
-use App\Notifications\DocumentCreatedNotification;
-use App\Notifications\DocumentSubmittedNotification;
-use App\Notifications\DocumentApprovedByKabidNotification;
-use App\Notifications\DocumentFinalDecisionNotification;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification;
-
+use Illuminate\Support\Facades\Storage;
+use OwenIt\Auditing\Contracts\Auditable;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class Document extends Model implements Auditable
 {
-    use \OwenIt\Auditing\Auditable;
     use LogsActivity, SoftDeletes;
+    use \OwenIt\Auditing\Auditable;
 
     public const STATUS_DRAFT = 'draft';
+
     public const STATUS_PENDING_KABID = 'pending_kabid';
+
     public const STATUS_PENDING_DIREKTUR = 'pending_direktur';
+
     public const STATUS_APPROVED = 'approved';
+
     public const STATUS_REJECTED = 'rejected';
+
     public const STATUS_ARCHIVED = 'archived';
 
     public static function getStatuses(): array
@@ -78,12 +81,12 @@ class Document extends Model implements Auditable
     ];
 
     protected $casts = [
-        'kabid_reviewed_at'    => 'datetime',
+        'kabid_reviewed_at' => 'datetime',
         'direktur_reviewed_at' => 'datetime',
-        'expires_at'           => 'date',
+        'expires_at' => 'date',
         'review_reminder_sent_at' => 'date',
-        'is_mandatory_read'    => 'boolean',
-        'is_public'            => 'boolean',
+        'is_mandatory_read' => 'boolean',
+        'is_public' => 'boolean',
     ];
 
     protected static function boot()
@@ -92,22 +95,22 @@ class Document extends Model implements Auditable
 
         static::creating(function ($document) {
             // ⭐ AUTO-SET user_id dari user yang login
-            if (Auth::check() && !$document->user_id) {
+            if (Auth::check() && ! $document->user_id) {
                 $document->user_id = Auth::id();
             }
 
             // Auto-generate code_number jika belum ada
-            if (!$document->code_number) {
+            if (! $document->code_number) {
                 $document->code_number = $document->generateCodeNumber();
             }
 
             // Auto-set version jika belum ada
-            if (!$document->version) {
+            if (! $document->version) {
                 $document->version = '1.0';
             }
 
             // Auto-detect document type
-            if (!$document->document_type) {
+            if (! $document->document_type) {
                 $document->detectDocumentType();
             }
         });
@@ -141,7 +144,7 @@ class Document extends Model implements Auditable
                 try {
                     Notification::send($recipients, new DocumentCreatedNotification($document));
                 } catch (\Throwable $e) {
-                    Log::error('Failed to send DocumentCreatedNotification: ' . $e->getMessage());
+                    Log::error('Failed to send DocumentCreatedNotification: '.$e->getMessage());
                 }
             }
         });
@@ -163,7 +166,7 @@ class Document extends Model implements Auditable
         ])->first();
 
         // Jika tidak ditemukan, buat baru
-        if (!$documentNumbering) {
+        if (! $documentNumbering) {
             $documentNumbering = DocumentNumbering::create([
                 'category_id' => $this->category_id,
                 'company_id' => $this->company_id,
@@ -192,13 +195,12 @@ class Document extends Model implements Auditable
         $sequence = str_pad($documentNumbering->last_number, 3, '0', STR_PAD_LEFT);
 
         // Pilih format berdasarkan ada/tidaknya unit
-        if (!empty($unitCode)) {
+        if (! empty($unitCode)) {
             return "{$companyCode}-{$departmentCode}-{$unitCode}-{$categoryCode}-{$sequence}";
         } else {
             return "{$companyCode}-{$departmentCode}-{$categoryCode}-{$sequence}";
         }
     }
-
 
     /**
      * Auto-detect document type
@@ -221,15 +223,16 @@ class Document extends Model implements Auditable
     {
         $path = $this->file_path ?? $this->generated_file_path;
 
-        if (!$path) {
+        if (! $path) {
             return null;
         }
 
         try {
             $disk = Storage::disk('documents');
             if ($disk->exists($path)) {
-                return asset('storage/documents/' . ltrim($path, '/'));
+                return asset('storage/documents/'.ltrim($path, '/'));
             }
+
             return null;
         } catch (\Throwable $e) {
             return null;
@@ -241,11 +244,12 @@ class Document extends Model implements Auditable
      */
     public function generateFileFromContent(): bool
     {
-        if (!$this->content)
+        if (! $this->content) {
             return false;
+        }
 
         try {
-            $filename = "doc-{$this->id}-" . time() . ".html";
+            $filename = "doc-{$this->id}-".time().'.html';
             $filePath = "generated/{$filename}";
 
             $html = $this->buildHtmlContent();
@@ -257,6 +261,7 @@ class Document extends Model implements Auditable
             return true;
         } catch (\Exception $e) {
             Log::error("Generate file failed: {$e->getMessage()}");
+
             return false;
         }
     }
@@ -314,7 +319,7 @@ class Document extends Model implements Auditable
             return substr(
                 collect(preg_split('/\s+/', trim((string) $unit->name)) ?: [])
                     ->filter()
-                    ->map(fn(string $word): string => strtoupper(substr($word, 0, 1)))
+                    ->map(fn (string $word): string => strtoupper(substr($word, 0, 1)))
                     ->implode(''),
                 0,
                 6,
@@ -368,7 +373,9 @@ class Document extends Model implements Auditable
     {
         /** @var User|null $user */
         $user ??= Auth::user();
-        if (! $user) return false;
+        if (! $user) {
+            return false;
+        }
 
         return $this->bookmarks()->where('user_id', $user->id)->exists();
     }
@@ -380,15 +387,19 @@ class Document extends Model implements Auditable
     {
         /** @var User|null $user */
         $user ??= Auth::user();
-        if (! $user) return false;
+        if (! $user) {
+            return false;
+        }
 
         $existing = $this->bookmarks()->where('user_id', $user->id)->first();
         if ($existing) {
             $existing->delete();
+
             return false; // removed
         }
 
         $this->bookmarks()->create(['user_id' => $user->id]);
+
         return true; // added
     }
 
@@ -396,22 +407,27 @@ class Document extends Model implements Auditable
     {
         return $this->belongsTo(Company::class);
     }
+
     public function department(): BelongsTo
     {
         return $this->belongsTo(Department::class);
     }
+
     public function unit(): BelongsTo
     {
         return $this->belongsTo(Unit::class);
     }
+
     public function allowedUnits(): BelongsToMany
     {
         return $this->belongsToMany(Unit::class, 'document_unit_access', 'document_id', 'unit_id')->withTimestamps();
     }
+
     public function category(): BelongsTo
     {
         return $this->belongsTo(DocumentCategory::class);
     }
+
     /**
      * Relasi ke User (pembuat/pemilik dokumen)
      */
@@ -464,7 +480,7 @@ class Document extends Model implements Auditable
             try {
                 Notification::send($kabidUsers, new DocumentSubmittedNotification($this));
             } catch (\Throwable $e) {
-                Log::error('Failed to send DocumentSubmittedNotification: ' . $e->getMessage());
+                Log::error('Failed to send DocumentSubmittedNotification: '.$e->getMessage());
             }
         }
     }
@@ -495,7 +511,7 @@ class Document extends Model implements Auditable
             try {
                 Notification::send($direkturUsers, new DocumentApprovedByKabidNotification($this));
             } catch (\Throwable $e) {
-                Log::error('Failed to send DocumentApprovedByKabidNotification: ' . $e->getMessage());
+                Log::error('Failed to send DocumentApprovedByKabidNotification: '.$e->getMessage());
             }
         }
     }
@@ -522,7 +538,7 @@ class Document extends Model implements Auditable
             try {
                 $this->user->notify(new DocumentFinalDecisionNotification($this, 'rejected'));
             } catch (\Throwable $e) {
-                Log::error('Failed to send DocumentFinalDecisionNotification (rejected): ' . $e->getMessage());
+                Log::error('Failed to send DocumentFinalDecisionNotification (rejected): '.$e->getMessage());
             }
         }
     }
@@ -548,7 +564,7 @@ class Document extends Model implements Auditable
                 $this->kabidReviewer->notify(new DocumentFinalDecisionNotification($this, 'approved'));
             }
         } catch (\Throwable $e) {
-            Log::error('Failed to send DocumentFinalDecisionNotification (approved): ' . $e->getMessage());
+            Log::error('Failed to send DocumentFinalDecisionNotification (approved): '.$e->getMessage());
         }
     }
 
@@ -579,7 +595,7 @@ class Document extends Model implements Auditable
                 $this->kabidReviewer->notify(new DocumentFinalDecisionNotification($this, 'rejected'));
             }
         } catch (\Throwable $e) {
-            Log::error('Failed to send DocumentFinalDecisionNotification (rejected): ' . $e->getMessage());
+            Log::error('Failed to send DocumentFinalDecisionNotification (rejected): '.$e->getMessage());
         }
     }
 
@@ -607,7 +623,7 @@ class Document extends Model implements Auditable
             try {
                 Notification::send($kabidUsers, new DocumentSubmittedNotification($this));
             } catch (\Throwable $e) {
-                Log::error('Failed to send DocumentSubmittedNotification (resubmit): ' . $e->getMessage());
+                Log::error('Failed to send DocumentSubmittedNotification (resubmit): '.$e->getMessage());
             }
         }
     }
@@ -620,7 +636,7 @@ class Document extends Model implements Auditable
         /** @var User|null $user */
         $user = Auth::user();
 
-        if (!$user) {
+        if (! $user) {
             return $query->whereRaw('1 = 0');
         }
 
@@ -698,7 +714,7 @@ class Document extends Model implements Auditable
         // Untuk kata sangat pendek (1-2 karakter), gunakan LIKE biasa
         if (mb_strlen($trimmed) < 3) {
             return $query->where(function (Builder $q) use ($trimmed) {
-                $like = '%' . $trimmed . '%';
+                $like = '%'.$trimmed.'%';
                 $q->where('title', 'LIKE', $like)
                     ->orWhere('code_number', 'LIKE', $like)
                     ->orWhere('description', 'LIKE', $like);
@@ -709,7 +725,7 @@ class Document extends Model implements Auditable
         // Tambahkan wildcard (*) di akhir setiap kata untuk partial matching
         $words = preg_split('/\s+/', $trimmed);
         $booleanQuery = implode(' ', array_map(
-            fn(string $word) => '+' . $word . '*',
+            fn (string $word) => '+'.$word.'*',
             array_filter($words)
         ));
 
@@ -720,9 +736,9 @@ class Document extends Model implements Auditable
                 [$booleanQuery]
             )
                 // Fallback: cek relasi department & unit dengan LIKE
-                ->orWhereHas('department', fn(Builder $dq) => $dq->where('name', 'LIKE', '%' . $trimmed . '%'))
-                ->orWhereHas('unit', fn(Builder $uq) => $uq->where('name', 'LIKE', '%' . $trimmed . '%'))
-                ->orWhereHas('category', fn(Builder $cq) => $cq->where('name', 'LIKE', '%' . $trimmed . '%'));
+                ->orWhereHas('department', fn (Builder $dq) => $dq->where('name', 'LIKE', '%'.$trimmed.'%'))
+                ->orWhereHas('unit', fn (Builder $uq) => $uq->where('name', 'LIKE', '%'.$trimmed.'%'))
+                ->orWhereHas('category', fn (Builder $cq) => $cq->where('name', 'LIKE', '%'.$trimmed.'%'));
         });
     }
 
@@ -739,7 +755,10 @@ class Document extends Model implements Auditable
      */
     public function getIsExpiringSoonAttribute(): bool
     {
-        if (! $this->expires_at) return false;
+        if (! $this->expires_at) {
+            return false;
+        }
+
         return $this->expires_at->isFuture() && $this->expires_at->diffInDays(today()) <= 30;
     }
 
@@ -762,7 +781,7 @@ class Document extends Model implements Auditable
             ])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs()
-            ->setDescriptionForEvent(fn(string $eventName) => "Dokumen '{$this->title}' ({$this->code_number}) {$eventName}");
+            ->setDescriptionForEvent(fn (string $eventName) => "Dokumen '{$this->title}' ({$this->code_number}) {$eventName}");
     }
 
     /**
@@ -775,9 +794,11 @@ class Document extends Model implements Auditable
             if (! $disk->exists($filePath)) {
                 return null;
             }
+
             return md5($disk->get($filePath));
         } catch (\Exception $e) {
             Log::warning("Could not compute file hash for {$filePath}: {$e->getMessage()}");
+
             return null;
         }
     }
@@ -789,15 +810,18 @@ class Document extends Model implements Auditable
     {
         return static::withTrashed()
             ->where('file_hash', $hash)
-            ->when($excludeId, fn($q) => $q->where('id', '!=', $excludeId))
+            ->when($excludeId, fn ($q) => $q->where('id', '!=', $excludeId))
             ->first();
     }
+
     public function scopeAccess(Builder $query)
     {
         /** @var User|null $user */
         $user = Auth::user();
 
-        if (!$user) return $query->whereRaw('1 = 0');
+        if (! $user) {
+            return $query->whereRaw('1 = 0');
+        }
 
         // Super Admin: full bypass
         if ($user->hasRole('super_admin')) {
@@ -833,7 +857,7 @@ class Document extends Model implements Auditable
                     }
 
                     // Filter unit untuk Staff (bukan direktur/kabid/manager)
-                    if (!$user->hasRole(['super_admin', 'direktur', 'kabid', 'manager']) && $user->unit_id) {
+                    if (! $user->hasRole(['super_admin', 'direktur', 'kabid', 'manager']) && $user->unit_id) {
                         $nonPub->where(function ($unit) use ($user) {
                             $unit->where('unit_id', $user->unit_id)
                                 ->orWhereNull('unit_id');
@@ -857,7 +881,7 @@ class Document extends Model implements Auditable
     {
         $user = $user ?? Auth::user();
 
-        if (!$user) {
+        if (! $user) {
             return $query->whereRaw('1 = 0');
         }
 
@@ -877,6 +901,7 @@ class Document extends Model implements Auditable
                 // 2. Super Admin
                 if ($user->hasRole('super_admin')) {
                     $q->orWhereRaw('1 = 1');
+
                     return;
                 }
 
@@ -894,7 +919,7 @@ class Document extends Model implements Auditable
                         $nonPub->whereRaw('1 = 0');
                     }
 
-                    if (!$user->hasRole(['super_admin', 'direktur', 'kabid', 'manager']) && $user->unit_id) {
+                    if (! $user->hasRole(['super_admin', 'direktur', 'kabid', 'manager']) && $user->unit_id) {
                         $nonPub->where(function ($unit) use ($user) {
                             $unit->where('unit_id', $user->unit_id)
                                 ->orWhereNull('unit_id');

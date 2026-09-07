@@ -11,7 +11,6 @@ use App\Filament\Admin\Resources\Documents\Schemas\DocumentInfolist;
 use App\Filament\Admin\Resources\Documents\Tables\DocumentsTable;
 use App\Models\Document;
 use BackedEnum;
-use UnitEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
@@ -19,6 +18,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Tapp\FilamentAuditing\RelationManagers\AuditsRelationManager;
+use UnitEnum;
 
 class DocumentResource extends Resource
 {
@@ -41,14 +41,14 @@ class DocumentResource extends Resource
         return [
             'Nomor Kode' => $record->code_number ?? '—',
             'Departemen' => $record->department?->name ?? '—',
-            'Status'     => match($record->status) {
-                'draft'            => 'Pending',
-                'pending_kabid'    => 'Menunggu Kabid',
+            'Status' => match ($record->status) {
+                'draft' => 'Pending',
+                'pending_kabid' => 'Menunggu Kabid',
                 'pending_direktur' => 'Menunggu Direktur',
-                'approved'         => 'Disetujui',
-                'rejected'         => 'Ditolak',
-                'archived'         => 'Diarsipkan',
-                default            => $record->status,
+                'approved' => 'Disetujui',
+                'rejected' => 'Ditolak',
+                'archived' => 'Diarsipkan',
+                default => $record->status,
             },
         ];
     }
@@ -101,17 +101,17 @@ class DocumentResource extends Resource
     public static function getRelations(): array
     {
         return [
-            AuditsRelationManager::class
+            AuditsRelationManager::class,
         ];
     }
 
     public static function getPages(): array
     {
         return [
-            'index'  => ListDocuments::route('/'),
+            'index' => ListDocuments::route('/'),
             'create' => CreateDocument::route('/create'),
-            'view'   => ViewDocument::route('/{record}'),
-            'edit'   => EditDocument::route('/{record}/edit'),
+            'view' => ViewDocument::route('/{record}'),
+            'edit' => EditDocument::route('/{record}/edit'),
         ];
     }
 

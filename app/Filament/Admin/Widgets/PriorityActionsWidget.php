@@ -29,14 +29,14 @@ class PriorityActionsWidget extends Widget
         $documentsNeedAction = (clone $documentsNeedActionQuery)
             ->limit(5)
             ->get()
-            ->map(fn(Document $document) => $this->transformDocument($document))
+            ->map(fn (Document $document) => $this->transformDocument($document))
             ->all();
 
         $quickActions = $this->buildQuickActions($user);
 
         return [
             'documentsNeedAction' => $documentsNeedAction,
-            'quickActions'        => $quickActions,
+            'quickActions' => $quickActions,
         ];
     }
 
@@ -76,23 +76,23 @@ class PriorityActionsWidget extends Widget
     private function transformDocument(Document $document): array
     {
         return [
-            'title'     => $document->title,
-            'code'      => $document->code_number ?: 'Tanpa nomor',
-            'url'       => '/admin/documents/' . $document->id,
-            'meta'      => $document->category?->name ?: 'Dokumen internal',
-            'badge'     => match ($document->status) {
-                Document::STATUS_DRAFT             => 'Perlu dilengkapi',
-                Document::STATUS_REJECTED          => 'Perlu revisi',
-                Document::STATUS_PENDING_KABID     => 'Menunggu Kabid',
-                Document::STATUS_PENDING_DIREKTUR  => 'Menunggu Direktur',
-                default                            => ucfirst($document->status),
+            'title' => $document->title,
+            'code' => $document->code_number ?: 'Tanpa nomor',
+            'url' => '/admin/documents/'.$document->id,
+            'meta' => $document->category?->name ?: 'Dokumen internal',
+            'badge' => match ($document->status) {
+                Document::STATUS_DRAFT => 'Perlu dilengkapi',
+                Document::STATUS_REJECTED => 'Perlu revisi',
+                Document::STATUS_PENDING_KABID => 'Menunggu Kabid',
+                Document::STATUS_PENDING_DIREKTUR => 'Menunggu Direktur',
+                default => ucfirst($document->status),
             },
             'badgeColor' => match ($document->status) {
-                Document::STATUS_DRAFT             => 'slate',
-                Document::STATUS_REJECTED          => 'rose',
-                Document::STATUS_PENDING_KABID     => 'amber',
-                Document::STATUS_PENDING_DIREKTUR  => 'sky',
-                default                            => 'gray',
+                Document::STATUS_DRAFT => 'slate',
+                Document::STATUS_REJECTED => 'rose',
+                Document::STATUS_PENDING_KABID => 'amber',
+                Document::STATUS_PENDING_DIREKTUR => 'sky',
+                default => 'gray',
             },
             'updatedAt' => optional($document->updated_at)->diffForHumans() ?: 'Baru saja',
         ];
@@ -102,18 +102,18 @@ class PriorityActionsWidget extends Widget
     {
         return [
             [
-                'label'       => 'Buat Reminder',
+                'label' => 'Buat Reminder',
                 'description' => 'Pusat pengirim notifikasi pengingat pegawai & reviewer',
-                'url'         => route('filament.admin.pages.reminders'),
-                'icon'        => 'heroicon-o-bell-alert',
-                'accent'      => 'blue',
+                'url' => route('filament.admin.pages.reminders'),
+                'icon' => 'heroicon-o-bell-alert',
+                'accent' => 'blue',
             ],
             [
-                'label'       => 'Compliance Hub',
+                'label' => 'Compliance Hub',
                 'description' => 'Lihat & konfirmasi dokumen wajib baca Anda',
-                'url'         => route('filament.admin.pages.compliance-hub'),
-                'icon'        => 'heroicon-o-shield-check',
-                'accent'      => 'blue',
+                'url' => route('filament.admin.pages.compliance-hub'),
+                'icon' => 'heroicon-o-shield-check',
+                'accent' => 'blue',
             ],
         ];
     }

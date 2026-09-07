@@ -5,28 +5,28 @@ namespace App\Models;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
-use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use OwenIt\Auditing\Contracts\Auditable;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
 use NotificationChannels\WebPush\HasPushSubscriptions;
+use OwenIt\Auditing\Contracts\Auditable;
+use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable implements Auditable, FilamentUser
 {
-    use \OwenIt\Auditing\Auditable, HasFactory, Notifiable, HasRoles, HasPushSubscriptions;
+    use HasFactory, HasPushSubscriptions, HasRoles, Notifiable, \OwenIt\Auditing\Auditable;
 
     protected $fillable = [
-        'name', 
-        'email', 
-        'phone', 
-        'username', 
-        'password', 
-        'company_id', 
-        'department_id', 
-        'unit_id', 
-        'email_verified_at', 
+        'name',
+        'email',
+        'phone',
+        'username',
+        'password',
+        'company_id',
+        'department_id',
+        'unit_id',
+        'email_verified_at',
         'is_active',
     ];
 
@@ -45,7 +45,7 @@ class User extends Authenticatable implements Auditable, FilamentUser
     }
 
     protected $hidden = [
-        'password', 
+        'password',
         'remember_token',
     ];
 
@@ -64,15 +64,12 @@ class User extends Authenticatable implements Auditable, FilamentUser
     public function canAccessPanel(Panel $panel): bool
     {
         // Anda bisa menyesuaikan ini, misalnya: return $this->is_active;
-        return true; 
+        return true;
     }
 
     /**
      * Query Scopes
      * Menangani error: Call to undefined method User::active()
-     *
-     * @param \Illuminate\Database\Eloquent\Builder $query
-     * @return \Illuminate\Database\Eloquent\Builder
      */
     public function scopeActive(\Illuminate\Database\Eloquent\Builder $query): \Illuminate\Database\Eloquent\Builder
     {
@@ -82,29 +79,29 @@ class User extends Authenticatable implements Auditable, FilamentUser
     /**
      * Relations
      */
-    public function company(): BelongsTo 
-    { 
-        return $this->belongsTo(Company::class); 
+    public function company(): BelongsTo
+    {
+        return $this->belongsTo(Company::class);
     }
 
-    public function department(): BelongsTo 
-    { 
-        return $this->belongsTo(Department::class); 
+    public function department(): BelongsTo
+    {
+        return $this->belongsTo(Department::class);
     }
 
-    public function unit(): BelongsTo 
-    { 
-        return $this->belongsTo(Unit::class); 
+    public function unit(): BelongsTo
+    {
+        return $this->belongsTo(Unit::class);
     }
 
-    public function documents(): HasMany 
-    { 
-        return $this->hasMany(Document::class); 
+    public function documents(): HasMany
+    {
+        return $this->hasMany(Document::class);
     }
-    
-    public function approvedDocuments(): HasMany 
-    { 
-        return $this->hasMany(Document::class, 'approver_id'); 
+
+    public function approvedDocuments(): HasMany
+    {
+        return $this->hasMany(Document::class, 'approver_id');
     }
 
     public function documentBookmarks(): HasMany
@@ -130,14 +127,14 @@ class User extends Authenticatable implements Auditable, FilamentUser
     /**
      * Helpers
      */
-    public function isActive(): bool 
-    { 
-        return (bool) $this->is_active; 
+    public function isActive(): bool
+    {
+        return (bool) $this->is_active;
     }
 
-    public function isEmailVerified(): bool 
-    { 
-        return $this->email_verified_at !== null; 
+    public function isEmailVerified(): bool
+    {
+        return $this->email_verified_at !== null;
     }
 
     /**
@@ -146,9 +143,16 @@ class User extends Authenticatable implements Auditable, FilamentUser
     public function getOrganizationPathAttribute(): string
     {
         $path = [];
-        if ($this->company) $path[] = $this->company->name;
-        if ($this->department) $path[] = $this->department->name;
-        if ($this->unit) $path[] = $this->unit->name;
+        if ($this->company) {
+            $path[] = $this->company->name;
+        }
+        if ($this->department) {
+            $path[] = $this->department->name;
+        }
+        if ($this->unit) {
+            $path[] = $this->unit->name;
+        }
+
         return implode(' → ', $path);
     }
 }

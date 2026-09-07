@@ -2,14 +2,13 @@
 
 namespace App\Filament\Admin\Resources\Users\Schemas;
 
-use Filament\Forms\Components\DateTimePicker;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Toggle;
-use Filament\Forms\Components\Select;
-use Filament\Schemas\Schema;
 use App\Models\Company;
 use App\Models\Department;
 use App\Models\Unit;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
+use Filament\Schemas\Schema;
 
 class UserForm
 {
@@ -21,9 +20,9 @@ class UserForm
             TextInput::make('username')->required()->maxLength(255),
             TextInput::make('password')
                 ->password()
-                ->dehydrateStateUsing(fn($state) => filled($state) ? bcrypt($state) : null)
-                ->dehydrated(fn($state) => filled($state))
-                ->required(fn(string $context): bool => $context === 'create'),
+                ->dehydrateStateUsing(fn ($state) => filled($state) ? bcrypt($state) : null)
+                ->dehydrated(fn ($state) => filled($state))
+                ->required(fn (string $context): bool => $context === 'create'),
             Select::make('company_id')
                 ->label('Perusahaan')
                 ->options(Company::where('is_active', true)->pluck('name', 'id'))
@@ -39,9 +38,10 @@ class UserForm
                 ->label('Departemen')
                 ->options(function (callable $get) {
                     $companyId = $get('company_id');
-                    if (!$companyId) {
+                    if (! $companyId) {
                         return Department::where('is_active', true)->pluck('name', 'id');
                     }
+
                     return Department::where('company_id', $companyId)->where('is_active', true)->pluck('name', 'id');
                 })
                 ->searchable()
@@ -55,9 +55,10 @@ class UserForm
                 ->label('Unit')
                 ->options(function (callable $get) {
                     $departmentId = $get('department_id');
-                    if (!$departmentId) {
+                    if (! $departmentId) {
                         return Unit::where('is_active', true)->pluck('name', 'id');
                     }
+
                     return Unit::where('department_id', $departmentId)->where('is_active', true)->pluck('name', 'id');
                 })
                 ->searchable()

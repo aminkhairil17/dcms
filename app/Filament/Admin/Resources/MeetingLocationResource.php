@@ -34,6 +34,7 @@ class MeetingLocationResource extends Resource
     {
         /** @var \App\Models\User|null $user */
         $user = auth()->user();
+
         return $user?->hasAnyRole(['super_admin', 'kabid', 'direktur']) ?? false;
     }
 
@@ -104,6 +105,7 @@ class MeetingLocationResource extends Resource
                     })
                     ->tooltip(function (MeetingLocation $record): ?string {
                         $meeting = $record->getCurrentMeeting();
+
                         return $meeting ? $meeting->title : null;
                     })
                     ->visibleFrom('md'),
@@ -114,6 +116,7 @@ class MeetingLocationResource extends Resource
                     ->iconColor('info')
                     ->state(function (MeetingLocation $record): string {
                         $meeting = $record->getCurrentMeeting();
+
                         return $meeting ? $meeting->date_time->format('H:i') : '—';
                     })
                     ->color(fn (MeetingLocation $record) => $record->isCurrentlyInUse() ? 'info' : 'gray')
@@ -126,7 +129,10 @@ class MeetingLocationResource extends Resource
                     ->iconColor('info')
                     ->state(function (MeetingLocation $record): string {
                         $meeting = $record->getCurrentMeeting();
-                        if (!$meeting) return '—';
+                        if (! $meeting) {
+                            return '—';
+                        }
+
                         return $meeting->end_time
                             ? $meeting->end_time->format('H:i')
                             : '—';
