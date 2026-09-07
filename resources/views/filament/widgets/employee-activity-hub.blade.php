@@ -45,7 +45,7 @@
                 <div class="eah-stat-icon eah-stat-icon--blue">
                     <x-filament::icon icon="heroicon-o-calendar-days" class="eah-icon" />
                 </div>
-                <div>
+                <div class="eah-stat-content">
                     <div class="eah-stat-value">{{ $todayMeetingsCount }}</div>
                     <div class="eah-stat-label">Agenda hari ini</div>
                 </div>
@@ -55,7 +55,7 @@
                 <div class="eah-stat-icon eah-stat-icon--amber">
                     <x-filament::icon icon="heroicon-o-clipboard-document-list" class="eah-icon" />
                 </div>
-                <div>
+                <div class="eah-stat-content">
                     <div class="eah-stat-value">{{ $documentsNeedActionCount }}</div>
                     <div class="eah-stat-label">Perlu tindakan</div>
                 </div>
@@ -65,7 +65,7 @@
                 <div class="eah-stat-icon eah-stat-icon--emerald">
                     <x-filament::icon icon="heroicon-o-bell" class="eah-icon" />
                 </div>
-                <div>
+                <div class="eah-stat-content">
                     <div class="eah-stat-value">{{ $unreadNotificationsCount }}</div>
                     <div class="eah-stat-label">Notifikasi belum dibaca</div>
                 </div>
@@ -113,11 +113,14 @@
             padding: 1.5rem;
             border-radius: 1.25rem;
             background:
-                radial-gradient(circle at top right, rgba(96, 165, 250, 0.24), transparent 32%),
-                linear-gradient(135deg, #0f172a 0%, #1d4ed8 55%, #2563eb 100%);
+                url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E"),
+                radial-gradient(circle at top right, rgba(96, 165, 250, 0.15), transparent 50%),
+                radial-gradient(circle at bottom left, rgba(37, 99, 235, 0.2), transparent 50%),
+                radial-gradient(circle at center, #1e40af 0%, #1e3a8a 45%, #0f172a 100%);
             color: #fff;
             position: relative;
             overflow: hidden;
+            box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.05);
         }
 
         .eah-hero::after {
@@ -244,63 +247,91 @@
 
         .eah-stat {
             display: flex;
-            gap: 0.95rem;
             align-items: center;
-            background: #fff;
-            border-radius: 1rem;
-            padding: 1rem 1.1rem;
-            border: 1px solid rgba(148, 163, 184, 0.14);
-            box-shadow: 0 18px 40px -32px rgba(15, 23, 42, 0.55);
-            transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease;
+            gap: 1.15rem;
+            background: #ffffff;
+            border-radius: 999px;
+            padding: 0.65rem 1.65rem 0.65rem 0.65rem;
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .eah-stat:hover,
+        .eah-stat:hover {
+            transform: translateY(-4px) scale(1.015);
+            box-shadow: 0 12px 28px -6px rgba(15, 23, 42, 0.12), 0 8px 12px -6px rgba(15, 23, 42, 0.06);
+            border-color: rgba(203, 213, 225, 0.9);
+        }
+
         .eah-panel:hover {
             transform: translateY(-3px);
             box-shadow: 0 22px 50px -30px rgba(37, 99, 235, 0.35);
         }
 
         .eah-stat-icon {
-            width: 2.9rem;
-            height: 2.9rem;
-            border-radius: 0.95rem;
-            display: inline-flex;
+            flex-shrink: 0;
+            width: 3.4rem;
+            height: 3.4rem;
+            border-radius: 50%;
+            display: flex;
             align-items: center;
             justify-content: center;
-            flex-shrink: 0;
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
+            z-index: 2;
+        }
+
+        .eah-stat:hover .eah-stat-icon {
+            transform: scale(1.1) rotate(5deg);
         }
 
         .eah-stat-icon--blue {
-            background: linear-gradient(135deg, #dbeafe, #bfdbfe);
-            color: #1e40af;
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            color: #ffffff;
+            box-shadow: 0 4px 14px -2px rgba(37, 99, 235, 0.4);
         }
 
         .eah-stat-icon--amber {
-            background: linear-gradient(135deg, #e0f2fe, #bae6fd);
-            color: #0284c7;
+            background: linear-gradient(135deg, #f59e0b 0%, #b45309 100%);
+            color: #ffffff;
+            box-shadow: 0 4px 14px -2px rgba(217, 119, 6, 0.4);
         }
 
         .eah-stat-icon--emerald {
-            background: linear-gradient(135deg, #e2e8f0, #cbd5e1);
-            color: #0f172a;
+            background: linear-gradient(135deg, #10b981 0%, #047857 100%);
+            color: #ffffff;
+            box-shadow: 0 4px 14px -2px rgba(5, 150, 105, 0.4);
         }
 
         .eah-icon {
-            width: 1.25rem;
-            height: 1.25rem;
+            width: 1.55rem;
+            height: 1.55rem;
+        }
+
+        .eah-stat-content {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding-right: 0.5rem;
         }
 
         .eah-stat-value {
-            font-size: 1.45rem;
-            font-weight: 800;
+            font-size: 1.6rem;
+            font-weight: 900;
+            line-height: 1.1;
+            letter-spacing: -0.03em;
             color: #0f172a;
-            line-height: 1;
         }
 
         .eah-stat-label {
-            margin-top: 0.3rem;
+            font-size: 0.85rem;
+            font-weight: 700;
             color: #64748b;
-            font-size: 0.92rem;
+            margin-top: 0.2rem;
+            text-transform: capitalize;
+            letter-spacing: -0.01em;
         }
 
         .eah-grid {
@@ -502,68 +533,71 @@
 
         .eah-action {
             display: flex;
-            gap: 0.9rem;
-            padding: 0.95rem 1rem;
-            border-radius: 1rem;
+            align-items: center;
+            gap: 1.15rem;
+            padding: 0.65rem 1.65rem 0.65rem 0.65rem;
+            border-radius: 999px;
             text-decoration: none;
+            background: #ffffff;
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
             color: inherit;
-            border: 1px solid transparent;
-            transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1), border-color 0.22s ease, box-shadow 0.22s ease;
+        }
+
+        .eah-action:hover {
+            transform: translateY(-3px) scale(1.01);
+            border-color: rgba(203, 213, 225, 0.9);
+            box-shadow: 0 10px 24px -6px rgba(15, 23, 42, 0.1), 0 6px 10px -5px rgba(15, 23, 42, 0.05);
         }
 
         .eah-action-icon {
-            width: 2.75rem;
-            height: 2.75rem;
-            border-radius: 0.95rem;
-            display: inline-flex;
+            flex-shrink: 0;
+            width: 3.2rem;
+            height: 3.2rem;
+            border-radius: 50%;
+            display: flex;
             align-items: center;
             justify-content: center;
-            flex-shrink: 0;
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
+            z-index: 2;
         }
 
-        .eah-action--indigo {
-            background: linear-gradient(135deg, #eef2ff, #e0e7ff);
+        .eah-action:hover .eah-action-icon {
+            transform: scale(1.1) rotate(5deg);
         }
 
         .eah-action--indigo .eah-action-icon {
-            background: #c7d2fe;
-            color: #4338ca;
-        }
-
-        .eah-action--blue {
-            background: linear-gradient(135deg, #eff6ff, #dbeafe);
+            background: linear-gradient(135deg, #6366f1 0%, #4338ca 100%);
+            color: #ffffff;
+            box-shadow: 0 4px 14px -2px rgba(79, 70, 229, 0.4);
         }
 
         .eah-action--blue .eah-action-icon {
-            background: #bfdbfe;
-            color: #1d4ed8;
-        }
-
-        .eah-action--emerald {
-            background: linear-gradient(135deg, #ecfdf5, #d1fae5);
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            color: #ffffff;
+            box-shadow: 0 4px 14px -2px rgba(37, 99, 235, 0.4);
         }
 
         .eah-action--emerald .eah-action-icon {
-            background: #a7f3d0;
-            color: #047857;
-        }
-
-        .eah-action--amber {
-            background: linear-gradient(135deg, #fffbeb, #fef3c7);
+            background: linear-gradient(135deg, #10b981 0%, #047857 100%);
+            color: #ffffff;
+            box-shadow: 0 4px 14px -2px rgba(5, 150, 105, 0.4);
         }
 
         .eah-action--amber .eah-action-icon {
-            background: #fde68a;
-            color: #b45309;
-        }
-
-        .eah-action--rose {
-            background: linear-gradient(135deg, #fff1f2, #ffe4e6);
+            background: linear-gradient(135deg, #f59e0b 0%, #b45309 100%);
+            color: #ffffff;
+            box-shadow: 0 4px 14px -2px rgba(217, 119, 6, 0.4);
         }
 
         .eah-action--rose .eah-action-icon {
-            background: #fecdd3;
-            color: #e11d48;
+            background: linear-gradient(135deg, #f43f5e 0%, #be123c 100%);
+            color: #ffffff;
+            box-shadow: 0 4px 14px -2px rgba(225, 29, 72, 0.4);
         }
 
         .eah-action-text {
@@ -688,24 +722,29 @@
             }
 
             .eah-stat {
-                padding: 0.6rem 0.85rem !important;
-                gap: 0.6rem !important;
-                border-radius: 0.8rem !important;
+                padding: 0.5rem 1.25rem 0.5rem 0.5rem !important;
+                border-radius: 999px !important;
+                gap: 0.85rem !important;
             }
 
             .eah-stat-icon {
-                width: 2.2rem !important;
-                height: 2.2rem !important;
-                border-radius: 0.6rem !important;
+                width: 2.8rem !important;
+                height: 2.8rem !important;
+                border-radius: 50% !important;
             }
 
             .eah-stat-value {
-                font-size: 1.15rem !important;
+                font-size: 1.35rem !important;
             }
 
             .eah-stat-label {
                 font-size: 0.75rem !important;
                 margin-top: 0.1rem !important;
+            }
+            
+            .eah-icon {
+                width: 1.25rem !important;
+                height: 1.25rem !important;
             }
 
             .eah-panel {

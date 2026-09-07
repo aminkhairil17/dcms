@@ -458,7 +458,16 @@ class AdminPanelProvider extends PanelProvider
                            PAGE BACKGROUND, FULL WIDTH & ENTRY ANIMATION
                         ================================================ */
                         body, .fi-main, .fi-layout {
-                            background-color: #f0f4f8 !important;
+                            background: linear-gradient(-45deg, #ffffff, #bae6fd, #93c5fd, #ffffff) !important;
+                            background-size: 400% 400% !important;
+                            animation: bg-gradient-animation 10s ease infinite !important;
+                            background-attachment: fixed !important;
+                        }
+
+                        @keyframes bg-gradient-animation {
+                            0% { background-position: 0% 50%; }
+                            50% { background-position: 100% 50%; }
+                            100% { background-position: 0% 50%; }
                         }
 
                         .fi-main-ctn,
@@ -763,6 +772,20 @@ class AdminPanelProvider extends PanelProvider
 
                         .fi-topbar .fi-global-search .fi-input-wrp-prefix .fi-icon {
                             color: #94a3b8 !important;
+                        }
+
+                        /* Strip outer StatsOverview wrapper – cards appear directly on page bg */
+                        .fi-wi-stats-overview,
+                        .fi-wi-stats-overview > div,
+                        .fi-wi-stats-overview-header,
+                        .fi-wi-stats-overview > .fi-section,
+                        .fi-wi-stats-overview .fi-section,
+                        .fi-wi-stats-overview .fi-section-content,
+                        .fi-wi-stats-overview .fi-section-content-ctn {
+                            background: transparent !important;
+                            border: none !important;
+                            box-shadow: none !important;
+                            padding: 0 !important;
                         }
 
                         /* ================================================
@@ -1529,10 +1552,7 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->discoverWidgets(in: app_path('Filament/Admin/Widgets'), for: 'App\Filament\Admin\Widgets')
             ->widgets([
-                MeetingStatsWidget::class,
-                MeetingTodayWidget::class,
-                MeetingInvitedWidget::class,
-                MyCalendarWidget::class,
+                // Widgets are automatically discovered via discoverWidgets()
             ])
             ->middleware([
                 EncryptCookies::class,

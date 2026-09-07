@@ -4,82 +4,57 @@ namespace App\Filament\Admin\Widgets;
 
 use App\Models\Meeting;
 use BezhanSalleh\FilamentShield\Traits\HasWidgetShield;
-use Filament\Widgets\StatsOverviewWidget;
-use Filament\Widgets\StatsOverviewWidget\Stat;
+use Filament\Widgets\Widget;
 use Illuminate\Support\Carbon;
 
-class MeetingStatsWidget extends StatsOverviewWidget
+class MeetingStatsWidget extends Widget
 {
     use HasWidgetShield;
+
+    protected string $view = 'filament.widgets.meeting-stats-widget';
 
     protected int|string|array $columnSpan = 'full';
 
     protected static ?int $sort = 1;
 
-    public function getHeading(): string
+    protected function getPollingInterval(): ?string
     {
-        return 'Statistik Rapat';
+        return '30s';
     }
 
-    protected function getColumns(): int | array | null
-    {
-        return [
-            'default' => 2,
-            'lg'      => 3,
-        ];
-    }
-
-
-    protected function getStats(): array
+    protected function getViewData(): array
     {
         $user  = auth()->user();
         $today = Carbon::today();
 
-        // ── Today ─────────────────────────────────────────
-        $todayQuery = Meeting::query()
+        // Today's meetings
+        $todayCount = Meeting::query()
             ->access()
-            ->where('status', '!=', 'cancelled');
-
-        $todayMeetingsCount = (clone $todayQuery)
+            ->where('status', '!=', 'cancelled')
             ->whereDate('date_time', $today)
             ->count();
 
-        // ── Invited ───────────────────────────────────────
-        $invitedQuery = Meeting::query()
+        // Invited / participating meetings
+        $invitedCount = Meeting::query()
             ->where(function ($q) use ($user) {
                 $q->whereHas('participants', fn($q2) => $q2->where('users.id', $user->id))
-                    ->orWhere('created_by', $user->id);
+                  ->orWhere('created_by', $user->id);
             })
-            ->whereNotIn('status', ['cancelled', 'completed']);
-
-        $invitedMeetingsCount = (clone $invitedQuery)
+            ->whereNotIn('status', ['cancelled', 'completed'])
             ->where('date_time', '>=', now())
             ->count();
 
-        // ── Total Upcoming ────────────────────────────────
-        $totalQuery = Meeting::query()
+        // Total upcoming meetings
+        $upcomingCount = Meeting::query()
             ->access()
-            ->whereNotIn('status', ['cancelled', 'completed']);
-
-        $totalMeetingsCount = (clone $totalQuery)
+            ->whereNotIn('status', ['cancelled', 'completed'])
             ->where('date_time', '>=', now())
             ->count();
 
         return [
-            Stat::make('Rapat Hari Ini', $todayMeetingsCount)
-                ->description('Rapat terjadwal hari ini')
-                ->descriptionIcon('heroicon-m-calendar-days')
-                ->color('primary'),
-
-            Stat::make('Undangan Rapat', $invitedMeetingsCount)
-                ->description('Rapat di mana Anda peserta')
-                ->descriptionIcon('heroicon-m-envelope')
-                ->color('info'),
-
-            Stat::make('Rapat Mendatang', $totalMeetingsCount)
-                ->description('Semua agenda yang akan datang')
-                ->descriptionIcon('heroicon-m-clipboard-document-list')
-                ->color('success'),
+            'todayCount'   => $todayCount,
+            'invitedCount' => $invitedCount,
+            'upcomingCount' => $upcomingCount,
         ];
     }
 }

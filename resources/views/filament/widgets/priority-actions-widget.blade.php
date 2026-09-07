@@ -9,33 +9,32 @@
                 </div>
 
                 @if (count($documentsNeedAction))
-                    <div class="pa-list">
-                        @foreach ($documentsNeedAction as $index => $document)
-                            <a
-                                href="{{ $document['url'] }}"
-                                wire:navigate
-                                class="pa-item"
-                                style="--pa-delay: {{ 80 + $index * 50 }}ms;"
-                            >
-                                <div class="pa-item-header">
-                                    <div class="pa-item-title">{{ $document['title'] }}</div>
-                                    <span class="pa-badge pa-badge--{{ $document['badgeColor'] }}">{{ $document['badge'] }}</span>
-                                </div>
-                                <div class="pa-item-meta">
-                                    <div><span class="pa-item-code">{{ $document['code'] }}</span></div>
-                                    <div class="pa-meta-bottom">
-                                        <span>{{ $document['meta'] }}</span>
-                                        <span class="pa-meta-time"><span class="pa-meta-dot">&bull;</span> {{ $document['updatedAt'] }}</span>
-                                    </div>
-                                </div>
-                            </a>
-                        @endforeach
-                    </div>
+                <div class="pa-list">
+                    @foreach ($documentsNeedAction as $index => $document)
+                    <a
+                        href="{{ $document['url'] }}"
+                        wire:navigate
+                        class="pa-item"
+                        style="--pa-delay: {{ 80 + $index * 50 }}ms;">
+                        <div class="pa-item-header">
+                            <div class="pa-item-title">{{ $document['title'] }}</div>
+                            <span class="pa-badge pa-badge--{{ $document['badgeColor'] }}">{{ $document['badge'] }}</span>
+                        </div>
+                        <div class="pa-item-meta">
+                            <div><span class="pa-item-code">{{ $document['code'] }}</span></div>
+                            <div class="pa-meta-bottom">
+                                <span>{{ $document['meta'] }}</span>
+                                <span class="pa-meta-time"><span class="pa-meta-dot">&bull;</span> {{ $document['updatedAt'] }}</span>
+                            </div>
+                        </div>
+                    </a>
+                    @endforeach
+                </div>
                 @else
-                    <div class="pa-empty">
-                        <div class="pa-empty-title">Tidak ada tindakan mendesak.</div>
-                        <div class="pa-empty-text">Semua dokumen Anda saat ini berada pada jalur yang aman.</div>
-                    </div>
+                <div class="pa-empty">
+                    <div class="pa-empty-title">Tidak ada tindakan mendesak.</div>
+                    <div class="pa-empty-text">Semua dokumen Anda saat ini berada pada jalur yang aman.</div>
+                </div>
                 @endif
             </section>
 
@@ -48,20 +47,19 @@
 
                 <div class="pa-action-list">
                     @foreach ($quickActions as $index => $action)
-                        <a
-                            href="{{ $action['url'] }}"
-                            wire:navigate
-                            class="pa-action pa-action--{{ $action['accent'] }}"
-                            style="--pa-delay: {{ 140 + $index * 55 }}ms;"
-                        >
-                            <span class="pa-action-icon">
-                                <x-filament::icon :icon="$action['icon']" class="pa-icon" />
-                            </span>
-                            <span class="pa-action-text">
-                                <span class="pa-action-title">{{ $action['label'] }}</span>
-                                <span class="pa-action-desc">{{ $action['description'] }}</span>
-                            </span>
-                        </a>
+                    <a
+                        href="{{ $action['url'] }}"
+                        wire:navigate
+                        class="pa-action pa-action--{{ $action['accent'] }}"
+                        style="--pa-delay: {{ 140 + $index * 55 }}ms;">
+                        <span class="pa-action-icon">
+                            <x-filament::icon :icon="$action['icon']" class="pa-icon" />
+                        </span>
+                        <span class="pa-action-text">
+                            <span class="pa-action-title">{{ $action['label'] }}</span>
+                            <span class="pa-action-desc">{{ $action['description'] }}</span>
+                        </span>
+                    </a>
                     @endforeach
                 </div>
             </section>
@@ -69,7 +67,10 @@
     </div>
 
     <style>
-        .pa-shell { display: grid; gap: 0; }
+        .pa-shell {
+            display: grid;
+            gap: 0;
+        }
 
         .pa-grid {
             display: grid;
@@ -79,7 +80,9 @@
         }
 
         @media (max-width: 900px) {
-            .pa-grid { grid-template-columns: 1fr; }
+            .pa-grid {
+                grid-template-columns: 1fr;
+            }
         }
 
         .pa-animate {
@@ -90,18 +93,23 @@
         }
 
         @keyframes pa-rise {
-            to { opacity: 1; transform: translateY(0); }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .pa-panel {
             background: #fff;
             border-radius: 1rem;
-            border: 1px solid rgba(0,0,0,0.07);
+            border: 1px solid rgba(0, 0, 0, 0.07);
             padding: 1.25rem;
-            box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
         }
 
-        .pa-panel-head { margin-bottom: 1rem; }
+        .pa-panel-head {
+            margin-bottom: 1rem;
+        }
 
         .pa-panel-title {
             font-size: 0.95rem;
@@ -116,18 +124,24 @@
         }
 
         /* List items */
-        .pa-list { display: flex; flex-direction: column; gap: 0.35rem; }
+        .pa-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.35rem;
+        }
 
         .pa-item {
             display: flex;
             flex-direction: column;
             gap: 0.4rem;
-            padding: 0.6rem 0.75rem; /* Compact padding */
+            padding: 0.6rem 0.75rem;
+            /* Compact padding */
             border-radius: 0.5rem;
             text-decoration: none;
             color: inherit;
             border: 1px solid #f1f5f9;
-            background: #fafafa; /* Slight distinct background */
+            background: #fafafa;
+            /* Slight distinct background */
             transition: all 0.2s ease;
         }
 
@@ -146,7 +160,8 @@
         }
 
         .pa-item-title {
-            font-size: 0.8rem; /* Smaller font */
+            font-size: 0.8rem;
+            /* Smaller font */
             font-weight: 700;
             color: #0f172a;
             line-height: 1.3;
@@ -185,7 +200,7 @@
             font-size: 0.65rem;
             color: #64748b;
         }
-        
+
         .pa-meta-time {
             white-space: nowrap;
         }
@@ -206,12 +221,35 @@
             white-space: nowrap;
         }
 
-        .pa-badge--amber  { background: #fef3c7; color: #b45309; }
-        .pa-badge--rose   { background: #ffe4e6; color: #e11d48; }
-        .pa-badge--sky    { background: #e0f2fe; color: #0369a1; }
-        .pa-badge--slate  { background: #f1f5f9; color: #475569; }
-        .pa-badge--gray   { background: #f1f5f9; color: #64748b; }
-        .pa-badge--success{ background: #d1fae5; color: #047857; }
+        .pa-badge--amber {
+            background: #fef3c7;
+            color: #b45309;
+        }
+
+        .pa-badge--rose {
+            background: #ffe4e6;
+            color: #e11d48;
+        }
+
+        .pa-badge--sky {
+            background: #e0f2fe;
+            color: #0369a1;
+        }
+
+        .pa-badge--slate {
+            background: #f1f5f9;
+            color: #475569;
+        }
+
+        .pa-badge--gray {
+            background: #f1f5f9;
+            color: #64748b;
+        }
+
+        .pa-badge--success {
+            background: #d1fae5;
+            color: #047857;
+        }
 
         /* Empty state */
         .pa-empty {
@@ -220,11 +258,22 @@
             color: #94a3b8;
         }
 
-        .pa-empty-title { font-weight: 600; color: #64748b; font-size: 0.875rem; }
-        .pa-empty-text  { font-size: 0.8rem; margin-top: 0.25rem; }
+        .pa-empty-title {
+            font-weight: 600;
+            color: #64748b;
+            font-size: 0.875rem;
+        }
+
+        .pa-empty-text {
+            font-size: 0.8rem;
+            margin-top: 0.25rem;
+        }
 
         /* Actions */
-        .pa-action-list { display: grid; gap: 0.65rem; }
+        .pa-action-list {
+            display: grid;
+            gap: 0.65rem;
+        }
 
         .pa-action {
             display: flex;
@@ -240,7 +289,7 @@
 
         .pa-action:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
         }
 
         .pa-action-icon {
@@ -253,21 +302,51 @@
             flex-shrink: 0;
         }
 
-        .pa-icon { width: 1.1rem; height: 1.1rem; }
+        .pa-icon {
+            width: 1.1rem;
+            height: 1.1rem;
+        }
 
-        .pa-action--rose { background: linear-gradient(135deg, #fff1f2, #ffe4e6); }
-        .pa-action--rose .pa-action-icon { background: #fecdd3; color: #e11d48; }
+        .pa-action--rose {
+            background: linear-gradient(135deg, #fff1f2, #ffe4e6);
+        }
 
-        .pa-action--blue { background: linear-gradient(135deg, #eff6ff, #dbeafe); }
-        .pa-action--blue .pa-action-icon { background: #bfdbfe; color: #1d4ed8; }
+        .pa-action--rose .pa-action-icon {
+            background: #fecdd3;
+            color: #e11d48;
+        }
 
-        .pa-action--emerald { background: linear-gradient(135deg, #ecfdf5, #d1fae5); }
-        .pa-action--emerald .pa-action-icon { background: #a7f3d0; color: #047857; }
+        .pa-action--blue {
+            background: linear-gradient(135deg, #eff6ff, #dbeafe);
+        }
 
-        .pa-action--amber { background: linear-gradient(135deg, #fffbeb, #fef3c7); }
-        .pa-action--amber .pa-action-icon { background: #fde68a; color: #b45309; }
+        .pa-action--blue .pa-action-icon {
+            background: #bfdbfe;
+            color: #1d4ed8;
+        }
 
-        .pa-action-text { display: grid; gap: 0.15rem; }
+        .pa-action--emerald {
+            background: linear-gradient(135deg, #ecfdf5, #d1fae5);
+        }
+
+        .pa-action--emerald .pa-action-icon {
+            background: #a7f3d0;
+            color: #047857;
+        }
+
+        .pa-action--amber {
+            background: linear-gradient(135deg, #fffbeb, #fef3c7);
+        }
+
+        .pa-action--amber .pa-action-icon {
+            background: #fde68a;
+            color: #b45309;
+        }
+
+        .pa-action-text {
+            display: grid;
+            gap: 0.15rem;
+        }
 
         .pa-action-title {
             font-size: 0.875rem;

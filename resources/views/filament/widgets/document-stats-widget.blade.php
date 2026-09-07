@@ -91,17 +91,28 @@
     .dms-grid { grid-template-columns: repeat(4, 1fr); }
 }
 .dms-card {
-    background: #fff;
-    border: 1px solid #e2e8f0;
-    border-radius: 8px;
+    background: #ffffff;
+    border: 1.5px solid rgba(0, 0, 0, 0.055);
+    border-radius: 16px;
     overflow: hidden;
     display: flex;
     flex-direction: column;
     box-sizing: border-box;
     min-width: 0;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 4px 16px rgba(0,0,0,0.05);
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+                box-shadow 0.25s ease,
+                border-color 0.25s ease,
+                background-color 0.25s ease;
+}
+.dms-card:hover {
+    transform: translateY(-4px);
+    background-color: #fafcff;
+    border-color: rgba(59, 130, 246, 0.25);
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.06), 0 8px 24px rgba(30, 64, 175, 0.10);
 }
 .dms-card-body {
-    padding: 14px;
+    padding: 16px 18px;
     flex: 1;
     min-width: 0;
 }
@@ -117,6 +128,7 @@
     line-height: 1;
     letter-spacing: -0.02em;
     color: #1e293b;
+    transition: color 0.25s ease;
 }
 .dms-label {
     font-size: 10.5px;
@@ -125,6 +137,7 @@
     letter-spacing: 0.04em;
     color: #64748b;
     margin-top: 5px;
+    transition: color 0.25s ease;
 }
 .dms-sub {
     font-size: 10px;
@@ -133,17 +146,22 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    transition: color 0.25s ease;
 }
 .dms-icon {
     flex-shrink: 0;
-    width: 32px;
-    height: 32px;
-    border-radius: 8px;
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: #f1f5f9;
-    color: #64748b;
+    background: rgba(59, 130, 246, 0.1);
+    color: #2563eb;
+    transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.dms-card:hover .dms-icon {
+    transform: scale(1.15);
 }
 .dms-icon svg { width: 17px; height: 17px; }
 
