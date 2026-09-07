@@ -1543,21 +1543,74 @@ class AdminPanelProvider extends PanelProvider
                                 opacity: 0 !important;
                                 visibility: hidden !important;
                             }
-                        }
 
-                        /* Fix Notification Dropdown Overflow on Mobile */
-                        @media (max-width: 767.98px) {
-                            .fi-topbar .fi-dropdown-panel {
-                                max-width: calc(100vw - 32px) !important;
-                                width: calc(100vw - 32px) !important;
-                                right: 16px !important;
-                                left: 16px !important;
-                                position: fixed !important;
-                                top: 70px !important; /* below topbar */
-                                transform: none !important;
-                                margin: 0 !important;
+                            /* Sempurnakan Tombol Form Actions (Simpan, Kembali) di Mobile */
+                            .fi-form-actions,
+                            .fi-page-actions {
+                                display: flex !important;
+                                flex-direction: row !important;
+                                flex-wrap: nowrap !important;
+                                gap: 10px !important;
+                                width: 100% !important;
+                                padding: 14px 0 !important;
+                                margin-top: 4px !important;
+                            }
+
+                            .fi-form-actions .fi-btn,
+                            .fi-page-actions .fi-btn {
+                                flex: 1 !important; /* Membagi ruang sama rata atau sesuai konten */
+                                height: 42px !important;
+                                border-radius: 10px !important;
+                                font-size: 13.5px !important;
+                                font-weight: 600 !important;
+                                display: inline-flex !important;
+                                align-items: center !important;
+                                justify-content: center !important;
+                                padding: 0 16px !important;
+                                white-space: nowrap !important;
+                            }
+
+                            /* Beri porsi lebih besar pada tombol utama (Simpan Perubahan) jika mau, tapi flex: 1 biasanya sudah bagus */
+                            .fi-form-actions .fi-btn[type="submit"] {
+                                flex: 1.5 !important;
+                            }
+
+                            /* Pastikan tombol sekunder (Kembali) tidak transparan */
+                            .fi-form-actions .fi-btn:not(.fi-color-primary):not([type="submit"]),
+                            .fi-page-actions .fi-btn:not(.fi-color-primary):not([type="submit"]),
+                            .fi-form-actions .fi-btn.fi-color-gray,
+                            .fi-page-actions .fi-btn.fi-color-gray,
+                            .fi-form-actions .fi-btn.fi-btn-color-gray,
+                            .fi-page-actions .fi-btn.fi-btn-color-gray {
+                                background-color: #ffffff !important;
+                                border: 1px solid #cbd5e1 !important;
+                                color: #334155 !important;
+                                box-shadow: 0 1px 2px rgba(0,0,0,0.05) !important;
+                            }
+
+                            /* Override pseudo-element ring border from Filament if any */
+                            .fi-form-actions .fi-btn.fi-color-gray::before,
+                            .fi-page-actions .fi-btn.fi-color-gray::before,
+                            .fi-form-actions .fi-btn.fi-color-gray::after,
+                            .fi-page-actions .fi-btn.fi-color-gray::after {
+                                border: none !important;
+                                box-shadow: none !important;
+                            }
+
+                            .fi-form-actions .fi-btn *,
+                            .fi-page-actions .fi-btn * {
+                                font-size: 13.5px !important;
+                            }
+
+                            .fi-form-actions .fi-btn svg,
+                            .fi-page-actions .fi-btn svg {
+                                width: 16px !important;
+                                height: 16px !important;
+                                margin-right: 4px !important;
                             }
                         }
+
+
                     </style>
 
 
