@@ -28,12 +28,14 @@ $menuGroups = [
     ],
     [
         'label' => 'Dokumen',
-        'items' => [
+        'items' => array_filter([
             ['label' => 'Dokumen Saya',  'url' => url("/{$panelPath}/documents"),         'icon' => 'my_doc',    'color' => '#4f46e5'],
             ['label' => 'Bookmark',      'url' => url("/{$panelPath}/bookmarks"),          'icon' => 'bookmark',  'color' => '#db2777'],
             ['label' => 'Pengingat',     'url' => url("/{$panelPath}/reminders"),          'icon' => 'bell',      'color' => '#ea580c'],
             ['label' => 'Perubahan',     'url' => url("/{$panelPath}/document-change-requests"), 'icon' => 'change', 'color' => '#0f766e'],
-        ],
+            ['label' => 'Compliance',    'url' => url("/{$panelPath}/compliance-hub"),     'icon' => 'compliance', 'color' => '#2563eb'],
+            $isAdmin ? ['label' => 'Recycle Bin', 'url' => url("/{$panelPath}/recycle-bin"),      'icon' => 'recycle',   'color' => '#ef4444'] : null,
+        ]),
     ],
     [
         'label' => 'Rapat',
@@ -47,6 +49,7 @@ $menuGroups = [
         'items' => array_filter([
             $isAdmin ? ['label' => 'Pengguna',    'url' => url("/{$panelPath}/users"),           'icon' => 'users',     'color' => '#1d4ed8'] : null,
             $isAdmin ? ['label' => 'Departemen',  'url' => url("/{$panelPath}/departments"),      'icon' => 'dept',      'color' => '#7c3aed'] : null,
+            $isAdmin ? ['label' => 'Unit',        'url' => url("/{$panelPath}/units"),            'icon' => 'unit',      'color' => '#f59e0b'] : null,
             $isSuperAdmin ? ['label' => 'Perusahaan', 'url' => url("/{$panelPath}/companies"),   'icon' => 'company',   'color' => '#059669'] : null,
             $isAdmin ? ['label' => 'Lokasi Rapat','url' => url("/{$panelPath}/meeting-locations"), 'icon' => 'location', 'color' => '#dc2626'] : null,
             $isSuperAdmin ? ['label' => 'Peran', 'url' => url("/{$panelPath}/shield/roles"),    'icon' => 'role',      'color' => '#9333ea'] : null,
