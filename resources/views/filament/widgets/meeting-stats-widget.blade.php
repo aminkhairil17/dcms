@@ -3,7 +3,7 @@
     <div class="mts-grid">
 
         {{-- Card 1: Rapat Hari Ini --}}
-        <div class="mts-card">
+        <div class="mts-card card-full-width">
             <div class="mts-card-body">
                 <div class="mts-card-head">
                     <div>
@@ -70,8 +70,12 @@
     width: 100%;
     box-sizing: border-box;
 }
+.card-full-width {
+    grid-column: span 2;
+}
 @media (min-width: 1024px) {
     .mts-grid { grid-template-columns: repeat(3, 1fr); }
+    .card-full-width { grid-column: span 1; }
 }
 .mts-card {
     background: #ffffff;

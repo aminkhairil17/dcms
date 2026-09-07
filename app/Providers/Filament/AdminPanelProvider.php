@@ -103,7 +103,6 @@ class AdminPanelProvider extends PanelProvider
                             display: none !important;
                         }
                         .fi-main-ctn, .fi-main {
-                            padding-left: 0 !important;
                             margin-left: 0 !important;
                         }
                         /* Hide hamburger menu button in topbar */
@@ -132,6 +131,11 @@ class AdminPanelProvider extends PanelProvider
                                 border: none !important;
                                 background: transparent !important;
                                 box-shadow: none !important;
+                                margin-left: 0 !important;
+                                margin-right: 0 !important;
+                                padding-left: 0 !important;
+                                padding-right: 0 !important;
+                                width: 100% !important;
                             }
 
                             .fi-ta table,
@@ -140,8 +144,11 @@ class AdminPanelProvider extends PanelProvider
                             .fi-ta .fi-ta-table > tbody {
                                 display: block !important;
                                 width: 100% !important;
+                                max-width: 100vw !important;
                                 box-sizing: border-box !important;
                                 background: transparent !important;
+                                margin: 0 auto !important;
+                                padding: 0 !important;
                             }
 
                             /* Hide header columns on mobile */
@@ -1330,8 +1337,13 @@ class AdminPanelProvider extends PanelProvider
                         @media (max-width: 639.98px) {
                             /* Kurangi padding samping (left & right) di mobile agar layar tidak sempit */
                             .fi-main-ctn {
-                                padding-left: 8px !important;
-                                padding-right: 8px !important;
+                                padding-left: 12px !important;
+                                padding-right: 12px !important;
+                                margin-left: auto !important;
+                                margin-right: auto !important;
+                                width: 100% !important;
+                                max-width: 100vw !important;
+                                box-sizing: border-box !important;
                             }
 
                             .fi-page {

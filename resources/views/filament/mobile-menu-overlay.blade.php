@@ -29,6 +29,7 @@ $menuGroups = [
     [
         'label' => 'Dokumen',
         'items' => array_filter([
+            ['label' => 'Dasbor Dokumen', 'url' => url("/{$panelPath}/dasbor-manajemen-dokumen"), 'icon' => 'dashboard', 'color' => '#f59e0b'],
             ['label' => 'Dokumen Saya',  'url' => url("/{$panelPath}/documents"),         'icon' => 'my_doc',    'color' => '#4f46e5'],
             ['label' => 'Bookmark',      'url' => url("/{$panelPath}/bookmarks"),          'icon' => 'bookmark',  'color' => '#db2777'],
             ['label' => 'Pengingat',     'url' => url("/{$panelPath}/reminders"),          'icon' => 'bell',      'color' => '#ea580c'],
