@@ -428,33 +428,127 @@
 
 /* ── Mobile ──────────────────────────────── */
 @media (max-width: 768px) {
-    .dcms-analytics-wrap { gap: 0.85rem; }
-    .dcms-kpi-row, .dcms-charts-row { grid-template-columns: 1fr; gap: 0.85rem; }
-    .dcms-kpi-card, .dcms-chart-panel { padding: 1rem; border-radius: 1rem; }
-    
-    .dcms-kpi-value { font-size: 1.6rem; }
-    .dcms-kpi-label { font-size: 0.85rem; }
-    .dcms-kpi-footer { font-size: 0.75rem; margin-top: 0.75rem; padding-top: 0.75rem; }
-    .dcms-kpi-icon-wrap { width: 2.25rem; height: 2.25rem; }
-    .dcms-kpi-icon-wrap svg { width: 16px; height: 16px; }
+    .dcms-analytics-wrap { gap: 0.65rem; }
+    .dcms-charts-row { grid-template-columns: 1fr; gap: 0.65rem; }
+    .dcms-kpi-card, .dcms-chart-panel { padding: 0.875rem; border-radius: 0.875rem; }
 
-    .dcms-panel-title { font-size: 0.8rem; margin-bottom: 1rem; }
-    .dcms-panel-icon { width: 1.75rem; height: 1.75rem; border-radius: 0.5rem; }
-    .dcms-panel-icon svg { width: 13px; height: 13px; }
+    /* ── 3-Grid KPI layout on mobile ── */
+    .dcms-kpi-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: auto auto;
+        gap: 0.5rem;
+    }
 
-    .dcms-bar-chart { height: 120px; }
-    .dcms-status-list { gap: 0.75rem; }
-    .dcms-status-name { width: 90px; font-size: 0.75rem; }
-    .dcms-status-count { font-size: 0.8rem; }
-    
-    .dcms-dept-list { gap: 0.85rem; }
-    .dcms-dept-name { font-size: 0.75rem; }
-    .dcms-dept-count { font-size: 0.85rem; }
+    /* Card 1 (Hari Rata-rata Approval): full-width, normal rectangle height */
+    .dcms-kpi-row .dcms-kpi-card:nth-child(1) {
+        grid-column: 1 / -1;
+        flex-direction: row;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 0.75rem;
+        padding: 0.875rem 1rem;
+        min-height: 72px;
+    }
+    .dcms-kpi-row .dcms-kpi-card:nth-child(1) .dcms-kpi-header {
+        margin-bottom: 0;
+        flex-shrink: 0;
+    }
+    .dcms-kpi-row .dcms-kpi-card:nth-child(1) .dcms-kpi-icon-wrap {
+        width: 2rem;
+        height: 2rem;
+    }
+    .dcms-kpi-row .dcms-kpi-card:nth-child(1) .dcms-kpi-body {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.1rem;
+        flex: 1;
+        min-width: 0;
+    }
+    .dcms-kpi-row .dcms-kpi-card:nth-child(1) .dcms-kpi-value {
+        font-size: 1.5rem;
+        white-space: nowrap;
+    }
+    .dcms-kpi-row .dcms-kpi-card:nth-child(1) .dcms-kpi-label {
+        font-size: 0.72rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .dcms-kpi-row .dcms-kpi-card:nth-child(1) .dcms-kpi-footer {
+        margin-top: 0;
+        padding-top: 0;
+        border-top: none;
+        font-size: 0.65rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        margin-left: auto;
+        border-left: 1px dashed #e2e8f0;
+        padding-left: 0.75rem;
+        align-self: center;
+        flex-shrink: 0;
+        max-width: 120px;
+    }
 
-    .dcms-creator-row { gap: 8px; padding: 0.4rem 0.6rem; }
-    .dcms-creator-rank { width: 24px; height: 24px; font-size: 0.7rem; }
-    .dcms-creator-name { font-size: 0.8rem; }
-    .dcms-creator-badge { font-size: 0.7rem; padding: 0.2rem 0.5rem; }
+    /* Card 2 & 3: side by side, horizontal landscape rectangles */
+    .dcms-kpi-row .dcms-kpi-card:nth-child(2),
+    .dcms-kpi-row .dcms-kpi-card:nth-child(3) {
+        grid-column: span 1;
+        flex-direction: row;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 0.6rem;
+        padding: 0.75rem;
+        min-height: 76px;
+    }
+    .dcms-kpi-row .dcms-kpi-card:nth-child(2) .dcms-kpi-header,
+    .dcms-kpi-row .dcms-kpi-card:nth-child(3) .dcms-kpi-header {
+        margin-bottom: 0;
+        flex-shrink: 0;
+    }
+    .dcms-kpi-row .dcms-kpi-card:nth-child(2) .dcms-kpi-icon-wrap,
+    .dcms-kpi-row .dcms-kpi-card:nth-child(3) .dcms-kpi-icon-wrap {
+        width: 1.75rem;
+        height: 1.75rem;
+    }
+    .dcms-kpi-row .dcms-kpi-card:nth-child(2) .dcms-kpi-body,
+    .dcms-kpi-row .dcms-kpi-card:nth-child(3) .dcms-kpi-body {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.05rem;
+        min-width: 0;
+    }
+    .dcms-kpi-row .dcms-kpi-card:nth-child(2) .dcms-kpi-footer,
+    .dcms-kpi-row .dcms-kpi-card:nth-child(3) .dcms-kpi-footer {
+        display: none;
+    }
+
+    .dcms-kpi-value { font-size: 1.3rem; }
+    .dcms-kpi-label { font-size: 0.7rem; }
+    .dcms-kpi-footer { font-size: 0.65rem; margin-top: 0.5rem; padding-top: 0.5rem; }
+    .dcms-kpi-icon-wrap { width: 1.75rem; height: 1.75rem; }
+    .dcms-kpi-icon-wrap svg { width: 13px; height: 13px; }
+
+    .dcms-panel-title { font-size: 0.78rem; margin-bottom: 0.85rem; }
+    .dcms-panel-icon { width: 1.6rem; height: 1.6rem; border-radius: 0.4rem; }
+    .dcms-panel-icon svg { width: 12px; height: 12px; }
+
+    .dcms-bar-chart { height: 110px; }
+    .dcms-status-list { gap: 0.65rem; }
+    .dcms-status-name { width: 80px; font-size: 0.72rem; }
+    .dcms-status-count { font-size: 0.75rem; }
+
+    .dcms-dept-list { gap: 0.75rem; }
+    .dcms-dept-name { font-size: 0.72rem; }
+    .dcms-dept-count { font-size: 0.8rem; }
+
+    .dcms-creator-row { gap: 8px; padding: 0.35rem 0.55rem; }
+    .dcms-creator-rank { width: 22px; height: 22px; font-size: 0.65rem; }
+    .dcms-creator-name { font-size: 0.75rem; }
+    .dcms-creator-badge { font-size: 0.65rem; padding: 0.15rem 0.45rem; }
 }
+
+
 </style>
 </x-filament-widgets::widget>

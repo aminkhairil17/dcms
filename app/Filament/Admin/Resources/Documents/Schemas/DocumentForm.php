@@ -406,16 +406,18 @@ class DocumentForm
                             $user = Auth::user();
                             $canDirectApprove = $user && ($user->can('direct_approve_document') || $user->hasRole(['direktur', 'super_admin']));
 
+                            $style = '<style>.hlp-desk{display:inline}.hlp-mob{display:none}@media(max-width:767px){.hlp-desk{display:none}.hlp-mob{display:inline}}</style>';
+
                             if ($canDirectApprove) {
-                                return 'Draft = simpan sementara. Diterbitkan = dokumen langsung diterbitkan & aktif (akses Direktur).';
+                                return new \Illuminate\Support\HtmlString($style . '<span class="hlp-desk">Draft = simpan sementara. Diterbitkan = dokumen langsung diterbitkan &amp; aktif (akses Direktur).</span><span class="hlp-mob">Draft: simpan sementara. Diterbitkan: langsung aktif.</span>');
                             }
 
-                            return 'Draft = simpan sementara. Pending = ajukan dokumen untuk peninjauan persetujuan.';
+                            return new \Illuminate\Support\HtmlString($style . '<span class="hlp-desk">Draft = simpan sementara. Pending = ajukan dokumen untuk peninjauan persetujuan.</span><span class="hlp-mob">Draft: simpan sementara. Pending: ajukan review.</span>');
                         }),
 
                     Toggle::make('is_public')
                         ->label('Dokumen Publik (Terlihat oleh semua departemen)')
-                        ->helperText('Jika diaktifkan, dokumen ini dapat dilihat oleh seluruh departemen dalam perusahaan. Jika dinonaktifkan, hanya departemen Anda yang bisa melihat.')
+                        ->helperText(new \Illuminate\Support\HtmlString('<span class="hlp-desk">Jika diaktifkan, dokumen ini dapat dilihat oleh seluruh departemen dalam perusahaan. Jika dinonaktifkan, hanya departemen Anda yang bisa melihat.</span><span class="hlp-mob">Aktif: terlihat semua dept. Nonaktif: hanya dept. Anda.</span>'))
                         ->default(false),
                 ]),
 
@@ -452,12 +454,12 @@ class DocumentForm
                         ->rows(3)
                         ->maxLength(1000)
                         ->placeholder('Tuliskan deskripsi singkat tentang dokumen ini (opsional)...')
-                        ->helperText('Deskripsi membantu reviewer dan pengguna lain memahami isi dokumen dengan cepat.'),
+                        ->helperText(new \Illuminate\Support\HtmlString('<span class="hlp-desk">Deskripsi membantu reviewer dan pengguna lain memahami isi dokumen dengan cepat.</span><span class="hlp-mob">Bantu reviewer memahami isi dokumen.</span>')),
 
                     // ── Expired Date + "Berlaku Selamanya" ──
                     Toggle::make('is_permanent')
                         ->label('Berlaku Selamanya')
-                        ->helperText('Aktifkan jika dokumen tidak memiliki batas masa berlaku.')
+                        ->helperText(new \Illuminate\Support\HtmlString('<span class="hlp-desk">Aktifkan jika dokumen tidak memiliki batas masa berlaku.</span><span class="hlp-mob">Tanpa batas masa berlaku.</span>'))
                         ->default(true)
                         ->live()
                         ->afterStateUpdated(function (bool $state, Set $set): void {
@@ -481,7 +483,7 @@ class DocumentForm
 
                     Toggle::make('is_mandatory_read')
                         ->label('Wajib Dibaca (Compliance Hub)')
-                        ->helperText('Aktifkan agar dokumen ini muncul sebagai dokumen wajib baca untuk pegawai divisi terkait.')
+                        ->helperText(new \Illuminate\Support\HtmlString('<span class="hlp-desk">Aktifkan agar dokumen ini muncul sebagai dokumen wajib baca untuk pegawai divisi terkait.</span><span class="hlp-mob">Dokumen wajib baca untuk divisi terkait.</span>'))
                         ->default(false),
                 ]),
 

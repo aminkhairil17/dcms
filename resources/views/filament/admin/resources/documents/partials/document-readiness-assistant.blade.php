@@ -4,6 +4,7 @@
             opacity: 0;
             transform: translateY(8px);
         }
+
         100% {
             opacity: 1;
             transform: translateY(0);
@@ -33,11 +34,11 @@
         border: 1.5px solid rgba(148, 163, 184, 0.25) !important;
         border-radius: 9999px !important;
         padding: 0 0.875rem 0 0.5rem !important;
-        box-shadow: 0 8px 24px -4px rgba(15, 23, 42, 0.14), 0 2px 8px rgba(0,0,0,0.04) !important;
+        box-shadow: 0 8px 24px -4px rgba(15, 23, 42, 0.14), 0 2px 8px rgba(0, 0, 0, 0.04) !important;
         will-change: transform, left, top, box-shadow;
         transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
-                    box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1),
-                    border-color 0.35s ease !important;
+            box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+            border-color 0.35s ease !important;
         animation: dms-badge-enter 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
     }
 
@@ -60,9 +61,9 @@
 
     #dms-readiness-badge.snapping {
         transition: left 0.7s cubic-bezier(0.16, 1, 0.3, 1),
-                    top  0.7s cubic-bezier(0.16, 1, 0.3, 1),
-                    transform 0.35s ease,
-                    box-shadow 0.35s ease !important;
+            top 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+            transform 0.35s ease,
+            box-shadow 0.35s ease !important;
     }
 
     #dms-readiness-badge.dragging {
@@ -158,8 +159,37 @@
         .dms-badge-title {
             font-size: 0.7rem;
         }
+
         .dms-badge-sub {
             font-size: 0.62rem;
+        }
+    }
+
+    /* ── Desktop: larger badge ── */
+    @media (min-width: 1024px) {
+        #dms-readiness-badge {
+            height: 58px !important;
+            gap: 0.75rem !important;
+            padding: 0 1.25rem 0 0.75rem !important;
+            border-radius: 9999px !important;
+            box-shadow: 0 10px 32px -4px rgba(15, 23, 42, 0.18), 0 4px 12px rgba(0, 0, 0, 0.06) !important;
+        }
+
+        .dms-ring-wrap {
+            width: 3rem;
+            height: 3rem;
+        }
+
+        .dms-ring-pct {
+            font-size: 0.72rem;
+        }
+
+        .dms-badge-title {
+            font-size: 0.92rem;
+        }
+
+        .dms-badge-sub {
+            font-size: 0.8rem;
         }
     }
 </style>
@@ -175,15 +205,15 @@
                 <svg viewBox="0 0 36 36">
                     <defs>
                         <linearGradient id="dmsGradId" x1="0%" y1="0%" x2="100%" y2="0%">
-                            <stop offset="0%"   stop-color="#2563eb"/>
-                            <stop offset="100%" stop-color="#38bdf8"/>
+                            <stop offset="0%" stop-color="#2563eb" />
+                            <stop offset="100%" stop-color="#38bdf8" />
                         </linearGradient>
                     </defs>
                     <path class="dms-ring-bg-path"
-                        d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                        d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
                     <path class="dms-ring-fg-path" id="dms-ring-fill"
                         stroke-dasharray="{{ $progress }}, 100"
-                        d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                        d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
                 </svg>
                 <span class="dms-ring-pct" id="dms-pct-text">{{ $progress }}%</span>
             </div>
@@ -197,145 +227,163 @@
 </div>
 
 <script>
-(function () {
-    function initBadge() {
-        const badge = document.getElementById('dms-readiness-badge');
-        if (!badge) { setTimeout(initBadge, 100); return; }
-
-        const PAD   = 20;
-        let dragging = false;
-        let ox = 0, oy = 0; // offset from pointer to badge top-left
-        let raf = null;
-        let pendingX = 0, pendingY = 0;
-
-        /* ── Get topbar bottom edge (blue bar) as minimum Y ── */
-        function getTopbarHeight() {
-            const topbar = document.querySelector('.fi-topbar-ctn');
-            return topbar ? (topbar.getBoundingClientRect().bottom + PAD) : PAD;
-        }
-
-        /* ── Get bottom navbar height as maximum Y offset ── */
-        function getBottomPad() {
-            const bottomNav = document.querySelector('.dcms-mobile-bottom-bar');
-            if (bottomNav && window.getComputedStyle(bottomNav).display !== 'none') {
-                return bottomNav.getBoundingClientRect().height + PAD;
+    (function() {
+        function initBadge() {
+            const badge = document.getElementById('dms-readiness-badge');
+            if (!badge) {
+                setTimeout(initBadge, 100);
+                return;
             }
-            return PAD;
-        }
 
-        /* ── Restore saved position ── */
-        try {
-            const saved = JSON.parse(localStorage.getItem('dms_badge_v4') || 'null');
-            if (saved && typeof saved.left === 'number' && typeof saved.top === 'number' && saved.left >= 0 && saved.left <= window.innerWidth - 60 && saved.top >= 0 && saved.top <= window.innerHeight - 40) {
+            const PAD = 20;
+            let dragging = false;
+            let ox = 0,
+                oy = 0; // offset from pointer to badge top-left
+            let raf = null;
+            let pendingX = 0,
+                pendingY = 0;
+
+            /* ── Get topbar bottom edge (blue bar) as minimum Y ── */
+            function getTopbarHeight() {
+                const topbar = document.querySelector('.fi-topbar-ctn');
+                return topbar ? (topbar.getBoundingClientRect().bottom + PAD) : PAD;
+            }
+
+            /* ── Get bottom navbar height as maximum Y offset ── */
+            function getBottomPad() {
+                const bottomNav = document.querySelector('.dcms-mobile-bottom-bar');
+                if (bottomNav && window.getComputedStyle(bottomNav).display !== 'none') {
+                    return bottomNav.getBoundingClientRect().height + PAD;
+                }
+                return PAD;
+            }
+
+            /* ── Restore saved position ── */
+            try {
+                const saved = JSON.parse(localStorage.getItem('dms_badge_v4') || 'null');
+                if (saved && typeof saved.left === 'number' && typeof saved.top === 'number' && saved.left >= 0 && saved.left <= window.innerWidth - 60 && saved.top >= 0 && saved.top <= window.innerHeight - 40) {
+                    const minY = getTopbarHeight();
+                    const badgeRect = badge.getBoundingClientRect();
+                    const h = (badgeRect && badgeRect.height > 0) ? badgeRect.height : 52;
+                    const maxTop = window.innerHeight - h - getBottomPad();
+                    badge.style.right = 'auto';
+                    badge.style.bottom = 'auto';
+                    badge.style.left = Math.max(PAD, Math.min(saved.left, window.innerWidth - 120)) + 'px';
+                    /* clamp saved top so it doesn't restore above topbar or below bottom navbar */
+                    badge.style.top = Math.min(Math.max(minY, saved.top), Math.max(minY, maxTop)) + 'px';
+                } else {
+                    localStorage.removeItem('dms_badge_v4');
+                }
+            } catch (e) {}
+
+            /* ── Snap to nearest left/right edge ── */
+            function snapToEdge() {
+                const rect = badge.getBoundingClientRect();
+                const W = window.innerWidth;
+                const cx = rect.left + rect.width / 2;
                 const minY = getTopbarHeight();
-                const badgeRect = badge.getBoundingClientRect();
-                const h = (badgeRect && badgeRect.height > 0) ? badgeRect.height : 52;
-                const maxTop  = window.innerHeight - h - getBottomPad();
-                badge.style.right  = 'auto';
-                badge.style.bottom = 'auto';
-                badge.style.left   = Math.max(PAD, Math.min(saved.left, window.innerWidth - 120)) + 'px';
-                /* clamp saved top so it doesn't restore above topbar or below bottom navbar */
-                badge.style.top    = Math.min(Math.max(minY, saved.top), Math.max(minY, maxTop)) + 'px';
-            } else {
-                localStorage.removeItem('dms_badge_v4');
+                const maxTop = window.innerHeight - rect.height - getBottomPad();
+
+                /* Always snap left or right */
+                const snapLeft = cx < W / 2 ?
+                    PAD :
+                    W - rect.width - PAD;
+
+                /* Clamp top — never above topbar, never below bottom navbar */
+                const snapTop = Math.min(
+                    Math.max(minY, rect.top),
+                    Math.max(minY, maxTop)
+                );
+
+                badge.classList.add('snapping');
+                badge.style.left = snapLeft + 'px';
+                badge.style.top = snapTop + 'px';
+
+                localStorage.setItem('dms_badge_v4', JSON.stringify({
+                    left: snapLeft,
+                    top: snapTop
+                }));
+
+                setTimeout(() => badge.classList.remove('snapping'), 750);
             }
-        } catch(e) {}
 
-        /* ── Snap to nearest left/right edge ── */
-        function snapToEdge() {
-            const rect   = badge.getBoundingClientRect();
-            const W      = window.innerWidth;
-            const cx     = rect.left + rect.width / 2;
-            const minY   = getTopbarHeight();
-            const maxTop = window.innerHeight - rect.height - getBottomPad();
+            /* ── Pointer start ── */
+            function onStart(e) {
+                e.preventDefault();
+                dragging = true;
 
-            /* Always snap left or right */
-            const snapLeft = cx < W / 2
-                ? PAD
-                : W - rect.width - PAD;
+                const rect = badge.getBoundingClientRect();
+                badge.style.right = 'auto';
+                badge.style.bottom = 'auto';
+                badge.style.left = rect.left + 'px';
+                badge.style.top = rect.top + 'px';
+                badge.classList.remove('snapping');
+                badge.classList.add('dragging');
 
-            /* Clamp top — never above topbar, never below bottom navbar */
-            const snapTop = Math.min(
-                Math.max(minY, rect.top),
-                Math.max(minY, maxTop)
-            );
+                const pt = e.touches ? e.touches[0] : e;
+                ox = pt.clientX - rect.left;
+                oy = pt.clientY - rect.top;
 
-            badge.classList.add('snapping');
-            badge.style.left = snapLeft + 'px';
-            badge.style.top  = snapTop  + 'px';
+                window.addEventListener('pointermove', onMove, {
+                    passive: false
+                });
+                window.addEventListener('pointerup', onEnd);
+                window.addEventListener('touchmove', onMove, {
+                    passive: false
+                });
+                window.addEventListener('touchend', onEnd);
+            }
 
-            localStorage.setItem('dms_badge_v4', JSON.stringify({ left: snapLeft, top: snapTop }));
+            /* ── Pointer move (via rAF for smoothness) ── */
+            function onMove(e) {
+                e.preventDefault();
+                const pt = e.touches ? e.touches[0] : e;
+                const rect = badge.getBoundingClientRect();
+                const W = window.innerWidth,
+                    H = window.innerHeight;
+                const minY = getTopbarHeight();
+                const maxTop = H - rect.height - getBottomPad();
+                pendingX = Math.min(Math.max(PAD, pt.clientX - ox), W - rect.width - PAD);
+                /* Clamp Y so badge never enters topbar or bottom navbar area */
+                pendingY = Math.min(Math.max(minY, pt.clientY - oy), Math.max(minY, maxTop));
+                if (!raf) raf = requestAnimationFrame(applyMove);
+            }
 
-            setTimeout(() => badge.classList.remove('snapping'), 750);
+            function applyMove() {
+                raf = null;
+                badge.style.left = pendingX + 'px';
+                badge.style.top = pendingY + 'px';
+            }
+
+            /* ── Pointer end ── */
+            function onEnd() {
+                if (!dragging) return;
+                dragging = false;
+                badge.classList.remove('dragging');
+
+                window.removeEventListener('pointermove', onMove);
+                window.removeEventListener('pointerup', onEnd);
+                window.removeEventListener('touchmove', onMove);
+                window.removeEventListener('touchend', onEnd);
+
+                if (raf) {
+                    cancelAnimationFrame(raf);
+                    raf = null;
+                }
+
+                snapToEdge();
+            }
+
+            badge.addEventListener('pointerdown', onStart);
+            badge.addEventListener('touchstart', onStart, {
+                passive: false
+            });
         }
 
-        /* ── Pointer start ── */
-        function onStart(e) {
-            e.preventDefault();
-            dragging = true;
-
-            const rect = badge.getBoundingClientRect();
-            badge.style.right  = 'auto';
-            badge.style.bottom = 'auto';
-            badge.style.left   = rect.left + 'px';
-            badge.style.top    = rect.top  + 'px';
-            badge.classList.remove('snapping');
-            badge.classList.add('dragging');
-
-            const pt = e.touches ? e.touches[0] : e;
-            ox = pt.clientX - rect.left;
-            oy = pt.clientY - rect.top;
-
-            window.addEventListener('pointermove', onMove, { passive: false });
-            window.addEventListener('pointerup',   onEnd);
-            window.addEventListener('touchmove',   onMove, { passive: false });
-            window.addEventListener('touchend',    onEnd);
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initBadge);
+        } else {
+            initBadge();
         }
-
-        /* ── Pointer move (via rAF for smoothness) ── */
-        function onMove(e) {
-            e.preventDefault();
-            const pt     = e.touches ? e.touches[0] : e;
-            const rect   = badge.getBoundingClientRect();
-            const W      = window.innerWidth, H = window.innerHeight;
-            const minY   = getTopbarHeight();
-            const maxTop = H - rect.height - getBottomPad();
-            pendingX = Math.min(Math.max(PAD, pt.clientX - ox), W - rect.width  - PAD);
-            /* Clamp Y so badge never enters topbar or bottom navbar area */
-            pendingY = Math.min(Math.max(minY, pt.clientY - oy), Math.max(minY, maxTop));
-            if (!raf) raf = requestAnimationFrame(applyMove);
-        }
-
-        function applyMove() {
-            raf = null;
-            badge.style.left = pendingX + 'px';
-            badge.style.top  = pendingY + 'px';
-        }
-
-        /* ── Pointer end ── */
-        function onEnd() {
-            if (!dragging) return;
-            dragging = false;
-            badge.classList.remove('dragging');
-
-            window.removeEventListener('pointermove', onMove);
-            window.removeEventListener('pointerup',   onEnd);
-            window.removeEventListener('touchmove',   onMove);
-            window.removeEventListener('touchend',    onEnd);
-
-            if (raf) { cancelAnimationFrame(raf); raf = null; }
-
-            snapToEdge();
-        }
-
-        badge.addEventListener('pointerdown', onStart);
-        badge.addEventListener('touchstart',  onStart, { passive: false });
-    }
-
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initBadge);
-    } else {
-        initBadge();
-    }
-})();
+    })();
 </script>
