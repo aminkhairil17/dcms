@@ -46,13 +46,23 @@
             </div>
             <span style="background:#fff1f2;color:#be123c;border:1px solid #fca5a5;border-radius:20px;padding:2px 8px;font-size:10px;font-weight:700;flex-shrink:0;white-space:nowrap;">Dihapus</span>
         </div>
-        <div style="padding:8px 14px;display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+        <div style="padding:8px 14px;display:grid;grid-template-columns:1fr 1fr;gap:6px;border-bottom:1px solid #fca5a5;">
             @if($department)<div><div style="font-size:9.5px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:0.04em;margin-bottom:2px;">Departemen</div><div style="font-size:11.5px;font-weight:600;color:#1e293b;">{{ $department }}</div></div>@endif
             <div>
                 <div style="font-size:9.5px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:0.04em;margin-bottom:2px;">Dihapus Pada</div>
                 <div style="font-size:11px;font-weight:600;color:#be123c;">{{ $deletedAt }}</div>
                 @if($deletedAgo)<div style="font-size:10px;color:#94a3b8;">{{ $deletedAgo }}</div>@endif
             </div>
+        </div>
+        <div style="background:#fff5f5;padding:10px 14px;display:flex;justify-content:flex-end;gap:8px;">
+            <button type="button" wire:click="mountTableAction('restore', '{{ $record->getKey() }}')" style="background:#10b981;color:#fff;border:none;border-radius:6px;padding:6px 12px;font-size:11px;font-weight:700;display:flex;align-items:center;gap:4px;cursor:pointer;">
+                <svg style="width:14px;height:14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" /></svg>
+                Pulihkan
+            </button>
+            <button type="button" wire:click="mountTableAction('forceDelete', '{{ $record->getKey() }}')" style="background:#ef4444;color:#fff;border:none;border-radius:6px;padding:6px 12px;font-size:11px;font-weight:700;display:flex;align-items:center;gap:4px;cursor:pointer;">
+                <svg style="width:14px;height:14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                Hapus Permanen
+            </button>
         </div>
     </div>
 </div>

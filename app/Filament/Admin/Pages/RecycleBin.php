@@ -3,8 +3,6 @@
 namespace App\Filament\Admin\Pages;
 
 use App\Models\Document;
-use Filament\Actions\ForceDeleteAction;
-use Filament\Actions\RestoreAction;
 use Filament\Pages\Page;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
@@ -59,10 +57,10 @@ class RecycleBin extends Page implements HasTable
                     ->visibleFrom('md'),
             ])
             ->actions([
-                RestoreAction::make()
+                \Filament\Actions\RestoreAction::make()
                     ->label('Pulihkan')
                     ->successNotificationTitle('Dokumen dipulihkan'),
-                ForceDeleteAction::make()
+                \Filament\Actions\ForceDeleteAction::make()
                     ->label('Hapus Permanen')
                     ->successNotificationTitle('Dokumen dihapus permanen'),
             ])
