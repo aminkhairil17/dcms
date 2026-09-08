@@ -34,7 +34,7 @@
                     </a>
                 @else
                     <div class="eah-next-empty">
-                        Belum ada agenda rapat mendatang. Gunakan tombol cepat di samping untuk mulai menjadwalkan aktivitas baru.
+                        Belum ada agenda rapat mendatang.
                     </div>
                 @endif
             </div>

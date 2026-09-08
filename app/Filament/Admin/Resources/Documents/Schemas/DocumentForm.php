@@ -71,17 +71,14 @@ class DocumentForm
                         ->label('')
                         ->options([
                             'file' => 'Unggah Berkas',
-                            'form' => 'Buat dari Formulir',
                             'hybrid' => 'Gabungan',
                         ])
                         ->icons([
                             'file' => 'heroicon-o-paper-clip',
-                            'form' => 'heroicon-o-pencil-square',
                             'hybrid' => 'heroicon-o-squares-plus',
                         ])
                         ->colors([
                             'file' => 'primary',
-                            'form' => 'primary',
                             'hybrid' => 'warning',
                         ])
                         ->default('file')

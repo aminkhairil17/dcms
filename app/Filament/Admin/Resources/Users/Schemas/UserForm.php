@@ -20,9 +20,9 @@ class UserForm
             TextInput::make('username')->required()->maxLength(255),
             TextInput::make('password')
                 ->password()
-                ->dehydrateStateUsing(fn ($state) => filled($state) ? bcrypt($state) : null)
-                ->dehydrated(fn ($state) => filled($state))
-                ->required(fn (string $context): bool => $context === 'create'),
+                ->dehydrateStateUsing(fn($state) => filled($state) ? bcrypt($state) : null)
+                ->dehydrated(fn($state) => filled($state))
+                ->required(fn(string $context): bool => $context === 'create'),
             Select::make('company_id')
                 ->label('Perusahaan')
                 ->options(Company::where('is_active', true)->pluck('name', 'id'))
